@@ -1,26 +1,36 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/database"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
 
 func main() {
 	db := database.CreateDatabase()
 
-	fmt.Println(db.TbEmployees)
+	// repositories setup
+	employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
 
-	rt := initRoutes()
+	// services
+	employeeSv := service.CreateEmployeeService(employeeRp)
+
+	// handlers
+	employeeHd := handler.CreateEmployeeHandler(employeeSv)
+
+	// routes setup
+	rt := initRoutes(employeeHd)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
 	}
 }
 
-func initRoutes() *chi.Mux {
+func initRoutes(employeeHandler *handler.EmployeeHandler) *chi.Mux {
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
@@ -63,5 +73,12 @@ func initRoutes() *chi.Mux {
 		rt.Delete("/{id}", nil)
 	})
 
+	rt.Route("/api/v1/employees", func(r chi.Router) {
+		r.Get("/", employeeHandler.GetEmployeesHandler)
+		// rt.Get("/{id}", nil)
+		// rt.Post("/", nil)
+		// rt.Patch("/{id}", nil)
+		// rt.Delete("/{id}", nil)
+	})
 	return rt
 }
