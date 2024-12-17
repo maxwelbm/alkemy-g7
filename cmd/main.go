@@ -1,12 +1,17 @@
-package cmd
+package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/cmd/database"
 )
 
 func main() {
+	db := database.CreateDatabase()
+
+	fmt.Println(db.TbEmployees)
 
 	rt := initRoutes()
 
@@ -35,14 +40,6 @@ func initRoutes() *chi.Mux {
 	})
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
-		rt.Get("/", nil)
-		rt.Get("/{id}", nil)
-		rt.Post("/", nil)
-		rt.Patch("/{id}", nil)
-		rt.Delete("/{id}", nil)
-	})
-
-	rt.Route("/api/v1/buyers", func(r chi.Router) {
 		rt.Get("/", nil)
 		rt.Get("/{id}", nil)
 		rt.Post("/", nil)
