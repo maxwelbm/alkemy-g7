@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/aadaniel_meli/meli-fresh-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
 type Database struct {
