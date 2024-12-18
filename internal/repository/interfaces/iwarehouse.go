@@ -1,5 +1,7 @@
 package interfaces
 
+import "github.com/maxwelbm/alkemy-g7.git/internal/model"
+
 type IWarehouseRepo interface {
 	Get() (map[int]model.WareHouse, error)
 	GetById(id int) (model.WareHouse, error)
