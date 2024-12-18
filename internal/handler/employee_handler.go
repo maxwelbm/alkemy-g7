@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type EmployeeJSON struct {
@@ -26,6 +30,7 @@ type EmployeeHandler struct {
 func CreateEmployeeHandler(service interfaces.IEmployeeService) *EmployeeHandler {
 	return &EmployeeHandler{sv: service}
 }
+
 func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := e.sv.GetEmployees()
 
@@ -48,4 +53,32 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 
 	response.JSON(w, http.StatusOK, ResponseBody{Data: employeesJSON})
 
+}
+
+func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	idInt, err := strconv.Atoi(id)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, nil)
+		return
+	}
+
+	data, err := e.sv.GetEmployeeById(idInt)
+
+	if err != nil && errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+		response.JSON(w, http.StatusNotFound, nil)
+		return
+	}
+
+	employeeJSON := EmployeeJSON{
+		Id:           data.Id,
+		CardNumberId: data.CardNumberId,
+		FirstName:    data.FirstName,
+		LastName:     data.FirstName,
+		WarehouseId:  data.WarehouseId,
+	}
+
+	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
 }
