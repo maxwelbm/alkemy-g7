@@ -23,7 +23,11 @@ func (ps *ProductService) GetAllProducts() (map[int]model.Product, error) {
 }
 
 func (ps *ProductService) GetProductById(id int) (model.Product, error) {
-	return model.Product{}, nil
+	product, err := ps.ProductRepository.GetById(id)
+	if err != nil {
+		return model.Product{}, err
+	}
+	return product, nil
 }
 
 func (ps *ProductService) CreateProduct(product model.Product) (model.Product, error) {
