@@ -4,18 +4,23 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/aadaniel_meli/meli-fresh-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
 type Database struct {
-	TbBuyer    map[int]model.Buyer
-	TbProducts map[int]model.Buyer
+	TbBuyer     map[int]model.Buyer
+	TbProducts  map[int]model.Buyer
+	TbWarehouse map[int]model.WareHouse
 }
 
 func CreateDatabase() *Database {
-	db := &Database{}
+	db := &Database{
+		TbBuyer:     make(map[int]model.Buyer),
+		TbWarehouse: make(map[int]model.WareHouse),
+	}
 
-	db.LoadJsonBuyer("cmd/database/docs/buyers.json")
+	db.LoadJsonBuyer("/workspaces/alkemy-g7/cmd/database/docs/buyers.json")
+	db.LoadJsonWarehouse("cmd/database/docs/warehouse.json")
 
 	return db
 }
@@ -23,10 +28,22 @@ func CreateDatabase() *Database {
 func (db *Database) LoadJsonBuyer(filepath string) (string, error) {
 	var buyers []model.Buyer = make([]model.Buyer, 0)
 
-	Load(filepath, buyers)
+	Load(filepath, &buyers)
 
 	for _, b := range buyers {
 		db.TbBuyer[b.Id] = b
+	}
+
+	return "Succes", nil
+}
+
+func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
+	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+
+	Load(filepath, &warehouse)
+
+	for _, b := range warehouse {
+		db.TbWarehouse[b.Id] = b
 	}
 
 	return "Succes", nil
