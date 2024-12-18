@@ -32,7 +32,7 @@ func CreateDatabase() *Database {
 	db.LoadJsonSections("pkg/database/docs/sections.json")
 	db.LoadJsonProducts("pkg/database/docs/products.json")
 	db.LoadJsonBuyer("pkg/database/docs/buyers.json")
-	db.LoadJsonEmployee("internal/database/docs/employees.json")
+	db.LoadJsonEmployee("pkg/database/docs/employees.json")
 	db.LoadJsonWarehouse("pkg/database/docs/warehouse.json")
 
 	return db
