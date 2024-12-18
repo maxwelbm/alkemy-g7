@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/maxwelbm/alkemy-g7.git/cmd/database"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
 type SectionRepository struct {

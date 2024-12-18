@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -34,7 +33,6 @@ type SectionController struct {
 
 func (h *SectionController) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("bateu")
 		s, err := h.sv.Get()
 		if err != nil {
 			response.JSON(w, http.StatusInternalServerError, nil)
