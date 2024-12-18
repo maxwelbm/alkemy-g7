@@ -24,8 +24,7 @@ type SellersController struct {
 	service service.SellersService
 }
 
-func (hd *SellersController) GetAllSellers() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
 		// request
 
 		// service
@@ -33,7 +32,6 @@ func (hd *SellersController) GetAllSellers() http.HandlerFunc {
 		if err != nil {
 			response.JSON(w, http.StatusBadRequest, map[string]any{
 				"message": "Bad Request",
-				"data":    nil,
 			})
 			return
 		}
@@ -53,18 +51,16 @@ func (hd *SellersController) GetAllSellers() http.HandlerFunc {
 			"message": "Get request executed successfully",
 			"data":    data,
 		})
-	}
 }
 
-func (hd *SellersController) GetById() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+
+func (hd *SellersController) GetById (w http.ResponseWriter, r *http.Request) {
 		// request
 		idParam := chi.URLParam(r, "id")
 		id, err := strconv.Atoi(idParam)
 		if err != nil {
 			response.JSON(w, http.StatusBadRequest, map[string]any{
 				"message": "Bad Request - Missing ID",
-				"data":    nil,
 			})
 			return
 		}
@@ -72,9 +68,8 @@ func (hd *SellersController) GetById() http.HandlerFunc {
 		// service
 		seller, err := hd.service.GetByID(id)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
+			response.JSON(w, http.StatusNotFound, map[string]any{
 				"message": err.Error(),
-				"data":    nil,
 			})
 			return
 		}
@@ -84,5 +79,5 @@ func (hd *SellersController) GetById() http.HandlerFunc {
 			"message": "Get request executed successfully",
 			"data":    seller,
 		})
-	}
 }
+

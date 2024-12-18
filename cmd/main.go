@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
@@ -24,7 +23,6 @@ func main() {
 
 	// routes setup
 	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler)
-
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
 	}
@@ -68,8 +66,8 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
-		r.Get("/", nil)
-		r.Get("/{id}", nil)
+		r.Get("/", sellersHandler.GetAllSellers())
+		r.Get("/{id}", sellersHandler.GetById())
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", nil)
