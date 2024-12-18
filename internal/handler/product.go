@@ -2,12 +2,9 @@ package handler
 
 import (
 	"net/http"
-
 	"github.com/bootcamp-go/web/response"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
-
-
 
 type ProductHandler struct {
 	ProductService interfaces.IProductService
