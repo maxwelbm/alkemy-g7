@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
@@ -20,10 +19,10 @@ func main() {
 	// // handlers
 	// employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	productHandler, employeeHd, sellersHandler, buyerHandler := dependencies.LoadDependencies()
+	productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler := dependencies.LoadDependencies()
 
 	// routes setup
-	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler)
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
@@ -32,7 +31,7 @@ func main() {
 
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
-	buyerHandler *handler.BuyerHandler) *chi.Mux {
+	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController) *chi.Mux {
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
@@ -44,7 +43,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {
-		r.Get("/", nil)
+		r.Get("/", sectionHandler.GetAll)
 		r.Get("/{id}", nil)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
@@ -68,8 +67,8 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
-		r.Get("/", nil)
-		r.Get("/{id}", nil)
+		r.Get("/", sellersHandler.GetAllSellers)
+		r.Get("/{id}", sellersHandler.GetById)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", nil)
