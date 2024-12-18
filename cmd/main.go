@@ -67,7 +67,7 @@ func initRoutes(handler handler.SellersController) *chi.Mux {
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
 		r.Get("/", handler.GetAllSellers())
-		r.Get("/{id}", nil)
+		r.Get("/{id}", handler.GetById())
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", nil)

@@ -33,7 +33,6 @@ func (hd *SellersController) GetAllSellers() http.HandlerFunc {
 		if err != nil {
 			response.JSON(w, http.StatusBadRequest, map[string]any{
 				"message": "Bad Request",
-				"data":    nil,
 			})
 			return
 		}
@@ -64,7 +63,6 @@ func (hd *SellersController) GetById() http.HandlerFunc {
 		if err != nil {
 			response.JSON(w, http.StatusBadRequest, map[string]any{
 				"message": "Bad Request - Missing ID",
-				"data":    nil,
 			})
 			return
 		}
@@ -72,9 +70,8 @@ func (hd *SellersController) GetById() http.HandlerFunc {
 		// service
 		seller, err := hd.service.GetByID(id)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
+			response.JSON(w, http.StatusNotFound, map[string]any{
 				"message": err.Error(),
-				"data":    nil,
 			})
 			return
 		}
