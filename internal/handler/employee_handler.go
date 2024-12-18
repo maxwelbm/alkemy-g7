@@ -61,14 +61,14 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 	idInt, err := strconv.Atoi(id)
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBody{Data: nil})
+		response.JSON(w, http.StatusBadRequest, nil)
 		return
 	}
 
 	data, err := e.sv.GetEmployeeById(idInt)
 
 	if err != nil && errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-		response.JSON(w, http.StatusNotFound, ResponseBody{Data: nil})
+		response.JSON(w, http.StatusNotFound, nil)
 		return
 	}
 
