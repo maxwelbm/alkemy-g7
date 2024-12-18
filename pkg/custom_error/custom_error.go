@@ -1,14 +1,19 @@
 package custom_error
 
 import (
+	"errors"
 	"fmt"
 )
 
 type CustomError struct {
-	Object  any
-	Message string
+	Object any
+	Err    error
 }
 
 func (c *CustomError) Error() string {
-	return fmt.Sprintf("error: %v, message: %v", c.Object, c.Message)
+	return fmt.Sprintf("error: %v, message: %v", c.Object, c.Err.Error())
 }
+
+var (
+	NotFound = errors.New("not found")
+)

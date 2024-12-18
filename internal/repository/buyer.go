@@ -29,10 +29,10 @@ func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 
 // GetById implements interfaces.IBuyerRepo.
 func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
-	buyer := br.dbBuyer.TbBuyer[id]
+	buyer, ok:= br.dbBuyer.TbBuyer[id]
 
-	if buyer.Id == 0 {
-		return buyer, &custom_error.CustomError{Object: buyer, Message: "Buyer Not Found"}
+	if !ok {
+		return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 	}
 
 	return buyer, nil
