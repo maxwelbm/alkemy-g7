@@ -4,30 +4,39 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
 func main() {
-	dbWareHouse := database.CreateDatabase()
-	rpWareHouse := repository.NewWareHouseMap(*dbWareHouse)
-	srvWareHouse := service.NewWareHouDefault(*rpWareHouse)
-	hdWareHouse := handler.NewWareHouseHandlerDefault(*srvWareHouse)
+	// db := database.CreateDatabase()
 
-	rt := initRoutes(hdWareHouse)
+	// // repositories setup
+	// employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
+
+	// // services
+	// employeeSv := service.CreateEmployeeService(employeeRp)
+
+	// // handlers
+	// employeeHd := handler.CreateEmployeeHandler(employeeSv)
+
+	productHandler, employeeHd, sellersHandler, buyerHandler := dependencies.LoadDependencies()
+
+	// routes setup
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
 	}
 }
 
-func initRoutes(hd *handler.WarehouseHandler) *chi.Mux {
+func initRoutes(productHandler *handler.ProductHandler,
+	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
+	buyerHandler *handler.BuyerHandler) *chi.Mux {
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
-		r.Get("/", hd.GetAllWareHouse())
+		r.Get("/", nil)
 		r.Get("/{id}", nil)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
@@ -35,36 +44,43 @@ func initRoutes(hd *handler.WarehouseHandler) *chi.Mux {
 	})
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {
-		rt.Get("/", nil)
-		rt.Get("/{id}", nil)
-		rt.Post("/", nil)
-		rt.Patch("/{id}", nil)
-		rt.Delete("/{id}", nil)
+		r.Get("/", nil)
+		r.Get("/{id}", nil)
+		r.Post("/", nil)
+		r.Patch("/{id}", nil)
+		r.Delete("/{id}", nil)
 	})
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
-		rt.Get("/", nil)
-		rt.Get("/{id}", nil)
-		rt.Post("/", nil)
-		rt.Patch("/{id}", nil)
-		rt.Delete("/{id}", nil)
+		r.Get("/", productHandler.GetAllProducts)
+		r.Get("/{id}", nil)
+		r.Post("/", nil)
+		r.Patch("/{id}", nil)
+		r.Delete("/{id}", nil)
 	})
 
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
-		rt.Get("/", nil)
-		rt.Get("/{id}", nil)
-		rt.Post("/", nil)
-		rt.Patch("/{id}", nil)
-		rt.Delete("/{id}", nil)
+		r.Get("/", buyerHandler.HandlerGetAllBuyers)
+		r.Get("/{id}", nil)
+		r.Post("/", nil)
+		r.Patch("/{id}", nil)
+		r.Delete("/{id}", nil)
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
-		rt.Get("/", nil)
-		rt.Get("/{id}", nil)
-		rt.Post("/", nil)
-		rt.Patch("/{id}", nil)
-		rt.Delete("/{id}", nil)
+		r.Get("/", nil)
+		r.Get("/{id}", nil)
+		r.Post("/", nil)
+		r.Patch("/{id}", nil)
+		r.Delete("/{id}", nil)
 	})
 
+	rt.Route("/api/v1/employees", func(r chi.Router) {
+		r.Get("/", employeeHd.GetEmployeesHandler)
+		// rt.Get("/{id}", nil)
+		// rt.Post("/", nil)
+		// rt.Patch("/{id}", nil)
+		// rt.Delete("/{id}", nil)
+	})
 	return rt
 }

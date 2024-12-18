@@ -4,25 +4,49 @@ import (
 	"encoding/json"
 	"os"
 
+	// "github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
 type Database struct {
-	TbBuyer     map[int]model.Buyer
-	TbProducts  map[int]model.Buyer
-	TbWarehouse map[int]model.WareHouse
+	TbBuyer      map[int]model.Buyer
+	TbProducts   map[int]model.Product
+	TbSections   map[int]model.Section
+	TbEmployees  map[int]model.Employee
+	TbSellers    map[int]model.Seller
+	TbWarehouses map[int]model.WareHouse
 }
 
 func CreateDatabase() *Database {
 	db := &Database{
-		TbBuyer:     make(map[int]model.Buyer),
-		TbWarehouse: make(map[int]model.WareHouse),
+		TbBuyer:      make(map[int]model.Buyer),
+		TbProducts:   make(map[int]model.Product),
+		TbSections:   make(map[int]model.Section),
+		TbEmployees:  make(map[int]model.Employee),
+		TbSellers:    make(map[int]model.Seller),
+		TbWarehouses: make(map[int]model.WareHouse),
 	}
 
-	db.LoadJsonBuyer("/workspaces/alkemy-g7/cmd/database/docs/buyers.json")
-	db.LoadJsonWarehouse("cmd/database/docs/warehouse.json")
+	db.LoadJsonSellers("pkg/database/docs/sellers.json")
+	db.LoadJsonSections("pkg/database/docs/sections.json")
+	db.LoadJsonProducts("pkg/database/docs/products.json")
+	db.LoadJsonBuyer("pkg/database/docs/buyers.json")
+	// db.LoadJsonEmployee("internal/database/docs/employees.json")
+	db.LoadJsonWarehouse("pkg/database/docs/warehouse.json")
 
 	return db
+}
+
+func (db *Database) LoadJsonProducts(filepath string) (string, error) {
+	var products []model.Product = make([]model.Product, 0)
+
+	Load(filepath, &products)
+
+	for _, b := range products {
+		db.TbProducts[b.ID] = b
+	}
+
+	return "Succes", nil
 }
 
 func (db *Database) LoadJsonBuyer(filepath string) (string, error) {
@@ -37,15 +61,53 @@ func (db *Database) LoadJsonBuyer(filepath string) (string, error) {
 	return "Succes", nil
 }
 
-func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
-	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+func (db *Database) LoadJsonSections(filepath string) (string, error) {
+	var sections []model.Section = make([]model.Section, 0)
 
-	Load(filepath, &warehouse)
+	Load(filepath, &sections)
 
-	for _, b := range warehouse {
-		db.TbWarehouse[b.Id] = b
+	for _, section := range sections {
+		db.TbSections[section.ID] = section
 	}
 
+	return "Succes", nil
+}
+
+func (db *Database) LoadJsonSellers(filepath string) (string, error) {
+	var sellers []model.Seller = make([]model.Seller, 0)
+	Load(filepath, &sellers)
+	for _, seller := range sellers {
+		db.TbSellers[seller.ID] = seller
+	}
+	return "Succes", nil
+}
+
+// func (db *Database) LoadJsonEmployee(filepath string) (string, error) {
+// 	var employees []handler.EmployeeJSON = make([]handler.EmployeeJSON, 0)
+
+// 	Load(filepath, &employees)
+
+// 	db.TbEmployees = make(map[int]model.Employee)
+
+// 	for _, employee := range employees {
+// 		db.TbEmployees[employee.Id] = model.Employee{
+// 			Id:           employee.Id,
+// 			CardNumberId: employee.CardNumberId,
+// 			FirstName:    employee.FirstName,
+// 			LastName:     employee.FirstName,
+// 			WarehouseId:  employee.WarehouseId,
+// 		}
+// 	}
+
+// 	return "Success", nil
+// }
+
+func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
+	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+	Load(filepath, &warehouse)
+	for _, b := range warehouse {
+		db.TbWarehouses[b.Id] = b
+	}
 	return "Succes", nil
 }
 
