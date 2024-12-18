@@ -31,33 +31,31 @@ type SectionController struct {
 	sv *service.SectionService
 }
 
-func (h *SectionController) GetAll() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s, err := h.sv.Get()
-		if err != nil {
-			response.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
-
-		data := make(map[int]SectionJSON)
-		for key, value := range s {
-			data[key] = SectionJSON{
-				ID:                 value.ID,
-				SectionNumber:      value.SectionNumber,
-				CurrentTemperature: value.CurrentTemperature,
-				MinimumTemperature: value.MinimumTemperature,
-				CurrentCapacity:    value.CurrentCapacity,
-				MinimumCapacity:    value.MinimumCapacity,
-				MaximumCapacity:    value.MaximumCapacity,
-				WarehouseID:        value.WarehouseID,
-				ProductTypeID:      value.ProductTypeID,
-			}
-		}
-		response.JSON(w, http.StatusOK, map[string]any{
-			"message": "success",
-			"data":    data,
-		})
+func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
+	s, err := h.sv.Get()
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, nil)
+		return
 	}
+
+	data := make(map[int]SectionJSON)
+	for key, value := range s {
+		data[key] = SectionJSON{
+			ID:                 value.ID,
+			SectionNumber:      value.SectionNumber,
+			CurrentTemperature: value.CurrentTemperature,
+			MinimumTemperature: value.MinimumTemperature,
+			CurrentCapacity:    value.CurrentCapacity,
+			MinimumCapacity:    value.MinimumCapacity,
+			MaximumCapacity:    value.MaximumCapacity,
+			WarehouseID:        value.WarehouseID,
+			ProductTypeID:      value.ProductTypeID,
+		}
+	}
+	response.JSON(w, http.StatusOK, map[string]any{
+		"message": "success",
+		"data":    data,
+	})
 }
 
 func (h *SectionController) GetById() http.HandlerFunc {
