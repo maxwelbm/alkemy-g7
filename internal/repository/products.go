@@ -39,5 +39,12 @@ func (pr *ProductRepository) Update(id int, product model.Product) (model.Produc
 }
 
 func (pr *ProductRepository) Delete(id int) error {
+	_, exists := pr.DB.TbProducts[id]
+
+	if !exists {
+		return errors.New("produto não encontrado")
+	}
+	
+	delete(pr.DB.TbProducts, id)
 	return nil
 }

@@ -39,5 +39,9 @@ func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Pr
 }
 
 func (ps *ProductService) DeleteProduct(id int) error {
+	err := ps.ProductRepository.Delete(id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
