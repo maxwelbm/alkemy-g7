@@ -13,17 +13,19 @@ type Database struct {
 }
 
 func CreateDatabase() *Database {
-	db := &Database{}
+	db := &Database{
+		TbBuyer: make(map[int]model.Buyer),
+	}
 
-	db.LoadJsonBuyer("cmd/database/docs/buyers.json")
+	db.LoadJsonBuyer("/workspaces/alkemy-g7/cmd/database/docs/buyers.json")
 
 	return db
 }
 
 func (db *Database) LoadJsonBuyer(filepath string) (string, error) {
-	var buyers []model.Buyer = make([]model.Buyer, 0)
+	var buyers []model.Buyer
 
-	Load(filepath, buyers)
+	Load(filepath, &buyers)
 
 	for _, b := range buyers {
 		db.TbBuyer[b.Id] = b
