@@ -11,7 +11,7 @@ type WarehouseHandler struct {
 	srv service.WareHouseDefault
 }
 
-func NewWareHouseHandlerDefault(srv service.WareHouseDefault) *WarehouseHandler {
+func NewWareHouseHandler(srv service.WareHouseDefault) *WarehouseHandler {
 	return &WarehouseHandler{srv: srv}
 }
 

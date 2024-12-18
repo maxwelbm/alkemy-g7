@@ -9,11 +9,11 @@ type WareHouseMap struct {
 	db database.Database
 }
 
-func NewWareHouseMap(db database.Database) *WareHouseMap {
+func NewWareHouseRepository(db database.Database) *WareHouseMap {
 	return &WareHouseMap{db: db}
 }
 
 func (r *WareHouseMap) GetAllWareHouse() (w map[int]model.WareHouse, err error) {
-	w = r.db.TbWarehouse
+	w = r.db.TbWarehouses
 	return
 }

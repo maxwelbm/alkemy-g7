@@ -9,7 +9,7 @@ type WareHouseDefault struct {
 	rp repository.WareHouseMap
 }
 
-func NewWareHouDefault(rp repository.WareHouseMap) *WareHouseDefault {
+func NewWareHoureService(rp repository.WareHouseMap) *WareHouseDefault {
 	return &WareHouseDefault{rp: rp}
 }
 
