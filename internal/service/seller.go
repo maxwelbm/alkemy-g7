@@ -54,8 +54,8 @@ func validateFormatInt(attribute int) error {
 }
 
 //Requests
-func (s *SellersService) GetAll() (v map[int]model.Seller, err error) {
-	v, err = s.rp.Get()
+func (s *SellersService) GetAll() (sellers []model.Seller, err error) {
+	sellers, err = s.rp.Get()
 	return
 }
 

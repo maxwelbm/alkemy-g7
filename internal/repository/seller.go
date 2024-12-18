@@ -17,17 +17,17 @@ type SellersRepository struct {
 	db map[int]model.Seller
 }
 
-func (rp *SellersRepository) Get() (map[int]model.Seller, error) {
-	var sellers = make(map[int]model.Seller)
+func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
+	sellers = make([]model.Seller, 0)
 
-	for _, seller := range rp.db {
-		sellers[seller.ID] = seller
+	for _, s := range rp.db {
+		sellers = append(sellers, s)
 	}
 
 	return sellers, nil
 }
 
-func (rp *SellersRepository) GetByID(id int) (seller model.Seller, err error) {
+func (rp *SellersRepository) GetByID(id int) (sl model.Seller, err error) {
 	for _, value := range rp.db {
 		if value.ID == id {
 			return value, nil
@@ -35,8 +35,7 @@ func (rp *SellersRepository) GetByID(id int) (seller model.Seller, err error) {
 	}
 
 	err = errors.New("Any seller with this ID not found")
-
-	return seller, err
+	return sl, err
 }
 
 func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err error) {

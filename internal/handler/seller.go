@@ -40,15 +40,15 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 		}
 
 		// response
-		data := make(map[int]SellersJSON)
-		for key, value := range sellers {
-			data[key] = SellersJSON{
+		data := make([]SellersJSON, 0)
+		for _, value := range sellers {
+			data = append(data, SellersJSON{
 				ID:          value.ID,
 				CID:         value.CID,
 				CompanyName: value.CompanyName,
 				Address:     value.Address,
 				Telephone:   value.Telephone,
-			}
+			})
 		}
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "Get request executed successfully",
@@ -57,7 +57,7 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 }
 
 
-func (hd *SellersController) GetById (w http.ResponseWriter, r *http.Request) {
+func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 		// request
 		idParam := chi.URLParam(r, "id")
 		id, err := strconv.Atoi(idParam)
