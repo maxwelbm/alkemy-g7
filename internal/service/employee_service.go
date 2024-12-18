@@ -22,3 +22,7 @@ func (e *EmployeeService) GetEmployees() (map[int]model.Employee, error) {
 
 	return data, nil
 }
+
+func (e *EmployeeService) GetEmployeeById(id int) (model.Employee, error) {
+	return e.rp.GetById(id)
+}

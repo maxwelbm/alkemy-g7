@@ -1,1 +1,14 @@
-[{"section_number": 1, "current_temperature": 1, "minimum_temperature(temperatura mínima)": 1, "current_capacity": 1, "minimum_capacity": 1, "maximum_capacity": 1, "warehouse_id": 1, "product_type_id": 1}]
+[
+    {
+      "ID": 1,
+      "SectionNumber": 1,
+      "CurrentTemperature": 1,
+      "MinimumTemperature": 1,
+      "CurrentCapacity": 1,
+      "MinimumCapacity": 1,
+      "MaximumCapacity": 1,
+      "WarehouseID": 1,
+      "ProductTypeID": 1
+    }
+]
+  
