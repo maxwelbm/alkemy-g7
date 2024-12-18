@@ -5,18 +5,14 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 )
 
-
-
 type BuyerService struct {
 	rp repository.BuyerRepository
 }
 
-
-func NewBuyerService(rp repository.BuyerRepository) *BuyerService{
-	return &BuyerService{rp}
+func NewBuyerService(rp repository.BuyerRepository) *BuyerService {
+	return &BuyerService{rp: rp}
 }
 
-
-func (bs *BuyerService) GetAllBuyer() (map[int]model.Buyer, error){
+func (bs *BuyerService) GetAllBuyer() (map[int]model.Buyer, error) {
 	return bs.rp.Get()
 }
