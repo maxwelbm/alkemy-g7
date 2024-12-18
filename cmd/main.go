@@ -20,17 +20,19 @@ func main() {
 	// // handlers
 	// employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	productHandler, employeeHd, sellersHandler := dependencies.LoadDependencies()
+	productHandler, employeeHd, sellersHandler, buyerHandler := dependencies.LoadDependencies()
 
 	// routes setup
-	rt := initRoutes(productHandler, employeeHd, sellersHandler)
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
 	}
 }
 
-func initRoutes(productHandler *handler.ProductHandler, employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController) *chi.Mux {
+func initRoutes(productHandler *handler.ProductHandler, 
+	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController, 
+	buyerHandler *handler.BuyerHandler) *chi.Mux {
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
@@ -58,7 +60,7 @@ func initRoutes(productHandler *handler.ProductHandler, employeeHd *handler.Empl
 	})
 
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
-		r.Get("/", nil)
+		r.Get("/", buyerHandler.HandlerGetAllBuyers)
 		r.Get("/{id}", nil)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)

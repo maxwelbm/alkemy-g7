@@ -52,7 +52,7 @@ func (db *Database) LoadJsonProducts(filepath string) (string, error) {
 func (db *Database) LoadJsonBuyer(filepath string) (string, error) {
 	var buyers []model.Buyer = make([]model.Buyer, 0)
 
-	Load(filepath, buyers)
+	Load(filepath, &buyers)
 
 	for _, b := range buyers {
 		db.TbBuyer[b.Id] = b
