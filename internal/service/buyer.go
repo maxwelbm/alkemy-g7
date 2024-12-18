@@ -16,3 +16,7 @@ func NewBuyerService(rp interfaces.IBuyerRepo) *BuyerService {
 func (bs *BuyerService) GetAllBuyer() (map[int]model.Buyer, error) {
 	return bs.rp.Get()
 }
+
+func (bs *BuyerService) GetBuyerByID(id int) (model.Buyer, error) {
+	return bs.rp.GetById(id)
+}
