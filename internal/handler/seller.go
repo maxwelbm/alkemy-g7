@@ -24,8 +24,7 @@ type SellersController struct {
 	service service.SellersService
 }
 
-func (hd *SellersController) GetAllSellers() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
 		// request
 
 		// service
@@ -52,11 +51,10 @@ func (hd *SellersController) GetAllSellers() http.HandlerFunc {
 			"message": "Get request executed successfully",
 			"data":    data,
 		})
-	}
 }
 
-func (hd *SellersController) GetById() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+
+func (hd *SellersController) GetById (w http.ResponseWriter, r *http.Request) {
 		// request
 		idParam := chi.URLParam(r, "id")
 		id, err := strconv.Atoi(idParam)
@@ -81,5 +79,5 @@ func (hd *SellersController) GetById() http.HandlerFunc {
 			"message": "Get request executed successfully",
 			"data":    seller,
 		})
-	}
 }
+
