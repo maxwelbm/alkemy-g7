@@ -1,6 +1,6 @@
 package interfaces
 
-
+import "github.com/maxwelbm/alkemy-g7.git/internal/model"
 
 type ISectionRepo interface {
 	Get() (map[int]model.Section, error)
