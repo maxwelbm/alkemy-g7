@@ -30,8 +30,8 @@ func main() {
 	}
 }
 
-func initRoutes(productHandler *handler.ProductHandler, 
-	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController, 
+func initRoutes(productHandler *handler.ProductHandler,
+	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
 	buyerHandler *handler.BuyerHandler) *chi.Mux {
 	rt := chi.NewRouter()
 
@@ -77,7 +77,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/employees", func(r chi.Router) {
 		r.Get("/", employeeHd.GetEmployeesHandler)
-		// rt.Get("/{id}", nil)
+		r.Get("/{id}", employeeHd.GetEmployeeById)
 		// rt.Post("/", nil)
 		// rt.Patch("/{id}", nil)
 		// rt.Delete("/{id}", nil)
