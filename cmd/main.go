@@ -30,8 +30,8 @@ func main() {
 	}
 }
 
-func initRoutes(productHandler *handler.ProductHandler, 
-	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController, 
+func initRoutes(productHandler *handler.ProductHandler,
+	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
 	buyerHandler *handler.BuyerHandler) *chi.Mux {
 	rt := chi.NewRouter()
 

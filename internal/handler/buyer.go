@@ -2,11 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type BuyerHandler struct {
@@ -21,7 +25,7 @@ type ResponseBuyerJson struct {
 }
 
 type Data struct {
-	Data []ResponseBuyerJson `json:"data"`
+	Data any
 }
 
 func NewBuyerHandler(svc *service.BuyerService) *BuyerHandler {
@@ -63,4 +67,40 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	buyer, err := bh.svc.GetBuyerByID(id)
+
+	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+		http.Error(w, "", http.StatusNotFound)
+	}
+
+	response := ResponseBuyerJson{
+		Id:           buyer.Id,
+		CardNumberId: buyer.CardNumberId,
+		FirstName:    buyer.FirstName,
+		LastName:     buyer.LastName,
+	}
+
+	data := Data{
+		response,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(data)
+	if err != nil {
+
+		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		return
+	}
+
 }
