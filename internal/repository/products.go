@@ -31,7 +31,11 @@ func (pr *ProductRepository) GetById(id int) (model.Product, error) {
 }
 
 func (pr *ProductRepository) Create(product model.Product) (model.Product, error) {
-	return model.Product{}, nil
+	id := getLastIdProduct(pr.DB.TbProducts)
+	product.ID = id
+	pr.DB.TbProducts[product.ID] = product
+	return pr.DB.TbProducts[product.ID], nil
+
 }
 
 func (pr *ProductRepository) Update(id int, product model.Product) (model.Product, error) {
@@ -44,7 +48,20 @@ func (pr *ProductRepository) Delete(id int) error {
 	if !exists {
 		return errors.New("produto não encontrado")
 	}
-	
+
 	delete(pr.DB.TbProducts, id)
 	return nil
+}
+
+func getLastIdProduct(products map[int]model.Product) (lastId int) {
+	lastId = 0
+
+	for _, product := range products {
+		if product.ID > lastId {
+			lastId = product.ID
+		}
+
+	}
+	return
+
 }

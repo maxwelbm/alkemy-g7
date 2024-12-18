@@ -1,11 +1,14 @@
 package handler
 
 import (
-	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	"encoding/json"
 	"net/http"
 	"strconv"
+	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
+	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/response"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
 type ProductHandler struct {
@@ -18,73 +21,65 @@ func NewProductHandler(ps interfaces.IProductService) *ProductHandler {
 
 func (ph *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := ph.ProductService.GetAllProducts()
-	var responseBody map[string]interface{}
 
 	if err != nil {
-		responseBody = map[string]interface{}{
-			"error": err.Error(),
-		}
-		response.JSON(w, http.StatusNotFound, responseBody)
+		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	responseBody = map[string]interface{}{
-		"data": products,
-	}
-
-	response.JSON(w, http.StatusOK, responseBody)
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("Success", products))
 }
 
 func (ph *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
-	var responseBody map[string]interface{}
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseBody = map[string]interface{}{
-			"error": "id invalido",
-		}
-		response.JSON(w, http.StatusBadRequest, responseBody)
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("id invalido", nil))
 		return
 	}
 
 	product, err := ph.ProductService.GetProductById(id)
 	if err != nil {
-		responseBody = map[string]interface{}{
-			"error": err.Error(),
-		}
-		response.JSON(w, http.StatusNotFound, responseBody)
+		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
-
-	responseBody = map[string]interface{}{
-		"data": product,
-	}
-
-	response.JSON(w, http.StatusOK, responseBody)
+    
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("Success", product))
 }
 
 func (ph *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
-	var responseBody map[string]interface{}
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseBody = map[string]interface{}{
-			"error": "id invalido",
-		}
-		response.JSON(w, http.StatusBadRequest, responseBody)
+
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("id invalido", nil))
 		return
 	}
 
 	err = ph.ProductService.DeleteProduct(id)
 	if err != nil {
-		responseBody = map[string]interface{}{
-			"error": err.Error(),
-		}
-		response.JSON(w, http.StatusNotFound, responseBody)
+		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	responseBody = map[string]interface{}{
-		"data": "Produto Deletado",
+
+	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("produto deletado", nil))
+}
+
+func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
+	var responseBody map[string]interface{}
+	var productBody model.Product
+
+	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
+        response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("json mal formatado ou invalido", nil))
 	}
 
-	response.JSON(w, http.StatusNoContent, responseBody)
+	product, err := ph.ProductService.CreateProduct(productBody)
+	if err != nil {
+		responseBody = map[string]interface{}{
+			"error": err.Error(),
+		}
+		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("success", product))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responseBody)
 }
