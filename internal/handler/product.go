@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -22,14 +21,10 @@ func (ph *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request)
     products, err := ph.ProductService.GetAllProducts()
     var responseBody map[string]interface{}
 
-	fmt.Println(products)
-
-
     if err != nil {
         responseBody = map[string]interface{}{
             "error": err.Error(),
         }
-		fmt.Print(err.Error())
         response.JSON(w, http.StatusNotFound, responseBody)
         return
     }
