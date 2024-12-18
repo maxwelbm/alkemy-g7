@@ -38,3 +38,25 @@ func (rp *SellersRepository) GetByID(id int) (seller model.Seller, err error) {
 
 	return seller, err
 }
+
+func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err error) {
+	id := 0
+	for _, value := range rp.db {
+		if value.ID > id {
+			id = value.ID
+		}
+	}
+
+	for _, value := range rp.db {
+		if value.CID == seller.CID {
+			err := errors.New("Seller's CID already exist")
+			return sl, err
+		}
+	}
+
+	seller.ID = id + 1
+	id = seller.ID
+	rp.db[id] = seller
+
+	return seller, nil
+}

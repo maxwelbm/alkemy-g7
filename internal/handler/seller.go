@@ -3,8 +3,11 @@ package handler
 import (
 	"net/http"
 	"strconv"
+
+	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
 
@@ -81,3 +84,35 @@ func (hd *SellersController) GetById (w http.ResponseWriter, r *http.Request) {
 		})
 }
 
+func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
+		// request
+		var seller model.Seller
+		if err := request.JSON(r, &seller); err != nil {
+			response.JSON(w, http.StatusBadRequest, map[string]any{
+				"message": "Bad Request",
+			})
+			return
+		}
+
+		// service
+		createdseller, err := hd.service.CreateSeller(seller)
+		if err != nil {
+			if err.Error() == "Seller's CID already exist" {
+				response.JSON(w, http.StatusConflict, map[string]any{
+					"message": err.Error(),
+				})
+				return
+			} else {
+				response.JSON(w, http.StatusUnprocessableEntity, map[string]any{
+					"message": err.Error(),
+				})
+				return
+			}
+		} 
+
+		//response
+		response.JSON(w, http.StatusCreated, map[string]any{
+			"message": "Create request executed successfully",
+			"data":    createdseller,
+		})
+}
