@@ -18,7 +18,7 @@ func CreateDatabase() *Database {
 	db := &Database{}
 
 	// db.LoadJsonBuyer("cmd/database/docs/buyers.json")
-	db.LoadJsonEmployee("internal/database/docs/employees.json")
+	db.LoadJsonEmployee("pkg/database/docs/employees.json")
 	return db
 }
 

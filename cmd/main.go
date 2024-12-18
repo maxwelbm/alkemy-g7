@@ -75,7 +75,7 @@ func initRoutes(employeeHandler *handler.EmployeeHandler) *chi.Mux {
 
 	rt.Route("/api/v1/employees", func(r chi.Router) {
 		r.Get("/", employeeHandler.GetEmployeesHandler)
-		// rt.Get("/{id}", nil)
+		r.Get("/{id}", employeeHandler.GetEmployeeById)
 		// rt.Post("/", nil)
 		// rt.Patch("/{id}", nil)
 		// rt.Delete("/{id}", nil)
