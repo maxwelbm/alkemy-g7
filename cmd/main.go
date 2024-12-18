@@ -14,7 +14,7 @@ func main() {
 
 	dbBuyer := database.CreateDatabase()
 	rpBuyer := repository.NewBuyerRepository(*dbBuyer)
-	svcBuyer := service.NewBuyerService(*rpBuyer)
+	svcBuyer := service.NewBuyerService(rpBuyer)
 	hdBuyer := handler.NewBuyerHandler(svcBuyer) // Passando o ponteiro para o handler
 	rt := initRoutes(hdBuyer)
 

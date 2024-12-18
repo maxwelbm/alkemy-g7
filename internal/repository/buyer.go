@@ -11,10 +11,12 @@ type BuyerRepository struct {
 	dbBuyer database.Database
 }
 
-func NewBuyerRepository(db database.Database) *BuyerRepository {
-	return &BuyerRepository{dbBuyer: db}
+// Delete implements interfaces.IBuyerRepo.
+func (br BuyerRepository) Delete(id int) error {
+	panic("unimplemented")
 }
 
+// Get implements interfaces.IBuyerRepo.
 func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 
 	if len(br.dbBuyer.TbBuyer) == 0 {
@@ -22,4 +24,23 @@ func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 	}
 	return br.dbBuyer.TbBuyer, nil
 
+}
+
+// GetById implements interfaces.IBuyerRepo.
+func (br BuyerRepository) GetById(id int) (model.Buyer, error) {
+	panic("unimplemented")
+}
+
+// Post implements interfaces.IBuyerRepo.
+func (br BuyerRepository) Post(buyer model.Buyer) (model.Buyer, error) {
+	panic("unimplemented")
+}
+
+// Update implements interfaces.IBuyerRepo.
+func (br BuyerRepository) Update(id int, buyer model.Buyer) (model.Buyer, error) {
+	panic("unimplemented")
+}
+
+func NewBuyerRepository(db database.Database) *BuyerRepository {
+	return &BuyerRepository{dbBuyer: db}
 }

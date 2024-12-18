@@ -6,10 +6,11 @@ import (
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
 type BuyerHandler struct {
-	svc *service.BuyerService
+	svc interfaces.IBuyerservice
 }
 
 type ResponseBuyerJson struct {
