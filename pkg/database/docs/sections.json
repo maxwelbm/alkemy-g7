@@ -1,0 +1,14 @@
+[
+    {
+      "ID": 1,
+      "SectionNumber": 1,
+      "CurrentTemperature": 1,
+      "MinimumTemperature": 1,
+      "CurrentCapacity": 1,
+      "MinimumCapacity": 1,
+      "MaximumCapacity": 1,
+      "WarehouseID": 1,
+      "ProductTypeID": 1
+    }
+]
+  

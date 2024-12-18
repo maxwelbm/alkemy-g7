@@ -1,22 +1,19 @@
 package custom_error
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/bootcamp-go/web/response"
 )
 
-
-type CustomError struct{
+type CustomError struct {
 	Object any
-	Message string
+	Err    error
 }
 
-func (c *CustomError) Error() string{
-	
-	
-	
-	return fmt.Sprintf("error: %v, message: %v", c.Object, c.Message)
-
-
+func (c CustomError) Error() string {
+	return fmt.Sprintf("error: %v, message: %v", c.Object, c.Err.Error())
 }
+
+var (
+	NotFound = errors.New("not found")
+)

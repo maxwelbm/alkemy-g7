@@ -3,8 +3,8 @@ package repository
 import (
 	"errors"
 
-	"github.com/maxwelbm/alkemy-g7.git/cmd/database"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
 type ProductRepository struct {
@@ -35,6 +35,7 @@ func (pr *ProductRepository) Create(product model.Product) (model.Product, error
 	product.ID = id
 	pr.DB.TbProducts[product.ID] = product
 	return pr.DB.TbProducts[product.ID], nil
+
 }
 
 func (pr *ProductRepository) Update(id int, product model.Product) (model.Product, error) {
