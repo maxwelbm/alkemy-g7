@@ -16,7 +16,7 @@ type BuyerRepository struct {
 func (br BuyerRepository) Delete(id int) error {
 	buyer, err := br.GetById(id)
 
-	if err != nil && errors.Is(custom_error.CustomError{}.Err, custom_error.NotFound) {
+	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
 		return &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 	}
 

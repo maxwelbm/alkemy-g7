@@ -81,6 +81,7 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 
 	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
 		http.Error(w, "", http.StatusNotFound)
+		return
 	}
 
 	response := ResponseBuyerJson{
@@ -102,5 +103,27 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
 		return
 	}
+
+}
+
+func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	err = bh.svc.DeleteBuyerByID(id)
+
+	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+		http.Error(w, "", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+
+	w.Write([]byte(""))
 
 }
