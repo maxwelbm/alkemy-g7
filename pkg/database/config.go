@@ -17,7 +17,7 @@ func CreateDatabase() *Database {
 		TbBuyer: make(map[int]model.Buyer),
 	}
 
-	db.LoadJsonBuyer("/workspaces/alkemy-g7/cmd/database/docs/buyers.json")
+	db.LoadJsonBuyer("pkg/database/docs/buyers.json")
 
 	return db
 }
