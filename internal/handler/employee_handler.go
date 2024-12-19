@@ -81,16 +81,14 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	idInt, err := strconv.Atoi(id)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, nil)
 		return
 	}
 
-	data, err := e.sv.GetEmployeeById(idInt)
+	data, err := e.sv.GetEmployeeById(id)
 
 	if err != nil {
 		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
@@ -139,4 +137,26 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusCreated, ResponseBody{Data: employeeJSON})
+}
+
+func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the id in path param"})
+		return
+	}
+
+	err = e.sv.DeleteEmployee(id)
+
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
