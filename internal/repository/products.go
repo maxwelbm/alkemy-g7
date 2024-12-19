@@ -39,7 +39,9 @@ func (pr *ProductRepository) Create(product model.Product) (model.Product, error
 }
 
 func (pr *ProductRepository) Update(id int, product model.Product) (model.Product, error) {
-	return model.Product{}, nil
+	pr.DB.TbProducts[id] = product
+	productUpdated := pr.DB.TbProducts[id]
+	return productUpdated, nil
 }
 
 func (pr *ProductRepository) Delete(id int) error {

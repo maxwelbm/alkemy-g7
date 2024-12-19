@@ -2,17 +2,21 @@ package service
 
 import (
 	"errors"
-
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
+	"reflect"
 )
 
 type ProductService struct {
 	ProductRepository interfaces.IProductsRepo
+	SellerRepository  interfaces.ISellerRepo
 }
 
-func NewProductService(repo interfaces.IProductsRepo) *ProductService {
-	return &ProductService{ProductRepository: repo}
+func NewProductService(productRepo interfaces.IProductsRepo, sellerRepo interfaces.ISellerRepo) *ProductService {
+	return &ProductService{
+		ProductRepository: productRepo,
+		SellerRepository:  sellerRepo,
+	}
 }
 
 func (ps *ProductService) GetAllProducts() ([]model.Product, error) {
@@ -25,7 +29,6 @@ func (ps *ProductService) GetAllProducts() ([]model.Product, error) {
 	for _, product := range products {
 		productSlice = append(productSlice, product)
 	}
-	
 
 	return productSlice, nil
 }
@@ -40,7 +43,11 @@ func (ps *ProductService) GetProductById(id int) (model.Product, error) {
 
 func (ps *ProductService) CreateProduct(product model.Product) (model.Product, error) {
 	err := product.Validate()
+	if err != nil {
+		return model.Product{}, err
+	}
 
+	_, err = ps.SellerRepository.GetById(product.SellerID)
 	if err != nil {
 		return model.Product{}, err
 	}
@@ -61,7 +68,22 @@ func (ps *ProductService) CreateProduct(product model.Product) (model.Product, e
 }
 
 func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Product, error) {
-	return model.Product{}, nil
+
+	_, err := ps.SellerRepository.GetById(product.SellerID)
+	if err != nil {
+		return model.Product{}, err
+	}
+
+	productInDb, err := ps.ProductRepository.GetById(id)
+	if err != nil {
+		return model.Product{}, err
+	}
+
+	productAdjusted := updateProduct(productInDb, product)
+
+	productUpdated, _ := ps.ProductRepository.Update(id, productAdjusted)
+
+	return productUpdated, nil
 }
 
 func (ps *ProductService) DeleteProduct(id int) error {
@@ -69,6 +91,7 @@ func (ps *ProductService) DeleteProduct(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -79,4 +102,18 @@ func existsByProductCode(productCode string, products map[int]model.Product) boo
 		}
 	}
 	return false
+}
+
+func updateProduct(existingProduct model.Product, newProduct model.Product) model.Product {
+	valueOfNewProduct := reflect.ValueOf(newProduct)
+	valueOfExistingProduct := reflect.ValueOf(&existingProduct).Elem()
+
+	for i := 0; i < valueOfNewProduct.NumField(); i++ {
+		newValue := valueOfNewProduct.Field(i)
+		if !newValue.IsZero() {
+			valueOfExistingProduct.Field(i).Set(newValue)
+		}
+	}
+
+	return existingProduct
 }
