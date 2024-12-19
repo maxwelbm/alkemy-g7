@@ -7,5 +7,5 @@ type IWarehouseService interface {
 	GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	Post(warehouse model.WareHouse) (w model.WareHouse, err error)
 	Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error)
-	Delete(id int) error
+	DeleteByIdWareHouse(id int) error
 }
