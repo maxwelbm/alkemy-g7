@@ -45,19 +45,18 @@ func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
 }
 
 func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
-	BuyerExists:= isCardNumberIdExists(newBuyer.CardNumberId, br)
+	BuyerExists := isCardNumberIdExists(newBuyer.CardNumberId, br)
 
 	if BuyerExists {
 		return model.Buyer{}, &custom_error.CustomError{Object: newBuyer, Err: custom_error.Conflict}
 	}
-	buyer:= model.Buyer{
-		Id: len(br.dbBuyer.TbBuyer)+1,
+	buyer := model.Buyer{
+		Id:           len(br.dbBuyer.TbBuyer) + 1,
 		CardNumberId: newBuyer.CardNumberId,
-		FirstName: newBuyer.FirstName,
-		LastName: newBuyer.LastName,
+		FirstName:    newBuyer.FirstName,
+		LastName:     newBuyer.LastName,
 	}
 
-	
 	br.dbBuyer.TbBuyer[newBuyer.Id] = buyer
 
 	return br.GetById(newBuyer.Id)
@@ -68,10 +67,10 @@ func (br BuyerRepository) Update(id int, buyer model.Buyer) (model.Buyer, error)
 	panic("unimplemented")
 }
 
-func isCardNumberIdExists(CardNumberId int, br *BuyerRepository) bool{
-	
-	for _,b:= range br.dbBuyer.TbBuyer{
-		if b.CardNumberId == CardNumberId{
+func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
+
+	for _, b := range br.dbBuyer.TbBuyer {
+		if b.CardNumberId == CardNumberId {
 			return true
 		}
 	}
