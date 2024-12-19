@@ -15,7 +15,7 @@ type Database struct {
 	TbSections   map[int]model.Section
 	TbEmployees  map[int]model.Employee
 	TbSellers    map[int]model.Seller
-	TbWarehouses map[int]model.WareHouse
+	TbWarehouses map[int]model.WareHouseJson
 }
 
 func CreateDatabase() *Database {
@@ -25,7 +25,7 @@ func CreateDatabase() *Database {
 		TbSections:   make(map[int]model.Section),
 		TbEmployees:  make(map[int]model.Employee),
 		TbSellers:    make(map[int]model.Seller),
-		TbWarehouses: make(map[int]model.WareHouse),
+		TbWarehouses: make(map[int]model.WareHouseJson),
 	}
 
 	db.LoadJsonSellers("pkg/database/docs/sellers.json")
@@ -99,8 +99,12 @@ func (db *Database) LoadJsonEmployee(filepath string) (string, error) {
 }
 
 func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
-	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+	var warehouse []model.WareHouseJson = make([]model.WareHouseJson, 0)
+
 	Load(filepath, &warehouse)
+
+	db.TbWarehouses = make(map[int]model.WareHouseJson)
+
 	for _, b := range warehouse {
 		db.TbWarehouses[b.Id] = b
 	}
