@@ -26,3 +26,30 @@ func (e *EmployeeService) GetEmployees() (map[int]model.Employee, error) {
 func (e *EmployeeService) GetEmployeeById(id int) (model.Employee, error) {
 	return e.rp.GetById(id)
 }
+
+func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
+	existingEmployee, err := e.GetEmployeeById(id)
+
+	if err != nil {
+		return model.Employee{}, err
+	}
+
+	updateEmployeeFields(&existingEmployee, employee)
+
+	return e.UpdateEmployee(id, existingEmployee)
+}
+
+func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
+	if updates.CardNumberId != "" {
+		existing.CardNumberId = updates.CardNumberId
+	}
+	if updates.FirstName != "" {
+		existing.FirstName = updates.FirstName
+	}
+	if updates.LastName != "" {
+		existing.LastName = updates.LastName
+	}
+	if updates.WarehouseId != 0 {
+		existing.WarehouseId = updates.WarehouseId
+	}
+}
