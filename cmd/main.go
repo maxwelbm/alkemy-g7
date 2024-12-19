@@ -29,7 +29,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Get("/{id}", warehouseHandler.GetWareHouseById())
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
-		r.Delete("/{id}", nil)
+		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
 	})
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {

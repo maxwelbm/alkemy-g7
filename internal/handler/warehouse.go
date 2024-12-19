@@ -68,5 +68,24 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 		})
 
 	}
+}
 
+func (h *WarehouseHandler) DeleteByIdWareHouse() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "invalid id")
+			return
+		}
+
+		err = h.srv.DeleteByIdWareHouse(id)
+
+		if err != nil {
+			response.JSON(w, http.StatusNotFound, "warehouse not found")
+			return
+		}
+
+		response.JSON(w, http.StatusNoContent, "")
+	}
 }

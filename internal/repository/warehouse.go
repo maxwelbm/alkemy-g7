@@ -28,8 +28,15 @@ func (r *WareHouseMap) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
 	return
 }
 
-func (r *WareHouseMap) Delete(id int) error {
-	panic("unimplemented")
+func (r *WareHouseMap) DeleteByIdWareHouse(id int) error {
+	_, ok := r.db.TbWarehouses[id]
+
+	if !ok {
+		return &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+	}
+
+	delete(r.db.TbWarehouses, id)
+	return nil
 }
 
 func (r *WareHouseMap) Post(warehouse model.WareHouse) (model.WareHouse, error) {
