@@ -171,3 +171,51 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	}
 
 }
+
+func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var reqBody RequestBuyerJson
+
+	err = json.NewDecoder(r.Body).Decode(&reqBody)
+
+	if err != nil {
+		http.Error(w, "erro de desserialização dos dados", http.StatusBadRequest)
+		return
+	}
+
+	buyer, err := bh.svc.UpdateBuyer(id, model.Buyer{
+		CardNumberId: reqBody.CardNumberId,
+		FirstName:    reqBody.FirstName,
+		LastName:     reqBody.LastName,
+	})
+
+	if err != nil {
+		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+			http.Error(w, "", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+}
+
+	data := Data{
+		Data: buyer,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(data)
+	if err != nil {
+
+		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		return
+	}
+
+}

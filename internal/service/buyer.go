@@ -28,3 +28,26 @@ func (bs *BuyerService) DeleteBuyerByID(id int) error {
 func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (model.Buyer, error) {
 	return bs.rp.Post(newBuyer)
 }
+
+func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
+
+	existingBuyer, err := bs.GetBuyerByID(id)
+
+	if err == nil {
+
+		if newBuyer.CardNumberId != "" {
+			existingBuyer.CardNumberId = newBuyer.CardNumberId
+		}
+		if newBuyer.FirstName != "" {
+			existingBuyer.FirstName = newBuyer.FirstName
+		}
+		if newBuyer.LastName != "" {
+			existingBuyer.LastName = newBuyer.LastName
+		}
+
+		return bs.rp.Update(id, existingBuyer)
+	} else {
+
+		return model.Buyer{}, err
+	}
+}

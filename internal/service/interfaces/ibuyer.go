@@ -7,4 +7,5 @@ type IBuyerservice interface {
 	GetBuyerByID(id int) (model.Buyer, error)
 	DeleteBuyerByID(id int) error
 	CreateBuyer(newBuyer model.Buyer) (model.Buyer, error)
+	UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error)
 }

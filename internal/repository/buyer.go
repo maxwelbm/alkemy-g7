@@ -63,8 +63,11 @@ func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
 
 }
 
-func (br BuyerRepository) Update(id int, buyer model.Buyer) (model.Buyer, error) {
-	panic("unimplemented")
+func (br BuyerRepository) Update(id int, newBuyer model.Buyer) (model.Buyer, error) {
+
+	br.dbBuyer.TbBuyer[id] = newBuyer
+
+	return br.GetById(id)
 }
 
 func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
