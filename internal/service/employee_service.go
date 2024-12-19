@@ -57,6 +57,16 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 	return e.rp.Update(id, existingEmployee)
 }
 
+func (e *EmployeeService) DeleteEmployee(id int) error {
+	_, err := e.rp.GetById(id)
+
+	if err != nil {
+		return err
+	}
+
+	return e.rp.Delete(id)
+}
+
 func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
 	if updates.CardNumberId != "" {
 		existing.CardNumberId = updates.CardNumberId

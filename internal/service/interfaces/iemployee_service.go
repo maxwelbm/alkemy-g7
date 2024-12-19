@@ -7,4 +7,5 @@ type IEmployeeService interface {
 	GetEmployeeById(id int) (model.Employee, error)
 	UpdateEmployee(id int, employee model.Employee) (model.Employee, error)
 	InsertEmployee(employee model.Employee) (model.Employee, error)
+	DeleteEmployee(id int) error
 }

@@ -14,13 +14,13 @@ func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *han
 	employeeSv := service.CreateEmployeeService(employeeRp)
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	productRepo := repository.NewProductRepository(*db)
-	productServ := service.NewProductService(productRepo)
-	productHandler := handler.NewProductHandler(productServ)
-
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
 	sellersService := service.CreateServiceSellers(*sellersRepository)
 	sellersHandler := handler.CreateHandlerSellers(*sellersService)
+
+	productRepo := repository.NewProductRepository(*db)
+	productServ := service.NewProductService(productRepo, sellersRepository)
+	productHandler := handler.NewProductHandler(productServ)
 
 	buyersRepository := repository.NewBuyerRepository(*db)
 	buyerService := service.NewBuyerService(buyersRepository)

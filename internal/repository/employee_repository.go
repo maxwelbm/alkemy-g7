@@ -38,3 +38,8 @@ func (e *EmployeeRepository) Update(id int, employee model.Employee) (model.Empl
 
 	return employee, nil
 }
+
+func (e *EmployeeRepository) Delete(id int) error {
+	delete(e.db, id)
+	return nil
+}

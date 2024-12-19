@@ -9,17 +9,14 @@ type WareHouseDefault struct {
 	rp interfaces.IWarehouseRepo
 }
 
-// Delete implements interfaces.IWarehouseService.
-func (s *WareHouseDefault) Delete(id int) error {
-	panic("unimplemented")
+func (s *WareHouseDefault) DeleteByIdWareHouse(id int) error {
+	return s.rp.DeleteByIdWareHouse(id)
 }
 
-// Post implements interfaces.IWarehouseService.
-func (s *WareHouseDefault) Post(warehouse model.WareHouse) (w model.WareHouse, err error) {
-	panic("unimplemented")
+func (s *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
+	return s.rp.PostWareHouse(warehouse)
 }
 
-// Update implements interfaces.IWarehouseService.
 func (s *WareHouseDefault) Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
 	panic("unimplemented")
 }
