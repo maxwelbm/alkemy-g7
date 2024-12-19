@@ -33,4 +33,8 @@ var (
 	ErrorInvalidJSON error = errors.New("JSON Invalid")
 	ErrorStringAttribute error = errors.New("Invalid format or empty value, expected string attribute.")
 	ErrorIntAttribute error = errors.New("Invalid format or empty value, expected int attribute.")
+	StatusNotFound string = "Not Found"
+	StatusBadRequest string = "Bad Request"
+	StatusConflict string = "Conflict"
+	StatusUnprocessableEntity string = "Unprocessable Entity"
 )
