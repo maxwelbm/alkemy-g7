@@ -2,16 +2,19 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
 type WarehouseHandler struct {
-	srv service.WareHouseDefault
+	srv interfaces.IWarehouseService
 }
 
-func NewWareHouseHandler(srv service.WareHouseDefault) *WarehouseHandler {
+func NewWareHouseHandler(srv interfaces.IWarehouseService) *WarehouseHandler {
 	return &WarehouseHandler{srv: srv}
 }
 
@@ -24,9 +27,46 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 			return
 		}
 
+		var data []model.WareHouse
+
+		for _, value := range wareHouse {
+			data = append(data, model.WareHouse{
+				Id:                 value.Id,
+				Address:            value.Address,
+				Telephone:          value.Telephone,
+				WareHouseCode:      value.WareHouseCode,
+				MinimunCapacity:    value.MinimunCapacity,
+				MinimunTemperature: value.MinimunTemperature,
+			})
+		}
+
 		response.JSON(w, http.StatusOK, map[string]any{
-			"message": "success",
-			"data":    wareHouse,
+			"data": data,
 		})
+
 	}
+}
+
+func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "invalid id")
+			return
+		}
+
+		warehouse, err := h.srv.GetByIdWareHouse(id)
+
+		if err != nil {
+			response.JSON(w, http.StatusNotFound, "warehouse not found")
+			return
+		}
+
+		response.JSON(w, http.StatusOK, map[string]any{
+			"data": warehouse,
+		})
+
+	}
+
 }

@@ -100,7 +100,11 @@ func (db *Database) LoadJsonEmployee(filepath string) (string, error) {
 
 func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
 	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+
 	Load(filepath, &warehouse)
+
+	db.TbWarehouses = make(map[int]model.WareHouse)
+
 	for _, b := range warehouse {
 		db.TbWarehouses[b.Id] = b
 	}

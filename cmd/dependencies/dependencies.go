@@ -27,8 +27,8 @@ func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *han
 	buyerHandler := handler.NewBuyerHandler(buyerService)
 
 	warehousesRepository := repository.NewWareHouseRepository(*db)
-	warehousesService := service.NewWareHoureService(*warehousesRepository)
-	warehousesHandler := handler.NewWareHouseHandler(*warehousesService)
+	warehousesService := service.NewWareHoureService(warehousesRepository)
+	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
 	SectionsRep := repository.CreateRepositorySections(*db)
 	SectionsSvc := service.CreateServiceSection(*SectionsRep)
