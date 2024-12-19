@@ -22,18 +22,7 @@ type Product struct {
 
 func (p *Product) Validate() error {
 	var erros []string
-	fmt.Printf("ID: %d\n", p.ID)
-	fmt.Printf("ProductCode: %s\n", p.ProductCode)
-	fmt.Printf("Description: %s\n", p.Description)
-	fmt.Printf("Width: %.2f\n", p.Width)
-	fmt.Printf("Height: %.2f\n", p.Height)
-	fmt.Printf("Length: %.2f\n", p.Length)
-	fmt.Printf("NetWeight: %.2f\n", p.NetWeight)
-	fmt.Printf("ExpirationRate: %.2f\n", p.ExpirationRate)
-	fmt.Printf("RecommendedFreezingTemperature: %.2f\n", p.RecommendedFreezingTemperature)
-	fmt.Printf("FreezingRate: %.2f\n", p.FreezingRate)
-	fmt.Printf("ProductTypeID: %d\n", p.ProductTypeID)
-	fmt.Printf("SellerID: %d\n", p.SellerID)
+    
 	if p.ProductCode == "" {
 		erros = append(erros, "ProductCode não pode estar vazio")
 	}
