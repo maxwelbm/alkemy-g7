@@ -88,8 +88,25 @@ func (h *SectionController) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {}
 }
 
-func (h *SectionController) Delete() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	idInt, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, map[string]any{
+			"message": "invalid id param",
+		})
+	}
+
+	err = h.sv.Delete(idInt)
+	if err != nil {
+		response.JSON(w, handleError(err), nil)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, map[string]any{
+		"message": "section removed successfully",
+		"data":    nil,
+	})
 }
 
 func handleError(err error) int {
