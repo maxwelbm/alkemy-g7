@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
@@ -20,8 +19,7 @@ type SellersRepository struct {
 func (rp *SellersRepository) validateCID(sellers map[int]model.Seller, cid int) error {
 	for _, s := range sellers {
 		if s.CID == cid {
-			err := errors.New("Seller's CID already exist")
-			return err
+			return model.ErrorCIDAlreadyExist
 			}
 		}
 	return nil
@@ -40,8 +38,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 	sl, exist := rp.db[id]
 	if !exist {
-		err = errors.New("Seller not found")
-		return sl, err
+		return sl, model.ErrorSellerNotFound
 	}
 	return sl, err
 }

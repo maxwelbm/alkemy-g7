@@ -1,5 +1,7 @@
 package model
 
+import "errors"
+
 type Seller struct {
 	ID          int    `json:"id"`
 	CID         int    `json:"cid"`
@@ -23,3 +25,12 @@ type ResponseBodyErrorSeller struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
+
+var (
+	ErrorSellerNotFound error = errors.New("Seller not found")
+	ErrorCIDAlreadyExist error = errors.New("Seller's CID already exist")
+	ErrorMissingID error = errors.New("Missing int ID")
+	ErrorInvalidJSON error = errors.New("JSON Invalid")
+	ErrorStringAttribute error = errors.New("Invalid format or empty value, expected string attribute.")
+	ErrorIntAttribute error = errors.New("Invalid format or empty value, expected int attribute.")
+)

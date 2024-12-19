@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"reflect"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
@@ -49,25 +48,21 @@ func (s *SellersService) ValidateFields(seller model.Seller) error {
 }
 
 func validateFormatString(attribute string) error {
-	err := errors.New("Invalid format or empty value, expected string attribute.")
-
 	if reflect.TypeOf(attribute).Kind() != reflect.String {
-		return err
+		return model.ErrorStringAttribute
 	}
 	if attribute == "" {
-		return err
+		return model.ErrorStringAttribute
 	}
 	return nil
 }
 
 func validateFormatInt(attribute int) error {
-	err := errors.New("Invalid format or empty value, expected int attribute.")
-
 	if reflect.TypeOf(attribute).Kind() != reflect.Int {
-		return err
+		return model.ErrorIntAttribute
 	}
 	if attribute == 0 {
-		return err
+		return model.ErrorIntAttribute
 	}
 	return nil
 }
