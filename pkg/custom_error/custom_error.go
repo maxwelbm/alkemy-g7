@@ -15,7 +15,6 @@ func (c CustomError) Error() string {
 }
 
 var (
-	NotFound     = errors.New("not found")
-	InvalidErr   = errors.New("invalid object")
-	DuplicatedId = errors.New("id already exists in db")
+	NotFound   = errors.New("not found")
+	InvalidErr = errors.New("invalid object")
 )

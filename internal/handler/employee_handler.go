@@ -43,6 +43,11 @@ type ResponseBody struct {
 	Data any `json:"data"`
 }
 
+type ResponseBodyError struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 type EmployeeHandler struct {
 	sv interfaces.IEmployeeService
 }
@@ -87,8 +92,13 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 
 	data, err := e.sv.GetEmployeeById(idInt)
 
-	if err != nil && errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-		response.JSON(w, http.StatusNotFound, nil)
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			return
+		}
+
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
 		return
 	}
 
@@ -108,7 +118,7 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	err := request.JSON(r, &newEmployee)
 
 	if err != nil {
-		response.JSON(w, http.StatusUnprocessableEntity, nil)
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the request body"})
 		return
 	}
 
@@ -116,13 +126,12 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 
 	data, err := e.sv.InsertEmployee(*employee)
 
-	if err != nil && errors.Is(err.(custom_error.CustomError).Err, custom_error.DuplicatedId) {
-		response.JSON(w, http.StatusUnprocessableEntity, nil)
-		return
-
-	}
-	if err != nil && errors.Is(err.(custom_error.CustomError).Err, custom_error.InvalidErr) {
-		response.JSON(w, http.StatusUnprocessableEntity, nil)
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.InvalidErr) {
+			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.Error()})
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
 		return
 	}
 
