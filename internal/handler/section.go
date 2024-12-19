@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
@@ -80,8 +82,35 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, s)
 }
 
-func (h *SectionController) Post() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
+	var reqBody SectionJSON
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		response.JSON(w, http.StatusBadRequest, map[string]any{
+			"message": "invalid request body",
+		})
+		return
+	}
+
+	section := model.Section{
+		SectionNumber:      reqBody.SectionNumber,
+		CurrentTemperature: reqBody.CurrentTemperature,
+		MinimumTemperature: reqBody.MinimumTemperature,
+		CurrentCapacity:    reqBody.CurrentCapacity,
+		MinimumCapacity:    reqBody.MinimumCapacity,
+		MaximumCapacity:    reqBody.MaximumCapacity,
+		WarehouseID:        reqBody.WarehouseID,
+		ProductTypeID:      reqBody.ProductTypeID,
+	}
+
+	s, err := h.sv.Post(section)
+	if err != nil {
+		response.JSON(w, handleError(err), nil)
+		return
+	}
+	response.JSON(w, http.StatusCreated, map[string]any{
+		"message": "section created",
+		"data":    s,
+	})
 }
 
 func (h *SectionController) Update() http.HandlerFunc {
@@ -112,6 +141,9 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 func handleError(err error) int {
 	if errors.Is(err, repository.NotFoundError) {
 		return http.StatusNotFound
+	}
+	if errors.Is(err, repository.ConflictError) {
+		return http.StatusConflict
 	}
 	return http.StatusInternalServerError
 }

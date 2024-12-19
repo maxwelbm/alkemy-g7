@@ -9,6 +9,7 @@ import (
 
 var (
 	NotFoundError = errors.New("there's no section with this id")
+	ConflictError = errors.New("section with this id already exists")
 )
 
 type SectionRepository struct {
@@ -38,8 +39,16 @@ func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
 	return
 }
 
-func (r *SectionRepository) Post(section model.Section) (model.Section, error) {
-	return model.Section{}, nil
+func (r *SectionRepository) Post(section model.Section) (s model.Section, err error) {
+	lastId := len(r.dbSection.TbSections)
+	if _, exists := r.dbSection.TbSections[section.ID]; exists {
+		err = ConflictError
+		return
+	}
+	section.ID = lastId + 1
+	r.dbSection.TbSections[section.ID] = section
+	s = section
+	return
 }
 
 func (r *SectionRepository) Update(id int, section model.Section) (model.Section, error) {
