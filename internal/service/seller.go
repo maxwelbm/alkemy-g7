@@ -4,18 +4,37 @@ import (
 	"errors"
 	"reflect"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 )
 
-func CreateServiceSellers(rp repository.SellersRepository) *SellersService {
+func CreateServiceSellers(rp interfaces.ISellerRepo) *SellersService {
 	return &SellersService{rp: rp}
 }
 
 type SellersService struct {
-	rp repository.SellersRepository
+	rp interfaces.ISellerRepo
 }
 
-//Validates
+func (s *SellersService) ValidateFieldsUpdate(sl model.SellerUpdate) error {
+    if sl.CID != nil && *sl.CID == 0 {
+        return validateFormatInt(*sl.CID)
+    }
+
+    if sl.Address != nil && *sl.Address == "" {
+        return validateFormatString(*sl.Address)
+    }
+
+    if sl.CompanyName != nil && *sl.CompanyName == "" {
+        return validateFormatString(*sl.CompanyName)
+    }
+
+    if sl.Telephone != nil && *sl.Telephone == "" {
+        return validateFormatString(*sl.Telephone)
+    }
+
+    return nil
+}
+
 func (s *SellersService) ValidateFields(seller model.Seller) error {
 	if err := validateFormatString(seller.CompanyName); err != nil {
 		return err
@@ -30,7 +49,7 @@ func (s *SellersService) ValidateFields(seller model.Seller) error {
 }
 
 func validateFormatString(attribute string) error {
-	err := errors.New("Invalid format or empty value, expected string attribute")
+	err := errors.New("Invalid format or empty value, expected string attribute.")
 
 	if reflect.TypeOf(attribute).Kind() != reflect.String {
 		return err
@@ -42,7 +61,7 @@ func validateFormatString(attribute string) error {
 }
 
 func validateFormatInt(attribute int) error {
-	err := errors.New("Invalid format or empty value, expected int attribute")
+	err := errors.New("Invalid format or empty value, expected int attribute.")
 
 	if reflect.TypeOf(attribute).Kind() != reflect.Int {
 		return err
@@ -53,14 +72,13 @@ func validateFormatInt(attribute int) error {
 	return nil
 }
 
-//Requests
 func (s *SellersService) GetAll() (sellers []model.Seller, err error) {
 	sellers, err = s.rp.Get()
 	return
 }
 
-func (s *SellersService) GetByID(id int) (seller model.Seller, err error) {
-	seller, err = s.rp.GetByID(id)
+func (s *SellersService) GetById(id int) (seller model.Seller, err error) {
+	seller, err = s.rp.GetById(id)
 	return
 }
 
@@ -71,4 +89,18 @@ func (s *SellersService) CreateSeller(seller model.Seller) (sl model.Seller, err
 
 	sl, err = s.rp.Post(seller)
 	return
+}
+
+func (s *SellersService) UpdateSeller(id int, seller model.SellerUpdate) (sl model.Seller, err error) {
+    if err := s.ValidateFieldsUpdate(seller); err != nil {
+        return sl, err
+    }
+
+    sl, err = s.rp.Patch(id, seller)
+
+    return sl, err
+}
+
+func (s *SellersService) Delete(id int) error {
+	panic("unimplemented")
 }
