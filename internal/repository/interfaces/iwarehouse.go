@@ -7,5 +7,5 @@ type IWarehouseRepo interface {
 	GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	Post(warehouse model.WareHouse) (model.WareHouse, error)
 	Update(id int, warehouse model.WareHouse) (model.WareHouse, error)
-	Delete(id int) error
+	DeleteByIdWareHouse(id int) error
 }
