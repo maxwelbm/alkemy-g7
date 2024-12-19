@@ -102,13 +102,8 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	employeeJSON := EmployeeJSON{
-		Id:           data.Id,
-		CardNumberId: data.CardNumberId,
-		FirstName:    data.FirstName,
-		LastName:     data.FirstName,
-		WarehouseId:  data.WarehouseId,
-	}
+	employeeJSON := EmployeeJSON{}
+	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
 }
@@ -139,4 +134,42 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusCreated, ResponseBody{Data: employeeJSON})
+}
+
+func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	idInt, err := strconv.Atoi(id)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the id in path param"})
+		return
+	}
+
+	var reqBody EmployeeJSON
+
+	err = request.JSON(r, &reqBody)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the request body"})
+		return
+	}
+
+	employee := *reqBody.toEmployeeEntity()
+
+	updatedEmployee, err := e.sv.UpdateEmployee(idInt, employee)
+
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		return
+	}
+
+	employeeJSON := EmployeeJSON{}
+	employeeJSON.fromEmployeeEntity(updatedEmployee)
+
+	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
 }

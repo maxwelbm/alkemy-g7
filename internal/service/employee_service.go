@@ -54,7 +54,7 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 
 	updateEmployeeFields(&existingEmployee, employee)
 
-	return e.UpdateEmployee(id, existingEmployee)
+	return e.rp.Update(id, existingEmployee)
 }
 
 func updateEmployeeFields(existing *model.Employee, updates model.Employee) {

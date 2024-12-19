@@ -68,7 +68,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Get("/", employeeHd.GetEmployeesHandler)
 		r.Get("/{id}", employeeHd.GetEmployeeById)
 		r.Post("/", employeeHd.InsertEmployee)
-		// rt.Patch("/{id}", nil)
+		r.Patch("/{id}", employeeHd.UpdateEmployee)
 		// rt.Delete("/{id}", nil)
 	})
 	return rt
