@@ -195,8 +195,12 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 		LastName:     reqBody.LastName,
 	})
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		http.Error(w, "", http.StatusNotFound)
+	if err != nil {
+		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+			http.Error(w, "", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
