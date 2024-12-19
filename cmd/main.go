@@ -62,7 +62,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
 		r.Get("/", buyerHandler.HandlerGetAllBuyers)
 		r.Get("/{id}", buyerHandler.HandlerGetBuyerById)
-		r.Post("/", nil)
+		r.Post("/", buyerHandler.HandlerCreateBuyer)
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", buyerHandler.HandlerDeleteBuyerById)
 	})
