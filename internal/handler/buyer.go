@@ -8,6 +8,7 @@ import (
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -19,7 +20,13 @@ type BuyerHandler struct {
 
 type ResponseBuyerJson struct {
 	Id           int    `json:"id"`
-	CardNumberId int    `json:"card_number_id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+}
+
+type RequestBuyerJson struct {
+	CardNumberId string `json:"card_number_id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 }
@@ -125,5 +132,42 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNoContent)
 
 	w.Write([]byte(""))
+
+}
+
+func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
+	var reqBody RequestBuyerJson
+
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+
+	if err != nil || reqBody.CardNumberId == "" || reqBody.FirstName == "" || reqBody.LastName == "" {
+		http.Error(w, "", http.StatusUnprocessableEntity)
+		return
+	}
+
+	buyer, err := bh.svc.CreateBuyer(model.Buyer{
+		CardNumberId: reqBody.CardNumberId,
+		FirstName:    reqBody.FirstName,
+		LastName:     reqBody.LastName,
+	})
+
+	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
+		http.Error(w, "card_number_id already exists", http.StatusConflict)
+		return
+	}
+
+	data := Data{
+		Data: buyer,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	err = json.NewEncoder(w).Encode(data)
+	if err != nil {
+
+		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		return
+	}
 
 }
