@@ -22,14 +22,14 @@ func main() {
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
 	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
-  
+
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
 		r.Get("/", warehouseHandler.GetAllWareHouse())
 		r.Get("/{id}", warehouseHandler.GetWareHouseById())
 		r.Post("/", warehouseHandler.PostWareHouse())
-		r.Patch("/{id}", nil)
+		r.Patch("/{id}", warehouseHandler.UpdateWareHouse())
 		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
 	})
 
