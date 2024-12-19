@@ -1,8 +1,14 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
+)
+
+var (
+	NotFoundError = errors.New("there's no section with this id")
 )
 
 type SectionRepository struct {
@@ -23,8 +29,13 @@ func (r *SectionRepository) Get() (sections map[int]model.Section, err error) {
 	return
 }
 
-func (r *SectionRepository) GetById(id int) (model.Section, error) {
-	return model.Section{}, nil
+func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
+	if _, exists := r.dbSection.TbSections[id]; !exists {
+		err = NotFoundError
+		return
+	}
+	section = r.dbSection.TbSections[id]
+	return
 }
 
 func (r *SectionRepository) Post(section model.Section) (model.Section, error) {
@@ -35,6 +46,11 @@ func (r *SectionRepository) Update(id int, section model.Section) (model.Section
 	return model.Section{}, nil
 }
 
-func (r *SectionRepository) Delete(id int) error {
-	return nil
+func (r *SectionRepository) Delete(id int) (err error) {
+	if _, exists := r.dbSection.TbSections[id]; !exists {
+		err = NotFoundError
+		return
+	}
+	delete(r.dbSection.TbSections, id)
+	return
 }

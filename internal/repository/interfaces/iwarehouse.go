@@ -3,9 +3,9 @@ package interfaces
 import "github.com/maxwelbm/alkemy-g7.git/internal/model"
 
 type IWarehouseRepo interface {
-	Get() (map[int]model.WareHouse, error)
-	GetById(id int) (model.WareHouse, error)
-	Post(warehouse model.WareHouse) (model.WareHouse, error)
-	Update(id int, warehouse model.WareHouse) (model.WareHouse, error)
-	Delete(id int) error
+	GetAllWareHouse() (w map[int]model.WareHouse, err error)
+	GetByIdWareHouse(id int) (w model.WareHouse, err error)
+	PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error)
+	Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error)
+	DeleteByIdWareHouse(id int) error
 }
