@@ -7,6 +7,7 @@ import (
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
@@ -38,7 +39,7 @@ type SectionController struct {
 func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 	s, err := h.sv.Get()
 	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, nil)
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
@@ -56,28 +57,23 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 			ProductTypeID:      value.ProductTypeID,
 		}
 	}
-	response.JSON(w, http.StatusOK, map[string]any{
-		"message": "success",
-		"data":    data,
-	})
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", data))
 }
 
 func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, map[string]any{
-			"message": "invalid id param",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
 	}
 
 	s, err := h.sv.GetById(idInt)
 	if err != nil {
-		response.JSON(w, handleError(err), nil)
+		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	response.JSON(w, http.StatusOK, s)
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", s))
 }
 
 func (h *SectionController) Post() http.HandlerFunc {
@@ -92,21 +88,16 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, map[string]any{
-			"message": "invalid id param",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
 	}
 
 	err = h.sv.Delete(idInt)
 	if err != nil {
-		response.JSON(w, handleError(err), nil)
+		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	response.JSON(w, http.StatusNoContent, map[string]any{
-		"message": "section removed successfully",
-		"data":    nil,
-	})
+	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("section removed successfully", nil))
 }
 
 func handleError(err error) int {
