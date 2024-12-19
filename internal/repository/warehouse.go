@@ -25,6 +25,17 @@ func (r *WareHouseMap) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
 	if !ok {
 		return model.WareHouse{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 	}
-
 	return
+}
+
+func (r *WareHouseMap) Delete(id int) error {
+	panic("unimplemented")
+}
+
+func (r *WareHouseMap) Post(warehouse model.WareHouse) (model.WareHouse, error) {
+	panic("unimplemented")
+}
+
+func (r *WareHouseMap) Update(id int, warehouse model.WareHouse) (model.WareHouse, error) {
+	panic("unimplemented")
 }

@@ -2,14 +2,29 @@ package service
 
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 )
 
 type WareHouseDefault struct {
-	rp repository.WareHouseMap
+	rp interfaces.IWarehouseRepo
 }
 
-func NewWareHoureService(rp repository.WareHouseMap) *WareHouseDefault {
+// Delete implements interfaces.IWarehouseService.
+func (s *WareHouseDefault) Delete(id int) error {
+	panic("unimplemented")
+}
+
+// Post implements interfaces.IWarehouseService.
+func (s *WareHouseDefault) Post(warehouse model.WareHouse) (w model.WareHouse, err error) {
+	panic("unimplemented")
+}
+
+// Update implements interfaces.IWarehouseService.
+func (s *WareHouseDefault) Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
+	panic("unimplemented")
+}
+
+func NewWareHoureService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
 	return &WareHouseDefault{rp: rp}
 }
 

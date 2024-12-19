@@ -7,14 +7,14 @@ import (
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
 type WarehouseHandler struct {
-	srv service.WareHouseDefault
+	srv interfaces.IWarehouseService
 }
 
-func NewWareHouseHandler(srv service.WareHouseDefault) *WarehouseHandler {
+func NewWareHouseHandler(srv interfaces.IWarehouseService) *WarehouseHandler {
 	return &WarehouseHandler{srv: srv}
 }
 
