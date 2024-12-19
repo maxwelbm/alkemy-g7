@@ -202,7 +202,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
+}
 
 	data := Data{
 		Data: buyer,
