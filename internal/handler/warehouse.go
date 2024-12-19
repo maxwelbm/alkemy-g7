@@ -190,7 +190,7 @@ func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 			return
 		}
 
-		response.JSON(w, http.StatusCreated, ResponseWareHouseJson{
+		response.JSON(w, http.StatusOK, ResponseWareHouseJson{
 			Message: "success",
 			Data:    warehouse,
 			Error:   false,
