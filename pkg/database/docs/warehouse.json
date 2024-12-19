@@ -1,1 +1,15 @@
-[]
+[ {
+
+    "id": 1,
+
+    "adress": "Monroe 860",
+
+    "telephone": "47470000",
+
+    "warehouse_code": "DHM",
+
+    "minimun_capacity": 10,
+
+    "minimun_temperature": 10
+
+  }]
