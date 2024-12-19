@@ -39,10 +39,19 @@ func (r *WareHouseMap) DeleteByIdWareHouse(id int) error {
 	return nil
 }
 
-func (r *WareHouseMap) Post(warehouse model.WareHouse) (model.WareHouse, error) {
-	panic("unimplemented")
+func (r *WareHouseMap) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
+	warehouse.Id = (len(r.db.TbWarehouses) + 1)
+
+	for _, value := range r.db.TbWarehouses {
+		if value.WareHouseCode == warehouse.WareHouseCode {
+			return model.WareHouse{}, &custom_error.CustomError{Object: warehouse.WareHouseCode, Err: custom_error.AlreadyExists}
+		}
+	}
+	r.db.TbWarehouses[warehouse.Id] = warehouse
+	w = r.db.TbWarehouses[warehouse.Id]
+	return
 }
 
-func (r *WareHouseMap) Update(id int, warehouse model.WareHouse) (model.WareHouse, error) {
+func (r *WareHouseMap) Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
 	panic("unimplemented")
 }
