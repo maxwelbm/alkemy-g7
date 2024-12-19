@@ -6,4 +6,5 @@ type IEmployeeService interface {
 	GetEmployees() (map[int]model.Employee, error)
 	GetEmployeeById(id int) (model.Employee, error)
 	InsertEmployee(employee model.Employee) (model.Employee, error)
+	DeleteEmployee(id int) error
 }

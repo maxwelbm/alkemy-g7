@@ -45,6 +45,16 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 	return e.rp.Post(employee)
 }
 
+func (e *EmployeeService) DeleteEmployee(id int) error {
+	_, err := e.rp.GetById(id)
+
+	if err != nil {
+		return err
+	}
+
+	return e.rp.Delete(id)
+}
+
 func (e *EmployeeService) generateNewId() int {
 	lastId := 0
 	data, _ := e.rp.Get()
