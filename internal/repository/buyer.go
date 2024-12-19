@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
@@ -27,8 +28,14 @@ func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 }
 
 // GetById implements interfaces.IBuyerRepo.
-func (br BuyerRepository) GetById(id int) (model.Buyer, error) {
-	panic("unimplemented")
+func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
+	buyer, ok:= br.dbBuyer.TbBuyer[id]
+
+	if !ok {
+		return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+	}
+
+	return buyer, nil
 }
 
 // Post implements interfaces.IBuyerRepo.
