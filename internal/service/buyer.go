@@ -16,3 +16,38 @@ func NewBuyerService(rp interfaces.IBuyerRepo) *BuyerService {
 func (bs *BuyerService) GetAllBuyer() (map[int]model.Buyer, error) {
 	return bs.rp.Get()
 }
+
+func (bs *BuyerService) GetBuyerByID(id int) (model.Buyer, error) {
+	return bs.rp.GetById(id)
+}
+
+func (bs *BuyerService) DeleteBuyerByID(id int) error {
+	return bs.rp.Delete(id)
+}
+
+func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (model.Buyer, error) {
+	return bs.rp.Post(newBuyer)
+}
+
+func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
+
+	existingBuyer, err := bs.GetBuyerByID(id)
+
+	if err == nil {
+
+		if newBuyer.CardNumberId != "" {
+			existingBuyer.CardNumberId = newBuyer.CardNumberId
+		}
+		if newBuyer.FirstName != "" {
+			existingBuyer.FirstName = newBuyer.FirstName
+		}
+		if newBuyer.LastName != "" {
+			existingBuyer.LastName = newBuyer.LastName
+		}
+
+		return bs.rp.Update(id, existingBuyer)
+	} else {
+
+		return model.Buyer{}, err
+	}
+}
