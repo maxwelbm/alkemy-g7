@@ -24,6 +24,9 @@ func (s *SectionService) GetById(id int) (section model.Section, err error) {
 }
 
 func (s *SectionService) Post(section model.Section) (sec model.Section, err error) {
+	if err := section.Validate(); err != nil {
+		return model.Section{}, err
+	}
 	sec, err = s.rp.Post(section)
 	return
 }
