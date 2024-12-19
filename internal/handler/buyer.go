@@ -195,10 +195,14 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 		LastName:     reqBody.LastName,
 	})
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		http.Error(w, "", http.StatusNotFound)
+if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
 		return
-	}
+}
 
 	data := Data{
 		Data: buyer,
