@@ -46,6 +46,11 @@ func (r *SectionRepository) Update(id int, section model.Section) (model.Section
 	return model.Section{}, nil
 }
 
-func (r *SectionRepository) Delete(id int) error {
-	return nil
+func (r *SectionRepository) Delete(id int) (err error) {
+	if _, exists := r.dbSection.TbSections[id]; !exists {
+		err = NotFoundError
+		return
+	}
+	delete(r.dbSection.TbSections, id)
+	return
 }
