@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -12,12 +13,18 @@ type BuyerRepository struct {
 	dbBuyer database.Database
 }
 
-// Delete implements interfaces.IBuyerRepo.
 func (br BuyerRepository) Delete(id int) error {
-	panic("unimplemented")
+	buyer, err := br.GetById(id)
+
+	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+		return &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+	}
+
+	delete(br.dbBuyer.TbBuyer, buyer.Id)
+
+	return nil
 }
 
-// Get implements interfaces.IBuyerRepo.
 func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 
 	if len(br.dbBuyer.TbBuyer) == 0 {
@@ -27,9 +34,8 @@ func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 
 }
 
-// GetById implements interfaces.IBuyerRepo.
 func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
-	buyer, ok:= br.dbBuyer.TbBuyer[id]
+	buyer, ok := br.dbBuyer.TbBuyer[id]
 
 	if !ok {
 		return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
@@ -38,12 +44,10 @@ func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
 	return buyer, nil
 }
 
-// Post implements interfaces.IBuyerRepo.
 func (br BuyerRepository) Post(buyer model.Buyer) (model.Buyer, error) {
 	panic("unimplemented")
 }
 
-// Update implements interfaces.IBuyerRepo.
 func (br BuyerRepository) Update(id int, buyer model.Buyer) (model.Buyer, error) {
 	panic("unimplemented")
 }

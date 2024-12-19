@@ -20,3 +20,7 @@ func (bs *BuyerService) GetAllBuyer() (map[int]model.Buyer, error) {
 func (bs *BuyerService) GetBuyerByID(id int) (model.Buyer, error) {
 	return bs.rp.GetById(id)
 }
+
+func (bs *BuyerService) DeleteBuyerByID(id int) error {
+	return bs.rp.Delete(id)
+}
