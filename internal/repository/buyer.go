@@ -63,9 +63,34 @@ func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
 
 }
 
-func (br BuyerRepository) Update(id int, buyer model.Buyer) (model.Buyer, error) {
-	panic("unimplemented")
+func (br BuyerRepository) Update(id int, newBuyer model.Buyer) (model.Buyer, error) {
+
+    buyer, err := br.GetById(id)
+    if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+        return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+    }
+
+    if existingBuyer, exists := br.dbBuyer.TbBuyer[buyer.Id]; exists {
+        
+        if newBuyer.CardNumberId != "" {
+            existingBuyer.CardNumberId = newBuyer.CardNumberId
+        }
+        if newBuyer.FirstName != "" {
+            existingBuyer.FirstName = newBuyer.FirstName
+        }
+        if newBuyer.LastName != "" {
+            existingBuyer.LastName = newBuyer.LastName
+        }
+
+       
+        br.dbBuyer.TbBuyer[buyer.Id] = existingBuyer
+    } else {
+        return model.Buyer{}, &custom_error.CustomError{Object: buyer.Id, Err: custom_error.NotFound}
+    }
+
+    return br.GetById(id)
 }
+
 
 func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
 
