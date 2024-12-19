@@ -103,7 +103,7 @@ func (rp *SellersRepository) Patch(id int, seller model.SellerUpdate) (sl model.
 	return sl, nil
 }
 
-// Delete implements interfaces.ISellerRepo.
 func (rp *SellersRepository) Delete(id int) error {
-	panic("unimplemented")
+	delete(rp.db, id)
+	return nil
 }

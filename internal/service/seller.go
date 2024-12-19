@@ -101,6 +101,7 @@ func (s *SellersService) UpdateSeller(id int, seller model.SellerUpdate) (sl mod
     return sl, err
 }
 
-func (s *SellersService) Delete(id int) error {
-	panic("unimplemented")
+func (s *SellersService) DeleteSeller(id int) error {
+	err := s.rp.Delete(id)
+	return err
 }

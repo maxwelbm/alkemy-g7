@@ -7,5 +7,5 @@ type ISellerService interface {
 	GetById(id int) (sl model.Seller, err error)
 	CreateSeller(seller model.Seller) (sl model.Seller, err error)
 	UpdateSeller(id int, seller model.SellerUpdate) (sl model.Seller, err error)
-	Delete(id int) error
+	DeleteSeller(id int) error
 }
