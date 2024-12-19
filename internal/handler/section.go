@@ -80,8 +80,11 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 	var reqBody SectionJSON
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid request body", nil))
+
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+
+	if err != nil {
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid request body", nil))
 		return
 	}
 

@@ -41,7 +41,12 @@ func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
 
 func (r *SectionRepository) Post(section model.Section) (s model.Section, err error) {
 	lastId := len(r.dbSection.TbSections)
+	sectionExists := sectionNumberExists(section.SectionNumber, r)
 	if _, exists := r.dbSection.TbSections[section.ID]; exists {
+		err = ConflictError
+		return
+	}
+	if sectionExists {
 		err = ConflictError
 		return
 	}
@@ -62,4 +67,13 @@ func (r *SectionRepository) Delete(id int) (err error) {
 	}
 	delete(r.dbSection.TbSections, id)
 	return
+}
+
+func sectionNumberExists(sectionNumber int, sr *SectionRepository) bool {
+	for _, section := range sr.dbSection.TbSections {
+		if section.SectionNumber == sectionNumber {
+			return true
+		}
+	}
+	return false
 }
