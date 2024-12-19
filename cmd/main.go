@@ -28,7 +28,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
 		r.Get("/", warehouseHandler.GetAllWareHouse())
 		r.Get("/{id}", warehouseHandler.GetWareHouseById())
-		r.Post("/", nil)
+		r.Post("/", warehouseHandler.PostWareHouse())
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
 	})

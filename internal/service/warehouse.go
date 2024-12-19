@@ -13,8 +13,8 @@ func (s *WareHouseDefault) DeleteByIdWareHouse(id int) error {
 	return s.rp.DeleteByIdWareHouse(id)
 }
 
-func (s *WareHouseDefault) Post(warehouse model.WareHouse) (w model.WareHouse, err error) {
-	panic("unimplemented")
+func (s *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
+	return s.rp.PostWareHouse(warehouse)
 }
 
 func (s *WareHouseDefault) Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {

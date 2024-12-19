@@ -15,8 +15,9 @@ func (c CustomError) Error() string {
 }
 
 var (
+
 	NotFound = errors.New("not found")
 	Conflict = errors.New("It already exists")
   InvalidErr = errors.New("invalid object")
-
+  AlreadyExists = errors.New("already exists")
 )
