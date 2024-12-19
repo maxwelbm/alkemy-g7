@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
 
@@ -58,8 +62,22 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *SectionController) GetById() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	idInt, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, map[string]any{
+			"message": "invalid id param",
+		})
+	}
+
+	s, err := h.sv.GetById(idInt)
+	if err != nil {
+		response.JSON(w, handleError(err), nil)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, s)
 }
 
 func (h *SectionController) Post() http.HandlerFunc {
@@ -72,4 +90,11 @@ func (h *SectionController) Update() http.HandlerFunc {
 
 func (h *SectionController) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {}
+}
+
+func handleError(err error) int {
+	if errors.Is(err, repository.NotFoundError) {
+		return http.StatusNotFound
+	}
+	return http.StatusInternalServerError
 }
