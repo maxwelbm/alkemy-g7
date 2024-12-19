@@ -100,13 +100,8 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	employeeJSON := EmployeeJSON{
-		Id:           data.Id,
-		CardNumberId: data.CardNumberId,
-		FirstName:    data.FirstName,
-		LastName:     data.FirstName,
-		WarehouseId:  data.WarehouseId,
-	}
+	employeeJSON := EmployeeJSON{}
+	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
 }
@@ -137,6 +132,26 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusCreated, ResponseBody{Data: employeeJSON})
+}
+
+func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	var reqBody EmployeeJSON
+
+	err = request.JSON(r, &reqBody)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the request body"})
+		return
+	}
+
+	employee := *reqBody.toEmployeeEntity()
+
+	updatedEmployee, err := e.sv.UpdateEmployee(id, employee)
+	employeeJSON := EmployeeJSON{}
+	employeeJSON.fromEmployeeEntity(updatedEmployee)
+
+	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
 }
 
 func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {

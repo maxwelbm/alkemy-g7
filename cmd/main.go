@@ -22,7 +22,7 @@ func main() {
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
 	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
-  
+
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
@@ -69,7 +69,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Get("/", employeeHd.GetEmployeesHandler)
 		r.Get("/{id}", employeeHd.GetEmployeeById)
 		r.Post("/", employeeHd.InsertEmployee)
-		// rt.Patch("/{id}", nil)
+		r.Patch("/{id}", employeeHd.UpdateEmployee)
 		r.Delete("/{id}", employeeHd.DeleteEmployee)
 	})
 	return rt

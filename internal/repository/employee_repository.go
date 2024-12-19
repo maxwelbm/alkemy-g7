@@ -33,6 +33,12 @@ func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, erro
 	return employee, nil
 }
 
+func (e *EmployeeRepository) Update(id int, employee model.Employee) (model.Employee, error) {
+	e.db[id] = employee
+
+	return employee, nil
+}
+
 func (e *EmployeeRepository) Delete(id int) error {
 	delete(e.db, id)
 	return nil

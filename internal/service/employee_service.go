@@ -45,6 +45,18 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 	return e.rp.Post(employee)
 }
 
+func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
+	existingEmployee, err := e.GetEmployeeById(id)
+
+	if err != nil {
+		return model.Employee{}, err
+	}
+
+	updateEmployeeFields(&existingEmployee, employee)
+
+	return e.rp.Update(id, existingEmployee)
+}
+
 func (e *EmployeeService) DeleteEmployee(id int) error {
 	_, err := e.rp.GetById(id)
 
@@ -53,6 +65,21 @@ func (e *EmployeeService) DeleteEmployee(id int) error {
 	}
 
 	return e.rp.Delete(id)
+}
+
+func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
+	if updates.CardNumberId != "" {
+		existing.CardNumberId = updates.CardNumberId
+	}
+	if updates.FirstName != "" {
+		existing.FirstName = updates.FirstName
+	}
+	if updates.LastName != "" {
+		existing.LastName = updates.LastName
+	}
+	if updates.WarehouseId != 0 {
+		existing.WarehouseId = updates.WarehouseId
+	}
 }
 
 func (e *EmployeeService) generateNewId() int {
