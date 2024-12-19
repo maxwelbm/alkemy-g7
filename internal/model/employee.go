@@ -7,3 +7,16 @@ type Employee struct {
 	LastName     string
 	WarehouseId  int
 }
+
+func (e *Employee) IsValidEmployee() bool {
+	if e.CardNumberId == "" {
+		return false
+	}
+	if e.FirstName == "" || e.LastName == "" {
+		return false
+	}
+	if e.WarehouseId == 0 {
+		return false
+	}
+	return true
+}

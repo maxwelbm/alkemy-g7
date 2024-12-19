@@ -15,5 +15,6 @@ func (c CustomError) Error() string {
 }
 
 var (
-	NotFound = errors.New("not found")
+	NotFound   = errors.New("not found")
+	InvalidErr = errors.New("invalid object")
 )
