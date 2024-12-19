@@ -77,7 +77,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	rt.Route("/api/v1/employees", func(r chi.Router) {
 		r.Get("/", employeeHd.GetEmployeesHandler)
 		r.Get("/{id}", employeeHd.GetEmployeeById)
-		// rt.Post("/", nil)
+		r.Post("/", employeeHd.InsertEmployee)
 		// rt.Patch("/{id}", nil)
 		// rt.Delete("/{id}", nil)
 	})
