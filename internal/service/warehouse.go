@@ -13,7 +13,12 @@ func NewWareHoureService(rp repository.WareHouseMap) *WareHouseDefault {
 	return &WareHouseDefault{rp: rp}
 }
 
-func (s *WareHouseDefault) GetAllWareHouse() (w map[int]model.WareHouse, err error) {
+func (s *WareHouseDefault) GetAllWareHouse() (w map[int]model.WareHouseJson, err error) {
 	w, err = s.rp.GetAllWareHouse()
+	return
+}
+
+func (s *WareHouseDefault) GetByIdWareHouse(id int) (w model.WareHouseJson, err error) {
+	w, err = s.rp.GetByIdWareHouse(id)
 	return
 }
