@@ -27,10 +27,10 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 			return
 		}
 
-		var data []model.WareHouseJson
+		var data []model.WareHouse
 
 		for _, value := range wareHouse {
-			data = append(data, model.WareHouseJson{
+			data = append(data, model.WareHouse{
 				Id:                 value.Id,
 				Address:            value.Address,
 				Telephone:          value.Telephone,
@@ -39,9 +39,10 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 				MinimunTemperature: value.MinimunTemperature,
 			})
 		}
-		responseJson := model.WareHouseRes{Data: data}
 
-		response.JSON(w, http.StatusOK, responseJson)
+		response.JSON(w, http.StatusOK, map[string]any{
+			"data": data,
+		})
 
 	}
 }

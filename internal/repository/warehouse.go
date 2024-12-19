@@ -14,16 +14,16 @@ func NewWareHouseRepository(db database.Database) *WareHouseMap {
 	return &WareHouseMap{db: db}
 }
 
-func (r *WareHouseMap) GetAllWareHouse() (w map[int]model.WareHouseJson, err error) {
+func (r *WareHouseMap) GetAllWareHouse() (w map[int]model.WareHouse, err error) {
 	w = r.db.TbWarehouses
 	return
 }
 
-func (r *WareHouseMap) GetByIdWareHouse(id int) (w model.WareHouseJson, err error) {
+func (r *WareHouseMap) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
 	w, ok := r.db.TbWarehouses[id]
 
 	if !ok {
-		return model.WareHouseJson{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+		return model.WareHouse{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 	}
 
 	return
