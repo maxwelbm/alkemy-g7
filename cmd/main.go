@@ -29,7 +29,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Get("/", warehouseHandler.GetAllWareHouse())
 		r.Get("/{id}", warehouseHandler.GetWareHouseById())
 		r.Post("/", warehouseHandler.PostWareHouse())
-		r.Patch("/{id}", nil)
+		r.Patch("/{id}", warehouseHandler.UpdateWareHouse())
 		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
 	})
 

@@ -52,6 +52,8 @@ func (r *WareHouseMap) PostWareHouse(warehouse model.WareHouse) (w model.WareHou
 	return
 }
 
-func (r *WareHouseMap) Update(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
-	panic("unimplemented")
+func (r *WareHouseMap) UpdateWareHouse(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
+	r.db.TbWarehouses[id] = warehouse
+	w = r.db.TbWarehouses[id]
+	return
 }
