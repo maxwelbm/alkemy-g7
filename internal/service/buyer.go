@@ -28,3 +28,7 @@ func (bs *BuyerService) DeleteBuyerByID(id int) error {
 func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (model.Buyer, error) {
 	return bs.rp.Post(newBuyer)
 }
+
+func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
+	return bs.rp.Update(id, newBuyer)
+}
