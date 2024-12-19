@@ -9,21 +9,10 @@ import (
 )
 
 func main() {
-	// db := database.CreateDatabase()
 
-	// // repositories setup
-	// employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
+	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies()
 
-	// // services
-	// employeeSv := service.CreateEmployeeService(employeeRp)
-
-	// // handlers
-	// employeeHd := handler.CreateEmployeeHandler(employeeSv)
-
-	productHandler, employeeHd, sellersHandler, buyerHandler := dependencies.LoadDependencies()
-
-	// routes setup
-	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler)
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
@@ -32,11 +21,12 @@ func main() {
 
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
-	buyerHandler *handler.BuyerHandler) *chi.Mux {
+	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
+  
 	rt := chi.NewRouter()
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
-		r.Get("/", nil)
+		r.Get("/", warehouseHandler.GetAllWareHouse())
 		r.Get("/{id}", nil)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
@@ -44,7 +34,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {
-		r.Get("/", nil)
+		r.Get("/", sectionHandler.GetAll)
 		r.Get("/{id}", nil)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
@@ -68,8 +58,8 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
-		r.Get("/", nil)
-		r.Get("/{id}", nil)
+		r.Get("/", sellersHandler.GetAllSellers)
+		r.Get("/{id}", sellersHandler.GetById)
 		r.Post("/", nil)
 		r.Patch("/{id}", nil)
 		r.Delete("/{id}", nil)
@@ -77,7 +67,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/employees", func(r chi.Router) {
 		r.Get("/", employeeHd.GetEmployeesHandler)
-		// rt.Get("/{id}", nil)
+		r.Get("/{id}", employeeHd.GetEmployeeById)
 		// rt.Post("/", nil)
 		// rt.Patch("/{id}", nil)
 		// rt.Delete("/{id}", nil)
