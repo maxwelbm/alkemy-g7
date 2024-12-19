@@ -27,7 +27,14 @@ func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
 	return employee, nil
 }
 
+func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, error) {
+	e.db[employee.Id] = employee
+
+	return employee, nil
+}
+
 func (e *EmployeeRepository) Update(id int, employee model.Employee) (model.Employee, error) {
 	e.db[id] = employee
+
 	return employee, nil
 }
