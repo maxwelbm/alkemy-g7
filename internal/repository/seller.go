@@ -34,7 +34,7 @@ func (rp *SellersRepository) GetByID(id int) (seller model.Seller, err error) {
 		}
 	}
 
-	err = errors.New("Seller with this ID not found")
+	err = errors.New("Any seller with this ID not found")
 
 	return seller, err
 }

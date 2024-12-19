@@ -1,37 +1,37 @@
 [
   {
-    "id": 1,
-    "card_number_id": "A123456",
-    "first_name": "João",
-    "last_name": "Silva",
-    "warehouse_id": 101
+    "Id": 1,
+    "CardNumberId": "A123456",
+    "FirstName": "João",
+    "LastName": "Silva",
+    "WarehouseId": 101
   },
   {
-    "id": 2,
-    "card_number_id": "B654321",
-    "first_name": "Maria",
-    "last_name": "Oliveira",
-    "warehouse_id": 102
+    "Id": 2,
+    "CardNumberId": "B654321",
+    "FirstName": "Maria",
+    "LastName": "Oliveira",
+    "WarehouseId": 102
   },
   {
-    "id": 3,
-    "card_number_id": "C789123",
-    "first_name": "Carlos",
-    "last_name": "Santos",
-    "warehouse_id": 103
+    "Id": 3,
+    "CardNumberId": "C789123",
+    "FirstName": "Carlos",
+    "LastName": "Santos",
+    "WarehouseId": 103
   },
   {
-    "id": 4,
-    "card_number_id": "D456789",
-    "first_name": "Ana",
-    "last_name": "Pereira",
-    "warehouse_id": 104
+    "Id": 4,
+    "CardNumberId": "D456789",
+    "FirstName": "Ana",
+    "LastName": "Pereira",
+    "WarehouseId": 104
   },
   {
-    "id": 5,
-    "card_number_id": "E321654",
-    "first_name": "Lucas",
-    "last_name": "Costa",
-    "warehouse_id": 105
+    "Id": 5,
+    "CardNumberId": "E321654",
+    "FirstName": "Lucas",
+    "LastName": "Costa",
+    "WarehouseId": 105
   }
 ]

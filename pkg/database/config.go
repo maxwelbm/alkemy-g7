@@ -5,6 +5,7 @@ import (
 	"os"
 
 	// "github.com/maxwelbm/alkemy-g7.git/internal/handler"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
@@ -31,7 +32,7 @@ func CreateDatabase() *Database {
 	db.LoadJsonSections("pkg/database/docs/sections.json")
 	db.LoadJsonProducts("pkg/database/docs/products.json")
 	db.LoadJsonBuyer("pkg/database/docs/buyers.json")
-	// db.LoadJsonEmployee("internal/database/docs/employees.json")
+	db.LoadJsonEmployee("pkg/database/docs/employees.json")
 	db.LoadJsonWarehouse("pkg/database/docs/warehouse.json")
 
 	return db
@@ -82,29 +83,28 @@ func (db *Database) LoadJsonSellers(filepath string) (string, error) {
 	return "Succes", nil
 }
 
-// func (db *Database) LoadJsonEmployee(filepath string) (string, error) {
-// 	var employees []handler.EmployeeJSON = make([]handler.EmployeeJSON, 0)
+func (db *Database) LoadJsonEmployee(filepath string) (string, error) {
+	var employees []model.Employee = make([]model.Employee, 0)
 
-// 	Load(filepath, &employees)
+	Load(filepath, &employees)
 
-// 	db.TbEmployees = make(map[int]model.Employee)
+	db.TbEmployees = make(map[int]model.Employee)
 
-// 	for _, employee := range employees {
-// 		db.TbEmployees[employee.Id] = model.Employee{
-// 			Id:           employee.Id,
-// 			CardNumberId: employee.CardNumberId,
-// 			FirstName:    employee.FirstName,
-// 			LastName:     employee.FirstName,
-// 			WarehouseId:  employee.WarehouseId,
-// 		}
-// 	}
+	for _, employee := range employees {
+		db.TbEmployees[employee.Id] = employee
 
-// 	return "Success", nil
-// }
+	}
+
+	return "Success", nil
+}
 
 func (db *Database) LoadJsonWarehouse(filepath string) (string, error) {
 	var warehouse []model.WareHouse = make([]model.WareHouse, 0)
+
 	Load(filepath, &warehouse)
+
+	db.TbWarehouses = make(map[int]model.WareHouse)
+
 	for _, b := range warehouse {
 		db.TbWarehouses[b.Id] = b
 	}

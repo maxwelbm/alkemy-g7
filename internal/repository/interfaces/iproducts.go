@@ -7,5 +7,5 @@ type IProductsRepo interface {
 	GetById(id int) (model.Product, error)
 	Create(product model.Product) (model.Product, error)
 	Update(id int, product model.Product) (model.Product, error)
-	Delete(id int) error 
+	Delete(id int) error
 }
