@@ -18,10 +18,6 @@ type ResponseWareHouseJson struct {
 	Data    any    `json:"data"`
 }
 
-type ErrorResponse struct {
-	Message string `json:"Message"`
-}
-
 type WarehouseHandler struct {
 	srv interfaces.IWarehouseService
 }
