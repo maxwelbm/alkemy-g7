@@ -121,7 +121,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 				response.JSON(w, http.StatusConflict, hd.createJSONReturnError(model.StatusConflict, err.Error()))
 				return
 			} else {
-				response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, err.Error()))
+				response.JSON(w, http.StatusUnprocessableEntity, hd.createJSONReturnError(model.StatusUnprocessableEntity, err.Error()))
 				return
 			}
         } else {
