@@ -18,6 +18,10 @@ type ResponseWareHouseJson struct {
 	Data    any    `json:"data"`
 }
 
+type ErrorResponseJson struct {
+	Message string `json:"Message"`
+}
+
 type WarehouseHandler struct {
 	srv interfaces.IWarehouseService
 }
@@ -75,7 +79,7 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 		warehouse, err := h.srv.GetByIdWareHouse(id)
 
 		if err != nil {
-			response.JSON(w, http.StatusNotFound, ErrorResponse{
+			response.JSON(w, http.StatusNotFound, ErrorResponseJson{
 				Message: "warehouse not found",
 			})
 			return
@@ -143,7 +147,7 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 		})
 
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			response.JSON(w, http.StatusBadRequest, ErrorResponseJson{
 				Message: err.Error(),
 			})
 			return
@@ -187,7 +191,7 @@ func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 		})
 
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			response.JSON(w, http.StatusBadRequest, ErrorResponseJson{
 				Message: err.Error(),
 			})
 			return
