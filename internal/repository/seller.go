@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
@@ -20,10 +19,9 @@ type SellersRepository struct {
 func (rp *SellersRepository) validateCID(sellers map[int]model.Seller, cid int) error {
 	for _, s := range sellers {
 		if s.CID == cid {
-			err := errors.New("Seller's CID already exist")
-			return err
-			}
+			return model.ErrorCIDAlreadyExist
 		}
+	}
 	return nil
 }
 
@@ -40,8 +38,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 	sl, exist := rp.db[id]
 	if !exist {
-		err = errors.New("Seller not found")
-		return sl, err
+		return sl, model.ErrorSellerNotFound
 	}
 	return sl, err
 }
@@ -66,6 +63,8 @@ func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err err
 }
 
 func (rp *SellersRepository) Patch(id int, seller model.SellerUpdate) (sl model.Seller, err error) {
+	sel := rp.db[id]
+
 	if seller.CID != nil {
 		if rp.db[id].CID != *seller.CID {
 			if err := rp.validateCID(rp.db, *seller.CID); err != nil {
@@ -75,35 +74,29 @@ func (rp *SellersRepository) Patch(id int, seller model.SellerUpdate) (sl model.
 	}
 
 	if seller.CID != nil {
-		sel := rp.db[id]
 		sel.CID = *seller.CID
 		rp.db[id] = sel
 	}
 
 	if seller.CompanyName != nil {
-		sel := rp.db[id]
 		sel.CompanyName = *seller.CompanyName
 		rp.db[id] = sel
 	}
 
 	if seller.Address != nil {
-		sel := rp.db[id]
 		sel.Address = *seller.Address
 		rp.db[id] = sel
 	}
 
 	if seller.Telephone != nil {
-		sel := rp.db[id]
 		sel.Telephone = *seller.Telephone
 		rp.db[id] = sel
 	}
 
-	sl = rp.db[id]
-
-	return sl, nil
+	return rp.db[id], nil
 }
 
-// Delete implements interfaces.ISellerRepo.
 func (rp *SellersRepository) Delete(id int) error {
-	panic("unimplemented")
+	delete(rp.db, id)
+	return nil
 }

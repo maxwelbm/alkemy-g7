@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"github.com/bootcamp-go/web/request"
@@ -26,10 +27,18 @@ type SellersController struct {
 	service interfaces.ISellerService
 }
 
+func (hd *SellersController) createJSONReturnError(status string, message string) *model.ResponseBodyErrorSeller {
+	return &model.ResponseBodyErrorSeller{Status: status, Message: message}
+}
+
+func (hd *SellersController) createJSONReturn(data any) *model.ResponseBodySeller {
+	return &model.ResponseBodySeller{Data: data}
+}
+
 func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
 		sellers, err := hd.service.GetAll()
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: err.Error()})
+			response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, err.Error()))
 			return
 		}
 
@@ -43,7 +52,7 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 				Telephone:   value.Telephone,
 			})
 		}
-		response.JSON(w, http.StatusOK, model.ResponseBodySeller{Data: data})
+		response.JSON(w, http.StatusOK, hd.createJSONReturn(data))
 }
 
 
@@ -51,39 +60,39 @@ func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		id, err := strconv.Atoi(idParam)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: "Missing int ID"})
+			response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, model.ErrorMissingID.Error()))
 			return
 		}
 
 		seller, err := hd.service.GetById(id)
 		if err != nil {
-			response.JSON(w, http.StatusNotFound, model.ResponseBodyErrorSeller{Status: "Not Found", Message: err.Error()})
+			response.JSON(w, http.StatusNotFound, hd.createJSONReturnError(model.StatusNotFound, err.Error()))
 			return
 		}
 
-		response.JSON(w, http.StatusOK, model.ResponseBodySeller{Data: seller})
+		response.JSON(w, http.StatusOK, hd.createJSONReturn(seller))
 
 }
 
 func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
 		var seller model.Seller
 		if err := request.JSON(r, &seller); err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: "Invalid JSON"})
+			response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, model.ErrorInvalidJSON.Error()))
 			return
 		}
 
 		createdseller, err := hd.service.CreateSeller(seller)
 		if err != nil {
-			if err.Error() == "Seller's CID already exist" {
-				response.JSON(w, http.StatusConflict, model.ResponseBodyErrorSeller{Status: "Conflict", Message: err.Error()})
+			if ok := errors.Is(err, model.ErrorCIDAlreadyExist); ok {
+				response.JSON(w, http.StatusConflict, hd.createJSONReturnError(model.StatusConflict, err.Error()))
 				return
 			} else {
-				response.JSON(w, http.StatusUnprocessableEntity, model.ResponseBodyErrorSeller{Status: "Unprocessable Entity", Message: err.Error()})
+				response.JSON(w, http.StatusUnprocessableEntity, hd.createJSONReturnError(model.StatusUnprocessableEntity, err.Error()))
 				return
 			}
 		} 
 
-		response.JSON(w, http.StatusCreated, model.ResponseBodySeller{Data: createdseller})
+		response.JSON(w, http.StatusCreated, hd.createJSONReturn(createdseller))
 
 }
 
@@ -91,26 +100,54 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 		idSearch := chi.URLParam(r, "id")
         id, err := strconv.Atoi(idSearch)
         if err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: "Missing int ID"})
+			response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, model.ErrorMissingID.Error()))
 			return
 		}
 
         if _, err := hd.service.GetById(id); err != nil {
-            response.JSON(w, http.StatusNotFound, model.ResponseBodyErrorSeller{Status: "Not Found", Message: err.Error()})
+			response.JSON(w, http.StatusNotFound, hd.createJSONReturnError(model.StatusNotFound, err.Error()))
             return
         }
 
         var s model.SellerUpdate
         if err := request.JSON(r, &s); err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: "Invalid JSON"})
+			response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, model.ErrorInvalidJSON.Error()))
 			return
 		}
         seller, err := hd.service.UpdateSeller(id, s)
 
         if err != nil {
-			response.JSON(w, http.StatusBadRequest, model.ResponseBodyErrorSeller{Status: "Bad Request", Message: err.Error()})
-            return
+			if ok := errors.Is(err, model.ErrorCIDAlreadyExist); ok {
+				response.JSON(w, http.StatusConflict, hd.createJSONReturnError(model.StatusConflict, err.Error()))
+				return
+			} else {
+				response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, err.Error()))
+				return
+			}
         } else {
-			response.JSON(w, http.StatusOK, model.ResponseBodySeller{Data: seller})
+			response.JSON(w, http.StatusOK, hd.createJSONReturn(seller))
         }
+}
+
+func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
+	idSearch := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idSearch)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, model.ErrorMissingID.Error()))
+		return
+	}
+
+	if _, err := hd.service.GetById(id); err != nil {
+		response.JSON(w, http.StatusNotFound, hd.createJSONReturnError(model.StatusNotFound, err.Error()))
+		return
+	}
+
+	err = hd.service.DeleteSeller(id)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, hd.createJSONReturnError(model.StatusBadRequest, err.Error()))
+		return
+	} else {
+		response.JSON(w, http.StatusNoContent, hd.createJSONReturn(""))
+	}
 }
