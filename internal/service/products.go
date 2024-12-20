@@ -1,10 +1,10 @@
 package service
 
 import (
-	"errors"
+	"reflect"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
-	"reflect"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type ProductService struct {
@@ -56,7 +56,7 @@ func (ps *ProductService) CreateProduct(product model.Product) (model.Product, e
 	existsByCode := existsByProductCode(product.ProductCode, productsList)
 
 	if existsByCode {
-		return model.Product{}, errors.New("já existe um produto com esse código")
+		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.Conflict}
 	}
 
 	productDb, err := ps.ProductRepository.Create(product)
@@ -68,10 +68,16 @@ func (ps *ProductService) CreateProduct(product model.Product) (model.Product, e
 }
 
 func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Product, error) {
+	if product.SellerID != 0 {
+		_, err := ps.SellerRepository.GetById(product.SellerID)
+		if err != nil {
+			return model.Product{}, err
+		}
+	}
 
-	_, err := ps.SellerRepository.GetById(product.SellerID)
-	if err != nil {
-		return model.Product{}, err
+	listOfProducts, _ := ps.ProductRepository.GetAll()
+	if existsByProductCode(product.ProductCode, listOfProducts) {
+		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.Conflict}
 	}
 
 	productInDb, err := ps.ProductRepository.GetById(id)
@@ -114,6 +120,5 @@ func updateProduct(existingProduct model.Product, newProduct model.Product) mode
 			valueOfExistingProduct.Field(i).Set(newValue)
 		}
 	}
-
 	return existingProduct
 }
