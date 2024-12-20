@@ -31,6 +31,10 @@ type RequestBuyerJson struct {
 	LastName     string `json:"last_name"`
 }
 
+type ErrorResponse struct {
+	Message string `json:"Message"`
+}
+
 type Data struct {
 	Data any
 }
@@ -44,8 +48,8 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 	buyers, err := bh.svc.GetAllBuyer()
 	if err != nil {
 
-		response.JSON(w, http.StatusNotFound, map[string]any{
-			"message": "Não há buyers cadastrados",
+		response.JSON(w, http.StatusNotFound, ErrorResponse{
+			Message: "Não há buyers cadastrados",
 		})
 		return
 	}
@@ -71,7 +75,9 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
 
-		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
+			Message: "Erro ao serializar os dados",
+		})
 		return
 	}
 }
@@ -80,7 +86,10 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: "Invalid ID",
+		})
 		return
 	}
 
@@ -88,14 +97,19 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-			http.Error(w, "", http.StatusNotFound)
+			response.JSON(w, http.StatusNotFound, ErrorResponse{
+				Message: "Buyer Not Found",
+			})
 			return
 		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	response := ResponseBuyerJson{
+	responseBuyer := ResponseBuyerJson{
 		Id:           buyer.Id,
 		CardNumberId: buyer.CardNumberId,
 		FirstName:    buyer.FirstName,
@@ -103,15 +117,17 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	}
 
 	data := Data{
-		response,
+		responseBuyer,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
 
-		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
+			Message: "Erro ao serializar os dados",
+		})
 		return
 	}
 
@@ -121,14 +137,18 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: "Invalid ID",
+		})
 		return
 	}
 
 	err = bh.svc.DeleteBuyerByID(id)
 
 	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		http.Error(w, "", http.StatusNotFound)
+		response.JSON(w, http.StatusNotFound, ErrorResponse{
+			Message: "Buyer Not Found",
+		})
 		return
 	}
 
@@ -145,7 +165,8 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 
 	if err != nil || reqBody.CardNumberId == "" || reqBody.FirstName == "" || reqBody.LastName == "" {
-		http.Error(w, "", http.StatusUnprocessableEntity)
+
+		response.JSON(w, http.StatusUnprocessableEntity, nil)
 		return
 	}
 
@@ -155,9 +176,13 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 		LastName:     reqBody.LastName,
 	})
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
-		http.Error(w, "card_number_id already exists", http.StatusConflict)
-		return
+	if err != nil {
+		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusConflict, ErrorResponse{
+				Message: "card_number_id already exists",
+			})
+			return
+		}
 	}
 
 	data := Data{
@@ -169,8 +194,9 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 
 	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
-
-		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
+			Message: "Erro ao serializar os dados",
+		})
 		return
 	}
 
@@ -180,7 +206,9 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: "Invalid ID",
+		})
 		return
 	}
 
@@ -189,7 +217,9 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	err = json.NewDecoder(r.Body).Decode(&reqBody)
 
 	if err != nil {
-		http.Error(w, "erro de desserialização dos dados", http.StatusBadRequest)
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: "erro de desserialização dos dados",
+		})
 		return
 	}
 
@@ -201,11 +231,27 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-			http.Error(w, "", http.StatusNotFound)
+			response.JSON(w, http.StatusNotFound, ErrorResponse{
+				Message: "Buyer Not Found",
+			})
+			return
+		} else if errors.Is(err.(*custom_error.CustomError).Err, custom_error.EmptyFields) {
+			response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
+				Message: "At least one field must be mandatory to send the request",
+			})
+			return
+		} else if errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
+				Message: "card_number_id already exists",
+			})
+			return
+		} else {
+			response.JSON(w, http.StatusBadRequest, ErrorResponse{
+				Message: err.Error(),
+			})
 			return
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+
 	}
 
 	data := Data{
@@ -217,8 +263,9 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 
 	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
-
-		http.Error(w, "Erro ao serializar os dados", http.StatusInternalServerError)
+		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
+			Message: "Erro ao serializar os dados",
+		})
 		return
 	}
 
