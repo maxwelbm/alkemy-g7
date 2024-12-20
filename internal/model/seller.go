@@ -30,9 +30,8 @@ var (
 	ErrorSellerNotFound error = errors.New("Seller not found")
 	ErrorCIDAlreadyExist error = errors.New("Seller's CID already exist")
 	ErrorMissingID error = errors.New("Missing int ID")
-	ErrorInvalidJSON error = errors.New("Invalid JSON Format")
-	ErrorStringAttribute error = errors.New("Invalid format or empty value, expected string attribute.")
-	ErrorIntAttribute error = errors.New("Invalid format or empty value, expected int attribute.")
+	ErrorInvalidJSON error = errors.New("Invalid JSON format")
+	ErrorAttribute error = errors.New("Invalid body, empty value received.")
 	StatusNotFound string = "Not Found"
 	StatusBadRequest string = "Bad Request"
 	StatusConflict string = "Conflict"

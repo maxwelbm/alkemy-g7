@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type BuyerService struct {
@@ -32,6 +33,10 @@ func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (model.Buyer, error) {
 func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
 
 	existingBuyer, err := bs.GetBuyerByID(id)
+
+	if newBuyer.CardNumberId == "" && newBuyer.FirstName == "" && newBuyer.LastName == "" {
+		return model.Buyer{}, custom_error.EmptyFields
+	}
 
 	if err == nil {
 

@@ -13,7 +13,7 @@ func CreateServiceSection(rp repository.SectionRepository) *SectionService {
 	return &SectionService{rp: rp}
 }
 
-func (s *SectionService) Get() (sections map[int]model.Section, err error) {
+func (s *SectionService) Get() (sections []model.Section, err error) {
 	sections, err = s.rp.Get()
 	return
 }

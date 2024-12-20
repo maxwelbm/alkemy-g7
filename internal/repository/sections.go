@@ -20,11 +20,11 @@ func CreateRepositorySections(db database.Database) *SectionRepository {
 	return &SectionRepository{dbSection: db}
 }
 
-func (r *SectionRepository) Get() (sections map[int]model.Section, err error) {
-	sections = make(map[int]model.Section)
+func (r *SectionRepository) Get() (sections []model.Section, err error) {
+	sections = []model.Section{}
 
 	for _, section := range r.dbSection.TbSections {
-		sections[section.ID] = section
+		sections = append(sections, section)
 	}
 
 	return
@@ -57,6 +57,17 @@ func (r *SectionRepository) Post(section model.Section) (s model.Section, err er
 }
 
 func (r *SectionRepository) Update(id int, section model.Section) (newSec model.Section, err error) {
+	if _, exists := r.dbSection.TbSections[id]; !exists {
+		err = NotFoundError
+		return
+	}
+	sectionExists := sectionNumberExists(section.SectionNumber, r)
+	if r.dbSection.TbSections[id].SectionNumber != section.SectionNumber {
+		if sectionExists {
+			err = ConflictError
+			return
+		}
+	}
 	newSec = section
 	r.dbSection.TbSections[id] = newSec
 	return
