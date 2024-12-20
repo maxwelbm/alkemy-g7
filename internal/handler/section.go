@@ -107,8 +107,38 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("section created", s))
 }
 
-func (h *SectionController) Update() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	idInt, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
+	}
+
+	var reqBody SectionJSON
+	err = json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid request body", nil))
+	}
+
+	sec := model.Section{
+		ID:                 idInt,
+		SectionNumber:      reqBody.SectionNumber,
+		CurrentTemperature: reqBody.CurrentTemperature,
+		MinimumTemperature: reqBody.MinimumTemperature,
+		CurrentCapacity:    reqBody.CurrentCapacity,
+		MinimumCapacity:    reqBody.MinimumCapacity,
+		MaximumCapacity:    reqBody.MaximumCapacity,
+		WarehouseID:        reqBody.WarehouseID,
+		ProductTypeID:      reqBody.ProductTypeID,
+	}
+
+	s, err := h.sv.Update(idInt, sec)
+	if err != nil {
+		response.JSON(w, handleError(err), nil)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", s))
 }
 
 func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {

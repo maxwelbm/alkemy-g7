@@ -40,7 +40,7 @@ func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
 }
 
 func (r *SectionRepository) Post(section model.Section) (s model.Section, err error) {
-	lastId := len(r.dbSection.TbSections)
+	lastId := getLastId(r.dbSection.TbSections)
 	sectionExists := sectionNumberExists(section.SectionNumber, r)
 	if _, exists := r.dbSection.TbSections[section.ID]; exists {
 		err = ConflictError
@@ -50,14 +50,16 @@ func (r *SectionRepository) Post(section model.Section) (s model.Section, err er
 		err = ConflictError
 		return
 	}
-	section.ID = lastId + 1
+	section.ID = lastId
 	r.dbSection.TbSections[section.ID] = section
 	s = section
 	return
 }
 
-func (r *SectionRepository) Update(id int, section model.Section) (model.Section, error) {
-	return model.Section{}, nil
+func (r *SectionRepository) Update(id int, section model.Section) (newSec model.Section, err error) {
+	newSec = section
+	r.dbSection.TbSections[id] = newSec
+	return
 }
 
 func (r *SectionRepository) Delete(id int) (err error) {
@@ -76,4 +78,14 @@ func sectionNumberExists(sectionNumber int, sr *SectionRepository) bool {
 		}
 	}
 	return false
+}
+
+func getLastId(db map[int]model.Section) int {
+	lastId := 0
+	for _, section := range db {
+		if section.ID > lastId {
+			lastId = section.ID
+		}
+	}
+	return lastId + 1
 }
