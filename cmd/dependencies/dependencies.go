@@ -10,10 +10,6 @@ import (
 func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController) {
 	db := database.CreateDatabase()
 
-	employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
-	employeeSv := service.CreateEmployeeService(employeeRp)
-	employeeHd := handler.CreateEmployeeHandler(employeeSv)
-
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
 	sellersService := service.CreateServiceSellers(sellersRepository)
 	sellersHandler := handler.CreateHandlerSellers(sellersService)
@@ -33,6 +29,10 @@ func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *han
 	sectionsRep := repository.CreateRepositorySections(*db)
 	sectionsSvc := service.CreateServiceSection(*sectionsRep)
 	sectionsHandler := handler.CreateHandlerSections(sectionsSvc)
+
+	employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
+	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
+	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
 	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler
 }

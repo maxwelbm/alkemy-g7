@@ -20,3 +20,7 @@ func (e *Employee) IsValidEmployee() bool {
 	}
 	return true
 }
+
+func (e *Employee) IsEmptyEmployee() bool {
+	return e.CardNumberId == "" && e.FirstName == "" && e.LastName == "" && e.WarehouseId == 0
+}
