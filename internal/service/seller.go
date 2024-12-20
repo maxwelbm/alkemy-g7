@@ -15,19 +15,40 @@ type SellersService struct {
 }
 
 func (s *SellersService) ValidateFieldsUpdate(sl model.SellerUpdate) error {
-    if sl.CID != nil && *sl.CID == 0 {
-        return model.ErrorIntAttribute
-    }
+	var send bool
+    if sl.CID != nil {
+		if *sl.CID == 0 {
+			return model.ErrorAttribute
+		} else {
+			send = true
+		}
+	}
 
-    if sl.Address != nil && *sl.Address == "" {
-        return model.ErrorStringAttribute
-    }
+    if sl.Address != nil {
+		if *sl.Address == "" {
+        	return model.ErrorAttribute
+    	} else {
+			send = true
+		}
+	}
 
-    if sl.CompanyName != nil && *sl.CompanyName == "" {
-		return model.ErrorStringAttribute    }
+    if sl.CompanyName != nil {
+		if *sl.CompanyName == "" {
+			return model.ErrorAttribute    
+		} else {
+			send = true
+		}
+	}
 
-    if sl.Telephone != nil && *sl.Telephone == "" {
-		return model.ErrorStringAttribute    }
+    if sl.Telephone != nil {
+		if *sl.Telephone == "" {
+			return model.ErrorAttribute    
+		}
+	} 
+
+	if !send {
+		return model.ErrorAttribute
+	}
 
     return nil
 }
@@ -55,17 +76,17 @@ func validateFormatReflect(attribute interface{}, t string) error {
 	switch t {
 	case reflect.String.String():
 		if reflect.TypeOf(attribute).Kind() != reflect.String {
-			return model.ErrorStringAttribute
+			return model.ErrorAttribute
 		}
 		if attribute == "" {
-			return model.ErrorStringAttribute
+			return model.ErrorAttribute
 		}
 	case reflect.Int.String():
 		if reflect.TypeOf(attribute).Kind() != reflect.Int {
-			return model.ErrorIntAttribute
+			return model.ErrorAttribute
 		}
 		if attribute == 0 {
-			return model.ErrorIntAttribute
+			return model.ErrorAttribute
 		}
 	}
 	return nil
