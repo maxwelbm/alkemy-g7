@@ -67,11 +67,21 @@ func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
 
 }
 
-func (br BuyerRepository) Update(id int, newBuyer model.Buyer) (model.Buyer, error) {
+func (br *BuyerRepository) Update(id int, newBuyer model.Buyer) (model.Buyer, error) {
+
+	BuyerExists := isCardNumberIdExists(newBuyer.CardNumberId, br)
+
+	if BuyerExists {
+		return model.Buyer{}, &custom_error.CustomError{Object: newBuyer, Err: custom_error.Conflict}
+	}
 
 	br.dbBuyer.TbBuyer[id] = newBuyer
 
 	return br.GetById(id)
+}
+
+func NewBuyerRepository(db database.Database) *BuyerRepository {
+	return &BuyerRepository{dbBuyer: db}
 }
 
 func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
@@ -83,10 +93,6 @@ func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
 	}
 
 	return false
-}
-
-func NewBuyerRepository(db database.Database) *BuyerRepository {
-	return &BuyerRepository{dbBuyer: db}
 }
 
 func getLastIdBuyer(db map[int]model.Buyer) int {
