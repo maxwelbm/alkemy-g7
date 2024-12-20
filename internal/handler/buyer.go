@@ -230,28 +230,31 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	})
 
 	if err != nil {
-		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ErrorResponse{
-				Message: "Buyer Not Found",
-			})
-			return
-		} else if errors.Is(err.(*custom_error.CustomError).Err, custom_error.EmptyFields) {
-			response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-				Message: "At least one field must be mandatory to send the request",
-			})
-			return
-		} else if errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-				Message: "card_number_id already exists",
-			})
-			return
-		} else {
-			response.JSON(w, http.StatusBadRequest, ErrorResponse{
-				Message: err.Error(),
-			})
-			return
+		var customErr custom_error.CustomError
+		if errors.As(err, &customErr) {
+			switch customErr.Err {
+			case custom_error.NotFound:
+				response.JSON(w, http.StatusNotFound, ErrorResponse{
+					Message: "Buyer Not Found",
+				})
+				return
+			case custom_error.EmptyFields:
+				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
+					Message: "At least one field must be mandatory to send the request",
+				})
+				return
+			case custom_error.Conflict:
+				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
+					Message: "card_number_id already exists",
+				})
+				return
+			}
 		}
-
+		
+		response.JSON(w, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
 	}
 
 	data := Data{
