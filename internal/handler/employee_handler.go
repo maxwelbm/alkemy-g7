@@ -92,7 +92,7 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 
 	if err != nil {
 		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
 			return
 		}
 
@@ -121,9 +121,15 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		if errors.Is(err.(custom_error.CustomError).Err, custom_error.InvalidErr) {
-			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.Error()})
+			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
 			return
 		}
+
+		if errors.As(err, &custom_error.CustomError{}) {
+			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+			return
+		}
+
 		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
 		return
 	}
@@ -136,6 +142,12 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 
 func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the id in path param"})
+		return
+	}
+
 	var reqBody EmployeeJSON
 
 	err = request.JSON(r, &reqBody)
@@ -148,6 +160,16 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	employee := *reqBody.toEmployeeEntity()
 
 	updatedEmployee, err := e.sv.UpdateEmployee(id, employee)
+
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		return
+	}
+
 	employeeJSON := EmployeeJSON{}
 	employeeJSON.fromEmployeeEntity(updatedEmployee)
 
@@ -166,7 +188,7 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.Error()})
+			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
 			return
 		}
 		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})

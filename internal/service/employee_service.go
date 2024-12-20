@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -11,8 +13,8 @@ type EmployeeService struct {
 	wrSrv interfaces.IWarehouseRepo
 }
 
-func CreateEmployeeService(rp interfaces.IEmployeeRepo) *EmployeeService {
-	return &EmployeeService{rp: rp}
+func CreateEmployeeService(rp interfaces.IEmployeeRepo, wrSrv interfaces.IWarehouseRepo) *EmployeeService {
+	return &EmployeeService{rp: rp, wrSrv: wrSrv}
 }
 
 func (e *EmployeeService) GetEmployees() (map[int]model.Employee, error) {
@@ -34,12 +36,11 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 		return model.Employee{}, custom_error.CustomError{Object: employee, Err: custom_error.InvalidErr}
 	}
 
-	// _, err = e.wrSrv.GetById(employee.WarehouseId)
+	_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
 
-	//@todo validate error throwed by warehouseService
-	// if err != nil {
-	// 	return model.Employee{}, custom_error.CustomError{Object: employee, Err: custom_error.InvalidErr}
-	// }
+	if err != nil {
+		return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("WarehouseID dont exist")}
+	}
 
 	employee.Id = e.generateNewId()
 	return e.rp.Post(employee)
