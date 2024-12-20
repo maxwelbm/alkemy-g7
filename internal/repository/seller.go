@@ -17,6 +17,16 @@ type SellersRepository struct {
 	db map[int]model.Seller
 }
 
+func (rp *SellersRepository) validateCID(sellers map[int]model.Seller, cid int) error {
+	for _, s := range sellers {
+		if s.CID == cid {
+			err := errors.New("Seller's CID already exist")
+			return err
+			}
+		}
+	return nil
+}
+
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	sellers = make([]model.Seller, 0)
 
@@ -27,14 +37,12 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	return sellers, nil
 }
 
-func (rp *SellersRepository) GetByID(id int) (sl model.Seller, err error) {
-	for _, value := range rp.db {
-		if value.ID == id {
-			return value, nil
-		}
+func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
+	sl, exist := rp.db[id]
+	if !exist {
+		err = errors.New("Seller not found")
+		return sl, err
 	}
-
-	err = errors.New("Any seller with this ID not found")
 	return sl, err
 }
 
@@ -46,11 +54,8 @@ func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err err
 		}
 	}
 
-	for _, value := range rp.db {
-		if value.CID == seller.CID {
-			err := errors.New("Seller's CID already exist")
-			return sl, err
-		}
+	if err := rp.validateCID(rp.db, seller.CID); err != nil {
+		return sl, err
 	}
 
 	seller.ID = id + 1
@@ -58,4 +63,47 @@ func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err err
 	rp.db[id] = seller
 
 	return seller, nil
+}
+
+func (rp *SellersRepository) Patch(id int, seller model.SellerUpdate) (sl model.Seller, err error) {
+	if seller.CID != nil {
+		if rp.db[id].CID != *seller.CID {
+			if err := rp.validateCID(rp.db, *seller.CID); err != nil {
+				return sl, err
+			}
+		}
+	}
+
+	if seller.CID != nil {
+		sel := rp.db[id]
+		sel.CID = *seller.CID
+		rp.db[id] = sel
+	}
+
+	if seller.CompanyName != nil {
+		sel := rp.db[id]
+		sel.CompanyName = *seller.CompanyName
+		rp.db[id] = sel
+	}
+
+	if seller.Address != nil {
+		sel := rp.db[id]
+		sel.Address = *seller.Address
+		rp.db[id] = sel
+	}
+
+	if seller.Telephone != nil {
+		sel := rp.db[id]
+		sel.Telephone = *seller.Telephone
+		rp.db[id] = sel
+	}
+
+	sl = rp.db[id]
+
+	return sl, nil
+}
+
+// Delete implements interfaces.ISellerRepo.
+func (rp *SellersRepository) Delete(id int) error {
+	panic("unimplemented")
 }
