@@ -12,6 +12,12 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
+type ResponseWareHouseJson struct {
+	Message string `json:"message"`
+	Error   bool   `json:"error"`
+	Data    any    `json:"data"`
+}
+
 type WarehouseHandler struct {
 	srv interfaces.IWarehouseService
 }
@@ -25,7 +31,10 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 		wareHouse, err := h.srv.GetAllWareHouse()
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			response.JSON(w, http.StatusInternalServerError, ResponseWareHouseJson{
+				Message: err.Error(),
+				Error:   true,
+			})
 			return
 		}
 
@@ -42,8 +51,10 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 			})
 		}
 
-		response.JSON(w, http.StatusOK, map[string]any{
-			"data": data,
+		response.JSON(w, http.StatusOK, ResponseWareHouseJson{
+			Message: "success",
+			Data:    data,
+			Error:   false,
 		})
 
 	}
@@ -54,19 +65,27 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, "invalid id")
+			response.JSON(w, http.StatusBadRequest, ResponseWareHouseJson{
+				Message: "invalid id",
+				Error:   true,
+			})
 			return
 		}
 
 		warehouse, err := h.srv.GetByIdWareHouse(id)
 
 		if err != nil {
-			response.JSON(w, http.StatusNotFound, "warehouse not found")
+			response.JSON(w, http.StatusNotFound, ResponseWareHouseJson{
+				Message: "warehouse not found",
+				Error:   true,
+			})
 			return
 		}
 
-		response.JSON(w, http.StatusOK, map[string]any{
-			"data": warehouse,
+		response.JSON(w, http.StatusOK, ResponseWareHouseJson{
+			Message: "success",
+			Data:    warehouse,
+			Error:   false,
 		})
 
 	}
@@ -77,14 +96,20 @@ func (h *WarehouseHandler) DeleteByIdWareHouse() http.HandlerFunc {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, "invalid id")
+			response.JSON(w, http.StatusBadRequest, ResponseWareHouseJson{
+				Message: "invalid id",
+				Error:   true,
+			})
 			return
 		}
 
 		err = h.srv.DeleteByIdWareHouse(id)
 
 		if err != nil {
-			response.JSON(w, http.StatusNotFound, "warehouse not found")
+			response.JSON(w, http.StatusNotFound, ResponseWareHouseJson{
+				Message: "warehouse not found",
+				Error:   true,
+			})
 			return
 		}
 
@@ -96,12 +121,18 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody request.RequestBody
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-			response.JSON(w, http.StatusBadRequest, "invalid request body")
+			response.JSON(w, http.StatusBadRequest, ResponseWareHouseJson{
+				Message: "invalid request body",
+				Error:   true,
+			})
 			return
 		}
 
 		if !request.IsValidateFields(reqBody) {
-			response.JSON(w, http.StatusUnprocessableEntity, "invalid request body")
+			response.JSON(w, http.StatusUnprocessableEntity, ResponseWareHouseJson{
+				Message: "invalid request body",
+				Error:   true,
+			})
 			return
 		}
 		warehouse, err := h.srv.PostWareHouse(model.WareHouse{
@@ -117,8 +148,52 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 			return
 		}
 
-		response.JSON(w, http.StatusCreated, map[string]any{
-			"data": warehouse,
+		response.JSON(w, http.StatusCreated, ResponseWareHouseJson{
+			Message: "success",
+			Data:    warehouse,
+			Error:   false,
+		})
+	}
+}
+
+func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, ResponseWareHouseJson{
+				Message: "invalid id",
+				Error:   true,
+			})
+			return
+		}
+
+		var reqBody request.RequestBody
+		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+			response.JSON(w, http.StatusBadRequest, ResponseWareHouseJson{
+				Message: "invalid request body",
+				Error:   true,
+			})
+			return
+		}
+
+		warehouse, err := h.srv.UpdateWareHouse(id, model.WareHouse{
+			Address:            reqBody.Address,
+			Telephone:          reqBody.Telephone,
+			WareHouseCode:      reqBody.WareHouseCode,
+			MinimunCapacity:    reqBody.MinimunCapacity,
+			MinimunTemperature: reqBody.MinimunTemperature,
+		})
+
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		response.JSON(w, http.StatusOK, ResponseWareHouseJson{
+			Message: "success",
+			Data:    warehouse,
+			Error:   false,
 		})
 	}
 }
