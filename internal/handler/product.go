@@ -68,7 +68,8 @@ func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	var productBody model.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("json mal formatado ou invalido", nil))
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("json mal formatado ou invalido", nil))
+		return
 	}
 
 	product, err := ph.ProductService.CreateProduct(productBody)
@@ -90,6 +91,7 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("json mal formatado ou invalido", nil))
+		return
 	}
 
 	product, err := ph.ProductService.UpdateProduct(id, productBody)
