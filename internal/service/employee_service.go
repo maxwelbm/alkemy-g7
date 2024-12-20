@@ -47,6 +47,18 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 }
 
 func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
+	if employee.IsEmptyEmployee() {
+		return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("empty employee")}
+	}
+
+	if employee.WarehouseId != 0 {
+		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
+
+		if err != nil {
+			return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("WarehouseID dont exist")}
+		}
+	}
+
 	existingEmployee, err := e.GetEmployeeById(id)
 
 	if err != nil {
