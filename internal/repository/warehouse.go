@@ -47,13 +47,25 @@ func (r *WareHouseMap) PostWareHouse(warehouse model.WareHouse) (w model.WareHou
 			return model.WareHouse{}, &custom_error.CustomError{Object: warehouse.WareHouseCode, Err: custom_error.AlreadyExists}
 		}
 	}
+
 	r.db.TbWarehouses[warehouse.Id] = warehouse
 	w = r.db.TbWarehouses[warehouse.Id]
 	return
 }
 
 func (r *WareHouseMap) UpdateWareHouse(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
+	warehouseById := r.db.TbWarehouses[id]
+
+	if warehouseById.WareHouseCode != warehouse.WareHouseCode {
+		for _, value := range r.db.TbWarehouses {
+			if value.WareHouseCode == warehouse.WareHouseCode {
+				return model.WareHouse{}, &custom_error.CustomError{Object: "warehouseCode " + warehouse.WareHouseCode, Err: custom_error.AlreadyExists}
+			}
+		}
+	}
+
 	r.db.TbWarehouses[id] = warehouse
+
 	w = r.db.TbWarehouses[id]
 	return
 }

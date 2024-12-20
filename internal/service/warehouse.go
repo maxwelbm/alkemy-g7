@@ -26,7 +26,11 @@ func (s *WareHouseDefault) UpdateWareHouse(id int, warehouse model.WareHouse) (w
 	wareHouseById, err := s.rp.GetByIdWareHouse(id)
 
 	if err != nil {
-		return model.WareHouse{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+		return model.WareHouse{}, &custom_error.CustomError{Object: "empty body", Err: custom_error.NotFound}
+	}
+
+	if warehouse.Id == 0 && warehouse.Address == "" && warehouse.WareHouseCode == "" && warehouse.Telephone == "" && warehouse.MinimunCapacity == 0 && warehouse.MinimunTemperature == 0 {
+		return model.WareHouse{}, custom_error.CustomError{Object: warehouse, Err: custom_error.NotFound}
 	}
 
 	if warehouse.Address != "" {
