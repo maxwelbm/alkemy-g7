@@ -40,8 +40,6 @@ func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
 func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
 	buyer, ok := br.dbBuyer.TbBuyer[id]
 
-	fmt.Println(ok)
-
 	if !ok {
 		return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 	}
