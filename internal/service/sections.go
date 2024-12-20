@@ -32,11 +32,46 @@ func (s *SectionService) Post(section model.Section) (sec model.Section, err err
 }
 
 func (s *SectionService) Update(id int, section model.Section) (sec model.Section, err error) {
-	sec, err = s.rp.Update(id, section)
+	existingSection, err := s.GetById(id)
+	if err != nil {
+		sec = model.Section{}
+		return
+	}
+
+	updateSectionFields(&existingSection, section)
+
+	sec, err = s.rp.Update(id, existingSection)
 	return
 }
 
 func (s *SectionService) Delete(id int) (err error) {
 	err = s.rp.Delete(id)
 	return
+}
+
+func updateSectionFields(existingSection *model.Section, updatedSection model.Section) {
+	if updatedSection.SectionNumber != 0 {
+		existingSection.SectionNumber = updatedSection.SectionNumber
+	}
+	if updatedSection.CurrentTemperature != 0 {
+		existingSection.CurrentTemperature = updatedSection.CurrentTemperature
+	}
+	if updatedSection.MinimumTemperature != 0 {
+		existingSection.MinimumTemperature = updatedSection.MinimumTemperature
+	}
+	if updatedSection.CurrentCapacity != 0 {
+		existingSection.CurrentCapacity = updatedSection.CurrentCapacity
+	}
+	if updatedSection.MinimumCapacity != 0 {
+		existingSection.MinimumCapacity = updatedSection.MinimumCapacity
+	}
+	if updatedSection.MaximumCapacity != 0 {
+		existingSection.MaximumCapacity = updatedSection.MaximumCapacity
+	}
+	if updatedSection.WarehouseID != 0 {
+		existingSection.WarehouseID = updatedSection.WarehouseID
+	}
+	if updatedSection.ProductTypeID != 0 {
+		existingSection.ProductTypeID = updatedSection.WarehouseID
+	}
 }

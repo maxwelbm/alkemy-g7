@@ -9,6 +9,27 @@
       "MaximumCapacity": 1,
       "WarehouseID": 1,
       "ProductTypeID": 1
+    },
+    {
+      "ID": 2,
+      "SectionNumber": 2,
+      "CurrentTemperature": 2,
+      "MinimumTemperature": 2,
+      "CurrentCapacity": 2,
+      "MinimumCapacity": 2,
+      "MaximumCapacity": 2,
+      "WarehouseID": 2,
+      "ProductTypeID": 2
+    },
+    {
+      "ID": 3,
+      "SectionNumber": 3,
+      "CurrentTemperature": 3,
+      "MinimumTemperature": 3,
+      "CurrentCapacity": 3,
+      "MinimumCapacity": 3,
+      "MaximumCapacity": 3,
+      "WarehouseID": 3,
+      "ProductTypeID": 3
     }
 ]
-  

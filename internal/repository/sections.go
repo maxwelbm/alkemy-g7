@@ -56,8 +56,10 @@ func (r *SectionRepository) Post(section model.Section) (s model.Section, err er
 	return
 }
 
-func (r *SectionRepository) Update(id int, section model.Section) (model.Section, error) {
-	return model.Section{}, nil
+func (r *SectionRepository) Update(id int, section model.Section) (newSec model.Section, err error) {
+	newSec = section
+	r.dbSection.TbSections[id] = newSec
+	return
 }
 
 func (r *SectionRepository) Delete(id int) (err error) {
