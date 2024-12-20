@@ -35,18 +35,18 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {
 		r.Get("/", sectionHandler.GetAll)
-		r.Get("/{id}", nil)
-		r.Post("/", nil)
-		r.Patch("/{id}", nil)
-		r.Delete("/{id}", nil)
+		r.Get("/{id}", sectionHandler.GetById)
+		r.Post("/", sectionHandler.Post)
+		r.Patch("/{id}", sectionHandler.Update)
+		r.Delete("/{id}", sectionHandler.Delete)
 	})
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
 		r.Get("/", productHandler.GetAllProducts)
-		r.Get("/{id}", nil)
-		r.Post("/", nil)
-		r.Patch("/{id}", nil)
-		r.Delete("/{id}", nil)
+		r.Get("/{id}", productHandler.GetProductById)
+		r.Post("/", productHandler.CreateProduct)
+		r.Patch("/{id}", productHandler.UpdateProduct)
+		r.Delete("/{id}", productHandler.DeleteProductById)
 	})
 
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
@@ -60,9 +60,9 @@ func initRoutes(productHandler *handler.ProductHandler,
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
 		r.Get("/", sellersHandler.GetAllSellers)
 		r.Get("/{id}", sellersHandler.GetById)
-		r.Post("/", nil)
-		r.Patch("/{id}", nil)
-		r.Delete("/{id}", nil)
+		r.Post("/", sellersHandler.CreateSellers)
+		r.Patch("/{id}", sellersHandler.UpdateSellers)
+		r.Delete("/{id}", sellersHandler.DeleteSellers)
 	})
 
 	rt.Route("/api/v1/employees", func(r chi.Router) {

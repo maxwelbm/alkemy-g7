@@ -86,8 +86,12 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 
 	buyer, err := bh.svc.GetBuyerByID(id)
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		http.Error(w, "", http.StatusNotFound)
+	if err != nil {
+		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
+			http.Error(w, "", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -202,7 +206,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-}
+	}
 
 	data := Data{
 		Data: buyer,

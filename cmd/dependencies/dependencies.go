@@ -15,8 +15,8 @@ func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *han
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
-	sellersService := service.CreateServiceSellers(*sellersRepository)
-	sellersHandler := handler.CreateHandlerSellers(*sellersService)
+	sellersService := service.CreateServiceSellers(sellersRepository)
+	sellersHandler := handler.CreateHandlerSellers(sellersService)
 
 	productRepo := repository.NewProductRepository(*db)
 	productServ := service.NewProductService(productRepo, sellersRepository)
@@ -30,9 +30,9 @@ func LoadDependencies() (*handler.ProductHandler, *handler.EmployeeHandler, *han
 	warehousesService := service.NewWareHoureService(warehousesRepository)
 	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
-	SectionsRep := repository.CreateRepositorySections(*db)
-	SectionsSvc := service.CreateServiceSection(*SectionsRep)
-	SectionsHandler := handler.CreateHandlerSections(SectionsSvc)
+	sectionsRep := repository.CreateRepositorySections(*db)
+	sectionsSvc := service.CreateServiceSection(*sectionsRep)
+	sectionsHandler := handler.CreateHandlerSections(sectionsSvc)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, SectionsHandler
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler
 }
