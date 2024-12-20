@@ -45,9 +45,9 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := make(map[int]SectionJSON)
-	for key, value := range s {
-		data[key] = SectionJSON{
+	data := []SectionJSON{}
+	for _, value := range s {
+		data = append(data, SectionJSON{
 			ID:                 value.ID,
 			SectionNumber:      value.SectionNumber,
 			CurrentTemperature: value.CurrentTemperature,
@@ -57,7 +57,8 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 			MaximumCapacity:    value.MaximumCapacity,
 			WarehouseID:        value.WarehouseID,
 			ProductTypeID:      value.ProductTypeID,
-		}
+		})
+
 	}
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", data))
 }
@@ -67,6 +68,7 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
+		return
 	}
 
 	s, err := h.sv.GetById(idInt)
@@ -85,6 +87,11 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid request body", nil))
+		return
+	}
+
+	if reqBody == (SectionJSON{}) {
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("request body cannot be empty", nil))
 		return
 	}
 
@@ -112,12 +119,19 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
+		return
 	}
 
 	var reqBody SectionJSON
 	err = json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid request body", nil))
+		return
+	}
+
+	if reqBody == (SectionJSON{}) {
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("request body cannot be empty", nil))
+		return
 	}
 
 	sec := model.Section{
@@ -134,7 +148,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.sv.Update(idInt, sec)
 	if err != nil {
-		response.JSON(w, handleError(err), nil)
+		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
@@ -146,6 +160,7 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
+		return
 	}
 
 	err = h.sv.Delete(idInt)
@@ -164,5 +179,6 @@ func handleError(err error) int {
 	if errors.Is(err, repository.ConflictError) {
 		return http.StatusConflict
 	}
+
 	return http.StatusInternalServerError
 }
