@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
@@ -28,6 +30,12 @@ func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
 }
 
 func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, error) {
+	for _, e := range e.db {
+		if employee.CardNumberId == e.CardNumberId {
+			return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("duplicated CardNumberId")}
+		}
+	}
+
 	e.db[employee.Id] = employee
 
 	return employee, nil
