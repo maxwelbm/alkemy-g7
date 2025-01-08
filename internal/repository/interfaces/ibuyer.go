@@ -7,5 +7,5 @@ type IBuyerRepo interface {
 	GetById(id int) (buyer model.Buyer, err error)
 	Post(newBuyer model.Buyer) (model.Buyer, error)
 	Update(id int, newBuyer model.Buyer) error
-	Delete(id int) error
+	Delete(id int) (err error)
 }

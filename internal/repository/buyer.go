@@ -13,13 +13,27 @@ type BuyerRepository struct {
 	db *sql.DB
 }
 
-func (r BuyerRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM `buyers` WHERE `id` = ?", id)
+func (r BuyerRepository) Delete(id int) (err error) {
+
+	tx, err := r.db.Begin()
+
 	if err != nil {
-		return err
+		return
 	}
 
-	return err
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM buyer WHERE id = ?", id)
+	if err != nil {
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
