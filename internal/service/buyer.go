@@ -18,7 +18,7 @@ func (bs *BuyerService) GetAllBuyer() (buyers []model.Buyer, err error) {
 	return bs.rp.Get()
 }
 
-func (bs *BuyerService) GetBuyerByID(id int) (model.Buyer, error) {
+func (bs *BuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
 	return bs.rp.GetById(id)
 }
 
