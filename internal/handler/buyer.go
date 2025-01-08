@@ -8,6 +8,7 @@ import (
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
@@ -47,39 +48,12 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 
 	buyers, err := bh.svc.GetAllBuyer()
 	if err != nil {
-
-		response.JSON(w, http.StatusNotFound, ErrorResponse{
-			Message: "Não há buyers cadastrados",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to list Buyers", nil))
 		return
 	}
 
-	var dataBuyers []ResponseBuyerJson
-	for _, b := range buyers {
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyers))
 
-		dataBuyers = append(dataBuyers, ResponseBuyerJson{
-			Id:           b.Id,
-			CardNumberId: b.CardNumberId,
-			FirstName:    b.FirstName,
-			LastName:     b.LastName,
-		})
-	}
-
-	data := Data{
-		Data: dataBuyers,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
-		return
-	}
 }
 
 func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Request) {
