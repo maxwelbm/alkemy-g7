@@ -44,16 +44,20 @@ func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
 }
 
-func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
-	// buyer, ok := br.dbBuyer.TbBuyer[id]
+func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
-	// if !ok {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
-	// }
+	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyer WHERE id= ?", id)
 
-	// return buyer, nil
+	err = row.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 
-	return model.Buyer{}, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NotFound
+		}
+		return
+	}
+
+	return
 }
 
 func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
