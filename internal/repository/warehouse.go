@@ -44,7 +44,7 @@ func (r *WareHouseMap) PostWareHouse(warehouse model.WareHouse) (w model.WareHou
 
 	for _, value := range r.db.TbWarehouses {
 		if value.WareHouseCode == warehouse.WareHouseCode {
-			return model.WareHouse{}, &custom_error.CustomError{Object: warehouse.WareHouseCode, Err: custom_error.AlreadyExists}
+			return model.WareHouse{}, &custom_error.CustomError{Object: warehouse.WareHouseCode, Err: custom_error.Conflict}
 		}
 	}
 
@@ -59,7 +59,7 @@ func (r *WareHouseMap) UpdateWareHouse(id int, warehouse model.WareHouse) (w mod
 	if warehouseById.WareHouseCode != warehouse.WareHouseCode {
 		for _, value := range r.db.TbWarehouses {
 			if value.WareHouseCode == warehouse.WareHouseCode {
-				return model.WareHouse{}, &custom_error.CustomError{Object: "warehouseCode " + warehouse.WareHouseCode, Err: custom_error.AlreadyExists}
+				return model.WareHouse{}, &custom_error.CustomError{Object: "warehouseCode " + warehouse.WareHouseCode, Err: custom_error.Conflict}
 			}
 		}
 	}

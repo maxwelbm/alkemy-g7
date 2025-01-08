@@ -1,16 +1,29 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
 func main() {
+	dbConfig, err := database.GetDbConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies()
+	db, err := database.NewConnectionDb(dbConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies(db.Connection)
 
 	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler)
 

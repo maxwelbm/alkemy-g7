@@ -6,8 +6,9 @@ import (
 )
 
 type CustomError struct {
-	Object any
-	Err    error
+	Object     any
+	Err        error
+	StatusCode int
 }
 
 func (c CustomError) Error() string {
@@ -15,9 +16,8 @@ func (c CustomError) Error() string {
 }
 
 var (
-	NotFound      = errors.New("not found")
-	Conflict      = errors.New("It already exists")
-	EmptyFields   = errors.New("No fields filled")
-	InvalidErr    = errors.New("invalid object")
-	AlreadyExists = errors.New("already exists")
+	NotFound    = errors.New("Not found")
+	Conflict    = errors.New("It already exists")
+	EmptyFields = errors.New("No fields filled")
+	InvalidErr  = errors.New("Invalid object")
 )

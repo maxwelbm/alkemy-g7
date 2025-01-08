@@ -1,0 +1,4 @@
+# Ignorar o arquivo .env
+.env
+# Ignorar volume docker
+mysql_data/

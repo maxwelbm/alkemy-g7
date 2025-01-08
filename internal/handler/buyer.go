@@ -250,7 +250,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 				return
 			}
 		}
-		
+
 		response.JSON(w, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})

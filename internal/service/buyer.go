@@ -50,7 +50,12 @@ func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, 
 			existingBuyer.LastName = newBuyer.LastName
 		}
 
-		return bs.rp.Update(id, existingBuyer)
+		err := bs.rp.Update(id, existingBuyer)
+		if err != nil {
+			return model.Buyer{}, err
+		}
+
+		return model.Buyer{}, nil
 	} else {
 
 		return model.Buyer{}, err

@@ -1,11 +1,15 @@
 package database
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"os"
 
 	// "github.com/maxwelbm/alkemy-g7.git/internal/handler"
 
+	"github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
@@ -125,4 +129,57 @@ func Load(filepath string, entity any) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Db struct {
+	Connection *sql.DB
+}
+
+func NewConnectionDb(db *mysql.Config) (*Db, error) {
+
+	conn, err := sql.Open("mysql", db.FormatDSN())
+	if err != nil {
+		return nil, err
+	}
+
+	if err := conn.Ping(); err != nil {
+		return nil, err
+	}
+
+	return &Db{Connection: conn}, nil
+}
+
+func (Db *Db) Close() error {
+	return Db.Connection.Close()
+}
+
+func GetDbConfig() (*mysql.Config, error) {
+	err := godotenv.Load()
+	if err != nil {
+		return nil, errors.New("Error loading environment variables")
+	}
+
+	dbHost := os.Getenv("DB_HOST")
+	if err != nil {
+		return nil, errors.New("Database address in incorrect")
+	}
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbNet := os.Getenv("DB_NET")
+
+	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbNet == "" {
+
+		return nil, errors.New("Missing required environment configuration for the database")
+	}
+
+	return &mysql.Config{
+		User:      dbUser,
+		Passwd:    dbPassword,
+		Net:       dbNet,
+		Addr:      dbHost,
+		ParseTime: true,
+		DBName:    dbName,
+	}, nil
+
 }
