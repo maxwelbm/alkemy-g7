@@ -96,6 +96,11 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 			return
 		}
 
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusLocked, responses.CreateResponseBody("You cannot delete the buyer because there are dependencies related to it.", nil))
+			return
+		}
+
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to delete for buyer", nil))
 		return
 	}

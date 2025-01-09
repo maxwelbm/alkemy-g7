@@ -16,6 +16,10 @@ func (r BuyerRepository) Delete(id int) (err error) {
 
 	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
+
+		if err.(*mysql.MySQLError).Number == 1451 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
 		return
 	}
 
