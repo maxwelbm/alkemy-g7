@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"log"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
@@ -17,10 +18,10 @@ func CreateEmployeeService(rp interfaces.IEmployeeRepo, wrSrv interfaces.IWareho
 	return &EmployeeService{rp: rp, wrSrv: wrSrv}
 }
 
-func (e *EmployeeService) GetEmployees() (map[int]model.Employee, error) {
+func (e *EmployeeService) GetEmployees() ([]model.Employee, error) {
 	data, err := e.rp.Get()
-
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
