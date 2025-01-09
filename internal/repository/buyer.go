@@ -14,7 +14,7 @@ type BuyerRepository struct {
 
 func (r BuyerRepository) Delete(id int) (err error) {
 
-	_, err = r.db.Exec("DELETE FROM buyer WHERE id = ?", id)
+	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
 		return
 	}
@@ -24,7 +24,7 @@ func (r BuyerRepository) Delete(id int) (err error) {
 
 func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
-	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyer")
+	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyers")
 	if err != nil {
 		return
 	}
@@ -46,7 +46,7 @@ func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
 func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
-	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyer WHERE id= ?", id)
+	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyers WHERE id= ?", id)
 
 	err = row.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 
@@ -62,7 +62,7 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
 func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
-	prepare, err := r.db.Prepare("INSERT INTO buyer (card_number_id, first_name, last_name) VALUES (?,?,?)")
+	prepare, err := r.db.Prepare("INSERT INTO buyers (card_number_id, first_name, last_name) VALUES (?,?,?)")
 
 	if err != nil {
 		return
@@ -85,7 +85,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
-	prepare, err := r.db.Prepare("UPDATE buyer SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
+	prepare, err := r.db.Prepare("UPDATE buyers SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
 
 	if err != nil {
 		return
