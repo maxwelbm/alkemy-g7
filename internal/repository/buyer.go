@@ -22,14 +22,25 @@ func (r BuyerRepository) Delete(id int) error {
 	return err
 }
 
-func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
+func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
-	// if len(br.dbBuyer.TbBuyer) == 0 {
-	// 	return nil, fmt.Errorf("no buyers found")
-	// }
-	// return br.dbBuyer.TbBuyer, nil
+	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyer")
+	if err != nil {
+		return
+	}
 
-	return nil, nil
+	for rows.Next() {
+		var buyer model.Buyer
+
+		err = rows.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
+		if err != nil {
+			return
+		}
+
+		buyers = append(buyers, buyer)
+	}
+
+	return buyers, nil
 
 }
 
