@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -84,39 +83,26 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 }
 
-func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) error {
+func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
-	_, err := r.db.Exec(
-		"UPDATE `buyers` SET `card_number_id` = ?, `first_name` = ?, `last_name` = ? WHERE `id` = ?",
-		newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, newBuyer.Id,
-	)
+	prepare, err := r.db.Prepare("UPDATE buyer SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
+
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = custom_error.Conflict
-			default:
-
-			}
-			return err
-		}
+		return
 	}
 
-	return err
+	_, err = prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, id)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.Conflict
+		}
+		return
+	}
+
+	return
 }
 
 func NewBuyerRepository(db *sql.DB) *BuyerRepository {
 	return &BuyerRepository{db: db}
 }
-
-// func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
-
-// 	for _, b := range br.dbBuyer.TbBuyer {
-// 		if b.CardNumberId == CardNumberId {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }
