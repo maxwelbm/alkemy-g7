@@ -108,14 +108,17 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
 	var reqBody model.Buyer
 
-	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(&reqBody)
 
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 		return
 	}
 
-	err = reqBody.ValidateEmptyFields()
+	err = reqBody.ValidateEmptyFields(false)
 
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
@@ -148,70 +151,47 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
-	var reqBody RequestBuyerJson
+	var reqBody model.Buyer
 
-	err = json.NewDecoder(r.Body).Decode(&reqBody)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	err = decoder.Decode(&reqBody)
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "erro de desserialização dos dados",
-		})
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 		return
 	}
 
-	buyer, err := bh.svc.UpdateBuyer(id, model.Buyer{
-		CardNumberId: reqBody.CardNumberId,
-		FirstName:    reqBody.FirstName,
-		LastName:     reqBody.LastName,
-	})
+	err = reqBody.ValidateEmptyFields(true)
 
 	if err != nil {
-		var customErr custom_error.CustomError
-		if errors.As(err, &customErr) {
-			switch customErr.Err {
-			case custom_error.NotFound:
-				response.JSON(w, http.StatusNotFound, ErrorResponse{
-					Message: "Buyer Not Found",
-				})
-				return
-			case custom_error.EmptyFields:
-				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-					Message: "At least one field must be mandatory to send the request",
-				})
-				return
-			case custom_error.Conflict:
-				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-					Message: "card_number_id already exists",
-				})
-				return
-			}
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+		return
+	}
+
+	buyer, err := bh.svc.UpdateBuyer(id, reqBody)
+
+	if err != nil {
+		if errors.Is(err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
+			return
 		}
 
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		if errors.Is(err, custom_error.Conflict) {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to update buyer", nil))
 		return
+
 	}
 
-	data := Data{
-		Data: buyer,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
-		return
-	}
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 
 }

@@ -12,7 +12,7 @@ type Buyer struct {
 	LastName     string `json:"last_name"`
 }
 
-func (b *Buyer) ValidateEmptyFields() error {
+func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	var fieldsEmpty []string
 
 	if b.CardNumberId == "" {
@@ -25,12 +25,14 @@ func (b *Buyer) ValidateEmptyFields() error {
 		fieldsEmpty = append(fieldsEmpty, "last_name")
 	}
 
-	if len(fieldsEmpty) == 0 {
-		return nil
-	} else if len(fieldsEmpty) == 1 {
-		return fmt.Errorf("Field %s cannot be empty", strings.Join(fieldsEmpty, ","))
+	if !isPatch && len(fieldsEmpty) > 0 {
+		return fmt.Errorf("Field(s) %s cannot be empty", strings.Join(fieldsEmpty, ","))
 	}
 
-	return fmt.Errorf("Fields %s cannot be empty", strings.Join(fieldsEmpty, ","))
+	if isPatch && len(fieldsEmpty) == 3 {
+		return fmt.Errorf("At least one field must be filled in")
+	}
+
+	return nil
 
 }
