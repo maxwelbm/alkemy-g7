@@ -61,25 +61,26 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 	return
 }
 
-func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
-	// BuyerExists := isCardNumberIdExists(newBuyer.CardNumberId, br)
-	// lastId := getLastIdBuyer(br.dbBuyer.TbBuyer)
+func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
-	// if BuyerExists {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: newBuyer, Err: custom_error.Conflict}
-	// }
-	// buyer := model.Buyer{
-	// 	Id:           lastId,
-	// 	CardNumberId: newBuyer.CardNumberId,
-	// 	FirstName:    newBuyer.FirstName,
-	// 	LastName:     newBuyer.LastName,
-	// }
+	prepare, err := r.db.Prepare("INSERT INTO buyer (card_number_id, first_name, last_name) VALUES (?,?,?)")
 
-	// br.dbBuyer.TbBuyer[buyer.Id] = buyer
+	if err != nil {
+		return
+	}
 
-	// return br.GetById(buyer.Id)
+	result, err := prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName)
 
-	return model.Buyer{}, nil
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.Conflict
+		}
+		return
+	}
+
+	id, err = result.LastInsertId()
+
+	return
 
 }
 
