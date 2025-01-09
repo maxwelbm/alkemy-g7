@@ -67,7 +67,7 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	buyer, err := bh.svc.GetBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err, custom_error.NotFound) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
 			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
 			return
 		}
@@ -91,7 +91,7 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	err = bh.svc.DeleteBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err, custom_error.NotFound) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
 			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
 			return
 		}
@@ -129,12 +129,12 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 
-		if errors.Is(err, custom_error.Conflict) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
 			return
 		}
 
-		if errors.Is(err, custom_error.NotFound) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
 			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
 			return
 		}
@@ -177,12 +177,12 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.svc.UpdateBuyer(id, reqBody)
 
 	if err != nil {
-		if errors.Is(err, custom_error.NotFound) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
 			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
 			return
 		}
 
-		if errors.Is(err, custom_error.Conflict) {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
 			return
 		}

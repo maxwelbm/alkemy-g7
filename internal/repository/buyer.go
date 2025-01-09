@@ -52,7 +52,7 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NotFound
+			err = custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 		}
 		return
 	}
@@ -72,7 +72,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.Conflict
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
 		}
 		return
 	}
@@ -95,7 +95,7 @@ func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.Conflict
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
 		}
 		return
 	}
