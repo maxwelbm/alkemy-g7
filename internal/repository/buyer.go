@@ -15,20 +15,7 @@ type BuyerRepository struct {
 
 func (r BuyerRepository) Delete(id int) (err error) {
 
-	tx, err := r.db.Begin()
-
-	if err != nil {
-		return
-	}
-
-	defer tx.Rollback()
-
-	_, err = tx.Exec("DELETE FROM buyer WHERE id = ?", id)
-	if err != nil {
-		return
-	}
-
-	err = tx.Commit()
+	_, err = r.db.Exec("DELETE FROM buyer WHERE id = ?", id)
 	if err != nil {
 		return
 	}
