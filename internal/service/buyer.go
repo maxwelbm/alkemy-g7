@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type BuyerService struct {
@@ -45,34 +44,31 @@ func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, er
 	return
 }
 
-func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
+func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.Buyer, err error) {
 
 	existingBuyer, err := bs.GetBuyerByID(id)
 
-	if newBuyer.CardNumberId == "" && newBuyer.FirstName == "" && newBuyer.LastName == "" {
-		return model.Buyer{}, custom_error.EmptyFields
+	if err != nil {
+		return
 	}
 
-	if err == nil {
-
-		if newBuyer.CardNumberId != "" {
-			existingBuyer.CardNumberId = newBuyer.CardNumberId
-		}
-		if newBuyer.FirstName != "" {
-			existingBuyer.FirstName = newBuyer.FirstName
-		}
-		if newBuyer.LastName != "" {
-			existingBuyer.LastName = newBuyer.LastName
-		}
-
-		err := bs.rp.Update(id, existingBuyer)
-		if err != nil {
-			return model.Buyer{}, err
-		}
-
-		return model.Buyer{}, nil
-	} else {
-
-		return model.Buyer{}, err
+	if newBuyer.CardNumberId != "" {
+		existingBuyer.CardNumberId = newBuyer.CardNumberId
 	}
+	if newBuyer.FirstName != "" {
+		existingBuyer.FirstName = newBuyer.FirstName
+	}
+	if newBuyer.LastName != "" {
+		existingBuyer.LastName = newBuyer.LastName
+	}
+
+	err = bs.rp.Update(existingBuyer.Id, existingBuyer)
+	if err != nil {
+		return
+	}
+
+	buyer, err = bs.GetBuyerByID(id)
+
+	return
+
 }
