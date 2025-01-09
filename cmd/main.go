@@ -52,6 +52,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", sectionHandler.Post)
 		r.Patch("/{id}", sectionHandler.Update)
 		r.Delete("/{id}", sectionHandler.Delete)
+		r.Get("/reportProducts", nil)
 	})
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
@@ -60,6 +61,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", productHandler.CreateProduct)
 		r.Patch("/{id}", productHandler.UpdateProduct)
 		r.Delete("/{id}", productHandler.DeleteProductById)
+		r.Get("/reportRecords", nil)
 	})
 
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
@@ -68,6 +70,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", buyerHandler.HandlerCreateBuyer)
 		r.Patch("/{id}", buyerHandler.HandlerUpdateBuyer)
 		r.Delete("/{id}", buyerHandler.HandlerDeleteBuyerById)
+		r.Get("/reportPurchaseOrders", nil)
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
@@ -84,6 +87,34 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", employeeHd.InsertEmployee)
 		r.Patch("/{id}", employeeHd.UpdateEmployee)
 		r.Delete("/{id}", employeeHd.DeleteEmployee)
+		r.Get("/reportInboundOrders", nil)
 	})
+
+	rt.Route("/api/v1/localities", func(r chi.Router) {
+		r.Post("/", nil)
+		r.Get("/reportCarries", nil)
+		r.Get("/reportSellers", nil)
+	})
+
+	rt.Route("/api/v1/carries", func(r chi.Router) {
+		r.Post("/", nil)
+	})
+
+	rt.Route("/api/v1/productBatches", func(r chi.Router) {
+		r.Post("/", nil)
+	})
+
+	rt.Route("/api/v1/productRecords", func(r chi.Router) {
+		r.Post("/", nil)
+	})
+
+	rt.Route("/api/v1/inboundOrders", func(r chi.Router) {
+		r.Post("/", nil)
+	})
+
+	rt.Route("/api/v1/purchaseOrders", func(r chi.Router) {
+		r.Post("/", nil)
+	})
+
 	return rt
 }
