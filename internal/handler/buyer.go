@@ -106,45 +106,41 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 }
 
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
-	var reqBody RequestBuyerJson
+	var reqBody model.Buyer
 
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 
-	if err != nil || reqBody.CardNumberId == "" || reqBody.FirstName == "" || reqBody.LastName == "" {
-
-		response.JSON(w, http.StatusUnprocessableEntity, nil)
+	if err != nil {
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 		return
 	}
 
-	buyer, err := bh.svc.CreateBuyer(model.Buyer{
-		CardNumberId: reqBody.CardNumberId,
-		FirstName:    reqBody.FirstName,
-		LastName:     reqBody.LastName,
-	})
+	err = reqBody.ValidateEmptyFields()
 
 	if err != nil {
-		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusConflict, ErrorResponse{
-				Message: "card_number_id already exists",
-			})
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+		return
+	}
+
+	buyer, err := bh.svc.CreateBuyer(reqBody)
+
+	if err != nil {
+
+		if errors.Is(err, custom_error.Conflict) {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
 			return
 		}
-	}
 
-	data := Data{
-		Data: buyer,
-	}
+		if errors.Is(err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
+			return
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to create buyer", nil))
 		return
 	}
+
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
 
 }
 
