@@ -9,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
-func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController) {
+func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController, *handler.InboundOrderHandler) {
 	db := database.CreateDatabase()
 
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
@@ -36,5 +36,9 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler
+	inboundRp := repository.NewInboundService(slqDb)
+	inboundSv := service.NewInboundOrderService(inboundRp, employeeRp, warehousesRepository)
+	inboundHd := handler.NewInboundHandler(inboundSv)
+
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, inboundHd
 }
