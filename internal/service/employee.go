@@ -1,9 +1,9 @@
 package service
 
 import (
-	"errors"
 	"log"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -34,29 +34,37 @@ func (e *EmployeeService) GetEmployeeById(id int) (model.Employee, error) {
 
 func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employee, error) {
 	if !employee.IsValidEmployee() {
-		return model.Employee{}, custom_error.CustomError{Object: employee, Err: custom_error.InvalidErr}
+		return model.Employee{}, custom_error.EmployeeErrInvalid
 	}
 
 	_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
 
 	if err != nil {
-		return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("WarehouseID dont exist")}
+		return model.Employee{}, custom_error.EmployeeErrInvalidWarehouseID
 	}
 
-	employee.Id = e.generateNewId()
-	return e.rp.Post(employee)
+	employee, err = e.rp.Post(employee)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.EmployeeErrDuplicatedCardNumber
+		}
+		return model.Employee{}, err
+	}
+
+	return employee, nil
 }
 
 func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
 	if employee.IsEmptyEmployee() {
-		return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("empty employee")}
+		return model.Employee{}, custom_error.EmployeeErrInvalid
 	}
 
 	if employee.WarehouseId != 0 {
 		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
 
 		if err != nil {
-			return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("WarehouseID dont exist")}
+			return model.Employee{}, custom_error.EmployeeErrInvalidWarehouseID
 		}
 	}
 
@@ -94,17 +102,4 @@ func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
 	if updates.WarehouseId != 0 {
 		existing.WarehouseId = updates.WarehouseId
 	}
-}
-
-func (e *EmployeeService) generateNewId() int {
-	lastId := 0
-	data, _ := e.rp.Get()
-
-	for _, employee := range data {
-		if employee.Id > lastId {
-			lastId = employee.Id
-		}
-	}
-
-	return lastId + 1
 }

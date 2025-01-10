@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -43,7 +42,7 @@ func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
 	row := e.db.QueryRow("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?", id)
 	err := row.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
 	if err == sql.ErrNoRows {
-		return model.Employee{}, custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+		return model.Employee{}, custom_error.EmployeeErrNotFound
 	} else if err != nil {
 		return model.Employee{}, err
 	}
@@ -51,10 +50,6 @@ func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
 }
 
 func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, error) {
-	_, err := e.getEmployeeByCardNumber(employee.CardNumberId)
-	if err == nil {
-		return model.Employee{}, custom_error.CustomError{Object: employee, Err: errors.New("duplicated CardNumberId")}
-	}
 
 	result, err := e.db.Exec("INSERT INTO employees (card_number_id, first_name, last_name, warehouse_id) VALUES (?, ?, ?, ?)",
 		employee.CardNumberId, employee.FirstName, employee.LastName, employee.WarehouseId)
@@ -84,7 +79,7 @@ func (e *EmployeeRepository) Update(id int, employee model.Employee) (model.Empl
 func (e *EmployeeRepository) Delete(id int) error {
 	_, err := e.db.Exec("DELETE FROM employees WHERE id = ?", id)
 	if err != nil {
-		return custom_error.CustomError{Object: id, Err: err}
+		return err
 	}
 	return nil
 }
@@ -94,7 +89,7 @@ func (e *EmployeeRepository) getEmployeeByCardNumber(cardNumberId string) (model
 	row := e.db.QueryRow("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE card_number_id = ?", cardNumberId)
 	err := row.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
 	if err == sql.ErrNoRows {
-		return model.Employee{}, custom_error.CustomError{Object: cardNumberId, Err: custom_error.Conflict}
+		return model.Employee{}, custom_error.NotFound
 	} else if err != nil {
 		return model.Employee{}, err
 	}
