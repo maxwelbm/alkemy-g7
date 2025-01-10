@@ -60,50 +60,23 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
 	buyer, err := bh.svc.GetBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ErrorResponse{
-				Message: "Buyer Not Found",
-			})
+		if errors.Is(err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
 			return
 		}
 
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to search for buyer", nil))
 		return
 	}
 
-	responseBuyer := ResponseBuyerJson{
-		Id:           buyer.Id,
-		CardNumberId: buyer.CardNumberId,
-		FirstName:    buyer.FirstName,
-		LastName:     buyer.LastName,
-	}
-
-	data := Data{
-		responseBuyer,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(data)
-
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
-		return
-	}
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 
 }
 
