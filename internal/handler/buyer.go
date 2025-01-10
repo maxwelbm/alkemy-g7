@@ -84,25 +84,24 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
 	err = bh.svc.DeleteBuyerByID(id)
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		response.JSON(w, http.StatusNotFound, ErrorResponse{
-			Message: "Buyer Not Found",
-		})
+	if err != nil {
+		if errors.Is(err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to delete for buyer", nil))
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
-
-	w.Write([]byte(""))
 
 }
 

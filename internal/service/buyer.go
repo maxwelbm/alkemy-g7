@@ -22,7 +22,13 @@ func (bs *BuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
 	return bs.rp.GetById(id)
 }
 
-func (bs *BuyerService) DeleteBuyerByID(id int) error {
+func (bs *BuyerService) DeleteBuyerByID(id int) (err error) {
+
+	_, err = bs.GetBuyerByID(id)
+	if err != nil {
+		return
+	}
+
 	return bs.rp.Delete(id)
 }
 
