@@ -9,7 +9,8 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
-func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController) {
+func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, 
+	*handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController, *handler.ProductRecHandler) {
 	db := database.CreateDatabase()
 
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
@@ -19,6 +20,11 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	productRepo := repository.NewProductRepository(slqDb)
 	productServ := service.NewProductService(productRepo, sellersRepository)
 	productHandler := handler.NewProductHandler(productServ)
+
+
+	productRecordRepo := repository.NewProductRecRepository(slqDb)
+	productRecordServ := service.NewProductRecService(productRecordRepo, productServ)
+	productRecordHandler := handler.NewProductRecHandler(productRecordServ)
 
 	buyersRepository := repository.NewBuyerRepository(slqDb)
 	buyerService := service.NewBuyerService(buyersRepository)
@@ -36,5 +42,5 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, productRecordHandler
 }

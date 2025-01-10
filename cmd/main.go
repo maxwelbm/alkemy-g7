@@ -23,9 +23,13 @@ func main() {
 
 	defer db.Close()
 
-	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies(db.Connection)
+	productHandler, employeeHd, 
+	sellersHandler, buyerHandler, 
+	warehousesHandler, sectionHandler,
+	productRecHandler := dependencies.LoadDependencies(db.Connection)
 
-	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler)
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler,
+		 sectionHandler, warehousesHandler, productRecHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
@@ -34,7 +38,8 @@ func main() {
 
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
-	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
+	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, 
+	warehouseHandler *handler.WarehouseHandler, productRecHandler *handler.ProductRecHandler) *chi.Mux {
 
 	rt := chi.NewRouter()
 
@@ -60,6 +65,10 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", productHandler.CreateProduct)
 		r.Patch("/{id}", productHandler.UpdateProduct)
 		r.Delete("/{id}", productHandler.DeleteProductById)
+	})
+
+	rt.Route("/api/v1/productRecords", func(r chi.Router) {
+		r.Post("/", productRecHandler.CreateProductRecServ)
 	})
 
 	rt.Route("/api/v1/buyers", func(r chi.Router) {
