@@ -2,14 +2,9 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-)
-
-var (
-	NotFoundError = errors.New("there's no section with this id")
-	ConflictError = errors.New("section with this id already exists")
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type SectionRepository struct {
@@ -45,13 +40,17 @@ func (r *SectionRepository) Get() (sections []model.Section, err error) {
 }
 
 func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
-	// if _, exists := r.dbSection.TbSections[id]; !exists {
-	// 	err = NotFoundError
-	// 	return
-	// }
-	// section = r.dbSection.TbSections[id]
-	// return
-	return model.Section{}, nil
+	queryGetById := "SELECT `id`, `section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id` FROM `sections` WHERE `id` = ?"
+	row := r.db.QueryRow(queryGetById, id)
+
+	err = row.Scan(&section.ID, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseID, &section.ProductTypeID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NotFoundErrorSection
+		}
+		return
+	}
+	return
 }
 
 func (r *SectionRepository) Post(section model.Section) (s model.Section, err error) {

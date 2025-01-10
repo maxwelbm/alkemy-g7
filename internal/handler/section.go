@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type SectionsJSON struct {
@@ -173,10 +173,10 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleError(err error) int {
-	if errors.Is(err, repository.NotFoundError) {
+	if errors.Is(err, custom_error.NotFoundErrorSection) {
 		return http.StatusNotFound
 	}
-	if errors.Is(err, repository.ConflictError) {
+	if errors.Is(err, custom_error.ConflictErrorSection) {
 		return http.StatusConflict
 	}
 
