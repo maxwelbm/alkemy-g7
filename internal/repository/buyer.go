@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -15,8 +14,12 @@ type BuyerRepository struct {
 
 func (r BuyerRepository) Delete(id int) (err error) {
 
-	_, err = r.db.Exec("DELETE FROM buyer WHERE id = ?", id)
+	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
+
+		if err.(*mysql.MySQLError).Number == 1451 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
 		return
 	}
 
@@ -25,7 +28,7 @@ func (r BuyerRepository) Delete(id int) (err error) {
 
 func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
-	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyer")
+	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyers")
 	if err != nil {
 		return
 	}
@@ -47,13 +50,13 @@ func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
 func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
-	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyer WHERE id= ?", id)
+	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyers WHERE id= ?", id)
 
 	err = row.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NotFound
+			err = custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 		}
 		return
 	}
@@ -63,7 +66,7 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
 func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
-	prepare, err := r.db.Prepare("INSERT INTO buyer (card_number_id, first_name, last_name) VALUES (?,?,?)")
+	prepare, err := r.db.Prepare("INSERT INTO buyers (card_number_id, first_name, last_name) VALUES (?,?,?)")
 
 	if err != nil {
 		return
@@ -73,7 +76,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.Conflict
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
 		}
 		return
 	}
@@ -84,39 +87,26 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 }
 
-func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) error {
+func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
-	_, err := r.db.Exec(
-		"UPDATE `buyers` SET `card_number_id` = ?, `first_name` = ?, `last_name` = ? WHERE `id` = ?",
-		newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, newBuyer.Id,
-	)
+	prepare, err := r.db.Prepare("UPDATE buyers SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
+
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = custom_error.Conflict
-			default:
-
-			}
-			return err
-		}
+		return
 	}
 
-	return err
+	_, err = prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, id)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
+		return
+	}
+
+	return
 }
 
 func NewBuyerRepository(db *sql.DB) *BuyerRepository {
 	return &BuyerRepository{db: db}
 }
-
-// func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
-
-// 	for _, b := range br.dbBuyer.TbBuyer {
-// 		if b.CardNumberId == CardNumberId {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }
