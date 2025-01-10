@@ -13,6 +13,11 @@ type ProductRecService struct {
 	ProductSv            serv.IProductService
 }
 
+// GetProductRecordById implements interfaces.IProductRecRepo.
+func (prs *ProductRecService) GetProductRecordById(id int) (model.ProductRecords, error) {
+	panic("unimplemented")
+}
+
 func NewProductRecService(productRecRepo repo.IProductRecRepository, productServ serv.IProductService) *ProductRecService {
 	return &ProductRecService{
 		ProductRecRepository: productRecRepo,

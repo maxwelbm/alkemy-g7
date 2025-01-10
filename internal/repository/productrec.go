@@ -9,6 +9,11 @@ type ProductRecRepository struct {
 	DB *sql.DB
 }
 
+// GetById implements interfaces.IProductRecRepository.
+func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
+	panic("unimplemented")
+}
+
 func NewProductRecRepository(db *sql.DB) *ProductRecRepository {
 	return &ProductRecRepository{DB: db}
 }
@@ -34,7 +39,6 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 
 	return productRec, nil
 }
-
 
 func (pr *ProductRecRepository) GetAll() ([]model.ProductRecordsReport, error) {
 	panic("unimplemented")
