@@ -50,7 +50,7 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	err = row.Scan(&w.Id, &w.WareHouseCode, &w.Address, &w.Telephone, &w.MinimunCapacity, &w.MinimunTemperature)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewWareHouseError(custom_error.NotFound.Error(), "WareHouse", http.StatusNotFound)
+			err = custom_error.NewWareHouseError(custom_error.NotFound.Error(), "warehouse", http.StatusNotFound)
 		}
 		return
 	}
@@ -114,6 +114,7 @@ func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse *model.WareHouse) (er
 func (r *WarehouseMysql) DeleteByIdWareHouse(id int) (err error) {
 
 	_, err = r.db.Exec("DELETE FROM `warehouses` WHERE `id` = ?", id)
+
 	if err != nil {
 		return
 	}

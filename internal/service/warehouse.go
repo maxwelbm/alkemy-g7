@@ -14,7 +14,19 @@ func NewWareHoureService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
 }
 
 func (wp *WareHouseDefault) DeleteByIdWareHouse(id int) error {
-	panic("unimplemented")
+	_, err := wp.GetByIdWareHouse(id)
+
+	if err != nil {
+		return err
+	}
+
+	err = wp.rp.DeleteByIdWareHouse(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (wp *WareHouseDefault) GetAllWareHouse() (w []model.WareHouse, err error) {
@@ -28,10 +40,6 @@ func (wp *WareHouseDefault) GetByIdWareHouse(id int) (w model.WareHouse, err err
 }
 
 func (wp *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
-
-	// if warehouse.warehou_code {
-	//  return custom_error.NewWareHouseError(custom_error.Conflict.Error(), "WareHouse", http.StatusConflict)
-	// }
 
 	id, err := wp.rp.PostWareHouse(&warehouse)
 

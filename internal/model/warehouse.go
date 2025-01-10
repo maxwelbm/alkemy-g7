@@ -34,15 +34,13 @@ func (w *WareHouse) ValidateEmptyFields(isPatch bool) error {
 		fieldsEmpty = append(fieldsEmpty, "minimun_temperature")
 	}
 
-	// Se não for um patch, todos os campos devem ser preenchidos
 	if !isPatch {
 		if len(fieldsEmpty) > 0 {
 			return fmt.Errorf("Field(s) %s cannot be empty or invalid", strings.Join(fieldsEmpty, ", "))
 		}
 	} else {
-		// Para operações de patch, verifica se todos os campos estão vazios
-		if len(fieldsEmpty) == 5 { // 5 campos são válidos para uma operação completa
-			return fmt.Errorf("At least one field must be filled in")
+		if len(fieldsEmpty) == 5 {
+			return fmt.Errorf("at least one field must be filled in")
 		}
 	}
 
