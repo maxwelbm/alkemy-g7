@@ -21,14 +21,15 @@ type ProductRecordsReport struct {
 }
 
 func (p *ProductRecords) Validate() error {
-	var erros []string
+	var errors []string
 	if p.PurchasePrice == 0.0 || p.PurchasePrice < 0.0 {
-		erros = append(erros, "Purchase price invalid")
-	} else if p.SalePrice == 0.0 || p.SalePrice < 0.0 {
-		erros = append(erros, "ProductCode não pode estar vazio")
+		errors = append(errors, "Purchase price is invalid")
+	} 
+	if p.SalePrice == 0.0 || p.SalePrice < 0.0 {
+		errors = append(errors, "Sale Price is invalid")
 	}
-	if len(erros) > 0 {
-		return fmt.Errorf("Validations errors: %s", strings.Join(erros, "; "))
+	if len(errors) > 0 {
+		return fmt.Errorf(strings.Join(errors, "; "))
 	}
 	return nil
 }

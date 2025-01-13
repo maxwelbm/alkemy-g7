@@ -62,6 +62,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	rt.Route("/api/v1/products", func(r chi.Router) {
 		r.Get("/", productHandler.GetAllProducts)
 		r.Get("/{id}", productHandler.GetProductById)
+		r.Get("/reportRecords", productRecHandler.GetProductRecReport)
 		r.Post("/", productHandler.CreateProduct)
 		r.Patch("/{id}", productHandler.UpdateProduct)
 		r.Delete("/{id}", productHandler.DeleteProductById)

@@ -2,16 +2,13 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type ProductRecRepository struct {
 	DB *sql.DB
-}
-
-// GetById implements interfaces.IProductRecRepository.
-func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
-	panic("unimplemented")
 }
 
 func NewProductRecRepository(db *sql.DB) *ProductRecRepository {
@@ -40,6 +37,98 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 	return productRec, nil
 }
 
-func (pr *ProductRecRepository) GetAll() ([]model.ProductRecordsReport, error) {
-	panic("unimplemented")
+func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
+	var productRecord model.ProductRecords
+	query := `
+	SELECT
+	id,
+	last_update_date, 
+	product_id, 
+	purchase_price, 
+	sale_price
+	FROM product_records 
+	WHERE id = ?
+	`
+	row := pr.DB.QueryRow(query, id)
+	err := row.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
+		&productRecord.ProductId, &productRecord.PurchasePrice, &productRecord.SalePrice)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrNotFound, "")
+		}
+		return model.ProductRecords{}, err
+	}
+
+	return productRecord, nil
+}
+
+func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
+	var productRecordList []model.ProductRecords
+
+	query := `
+	SELECT
+	id,
+	last_update_date, 
+	product_id, 
+	purchase_price, 
+	sale_price
+	FROM product_records
+	`
+	rows, err := pr.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var productRecord model.ProductRecords
+		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
+			&productRecord.ProductId, &productRecord.PurchasePrice,
+			&productRecord.SalePrice)
+		if err != nil {
+			return nil, err
+		}
+		productRecordList = append(productRecordList, productRecord)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return productRecordList, nil
+}
+
+func (pr *ProductRecRepository) GetByIdProduct(idProduct int)([]model.ProductRecords, error) {
+	var productRecordList []model.ProductRecords
+
+	query := `
+	SELECT
+	id,
+	last_update_date, 
+	product_id, 
+	purchase_price, 
+	sale_price
+	FROM product_records
+	where product_id = ?
+	`
+	rows, err := pr.DB.Query(query, idProduct)
+	if err != nil {
+		return productRecordList, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var productRecord model.ProductRecords
+		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
+			&productRecord.ProductId, &productRecord.PurchasePrice,
+			&productRecord.SalePrice)
+		if err != nil {
+			return nil, err
+		}
+		productRecordList = append(productRecordList, productRecord)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return productRecordList, nil
 }
