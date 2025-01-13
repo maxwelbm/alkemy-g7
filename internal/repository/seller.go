@@ -1,102 +1,140 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
+	"strings"
+
+	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
 
-func CreateRepositorySellers(db map[int]model.Seller) *SellersRepository {
-	defaultDb := make(map[int]model.Seller, 0)
-	if db != nil {
-		defaultDb = db
-	}
-	return &SellersRepository{db: defaultDb}
+func CreateRepositorySellers(db *sql.DB) *SellersRepository {
+	return &SellersRepository{db}
 }
 
 type SellersRepository struct {
-	db map[int]model.Seller
-}
-
-func (rp *SellersRepository) validateCID(sellers map[int]model.Seller, cid int) error {
-	for _, s := range sellers {
-		if s.CID == cid {
-			return model.ErrorCIDAlreadyExist
-		}
-	}
-	return nil
+	db *sql.DB
 }
 
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
-	sellers = make([]model.Seller, 0)
-
-	for _, s := range rp.db {
-		sellers = append(sellers, s)
+	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone` FROM `sellers`"
+	rows, err := rp.db.Query(query)
+	if err != nil {
+		return
 	}
 
-	return sellers, nil
+	for rows.Next() {
+		var seller model.Seller
+		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		if err != nil {
+			return
+		}
+		sellers = append(sellers, seller)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
-	sl, exist := rp.db[id]
-	if !exist {
-		return sl, model.ErrorSellerNotFound
+	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone` FROM `sellers` WHERE `id` = ?"
+	row := rp.db.QueryRow(query, id)
+
+	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		err = model.ErrorSellerNotFound
+		return
 	}
-	return sl, err
+	return
 }
 
-func (rp *SellersRepository) Post(seller model.Seller) (sl model.Seller, err error) {
-	id := 0
-	for _, value := range rp.db {
-		if value.ID > id {
-			id = value.ID
-		}
-	}
-
-	if err := rp.validateCID(rp.db, seller.CID); err != nil {
-		return sl, err
-	}
-
-	seller.ID = id + 1
-	id = seller.ID
-	rp.db[id] = seller
-
-	return seller, nil
-}
-
-func (rp *SellersRepository) Patch(id int, seller model.SellerUpdate) (sl model.Seller, err error) {
-	sel := rp.db[id]
-
-	if seller.CID != nil {
-		if rp.db[id].CID != *seller.CID {
-			if err := rp.validateCID(rp.db, *seller.CID); err != nil {
-				return sl, err
+func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
+	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`) VALUES (?, ?, ?, ?)"
+	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone)
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				err = model.ErrorCIDAlreadyExist
+			case 1064:
+				err = model.ErrorInvalidJSONFormat
+			case 1048:
+				err = model.ErrorNullAttribute
 			}
+			return
 		}
 	}
 
-	if seller.CID != nil {
-		sel.CID = *seller.CID
-		rp.db[id] = sel
+	id, err := result.LastInsertId()
+	if err != nil {
+		return
+	}
+	sl, _ = rp.GetById(int(id))
+
+	return
+}
+
+func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Seller, err error) {
+	query := "UPDATE `sellers` SET"
+
+	var updates []string
+	var args []interface{}
+
+	if seller.CID != 0 {
+		updates = append(updates, "`cid` = ?")
+		args = append(args, (*seller).CID)
+	}
+	if seller.CompanyName != "" {
+		updates = append(updates, "`company_name` = ?")
+		args = append(args, (*seller).CompanyName)
+	}
+	if seller.Address != "" {
+		updates = append(updates, "`address` = ?")
+		args = append(args, (*seller).Address)
+	}
+	if seller.Telephone != "" {
+		updates = append(updates, "`telephone` = ?")
+		args = append(args, (*seller).Telephone)
 	}
 
-	if seller.CompanyName != nil {
-		sel.CompanyName = *seller.CompanyName
-		rp.db[id] = sel
+	if len(updates) > 0 {
+		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
+		args = append(args, id)
+	} else {
+		err = model.ErrorNullAttribute
+		return
 	}
 
-	if seller.Address != nil {
-		sel.Address = *seller.Address
-		rp.db[id] = sel
-	}
+	_, err = rp.db.Exec(query, args...)
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				err = model.ErrorCIDAlreadyExist
+			case 1064:
+				err = model.ErrorInvalidJSONFormat
+			case 1048:
+				err = model.ErrorNullAttribute
+			}
 
-	if seller.Telephone != nil {
-		sel.Telephone = *seller.Telephone
-		rp.db[id] = sel
+			return
+		}
 	}
+	sl, _ = rp.GetById(int(id))
 
-	return rp.db[id], nil
+	return
 }
 
 func (rp *SellersRepository) Delete(id int) error {
-	delete(rp.db, id)
-	return nil
+	query := "DELETE FROM `sellers` WHERE `id` = ?"
+	_, err := rp.db.Exec(query, id)
+	return err
 }

@@ -9,7 +9,8 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
-func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController, *handler.PurchaseOrderHandler) {
+func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler) {
+
 	db := database.CreateDatabase()
 
 	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
@@ -24,21 +25,26 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	buyerService := service.NewBuyerService(buyersRepository)
 	buyerHandler := handler.NewBuyerHandler(buyerService)
 
-	warehousesRepository := repository.NewWareHouseRepository(*db)
+	warehousesRepository := repository.NewWareHouseRepository(slqDb)
 	warehousesService := service.NewWareHoureService(warehousesRepository)
 	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
-	sectionsRep := repository.CreateRepositorySections(*db)
+	sectionsRep := repository.CreateRepositorySections(slqDb)
 	sectionsSvc := service.CreateServiceSection(*sectionsRep)
 	sectionsHandler := handler.CreateHandlerSections(sectionsSvc)
 
-	employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
+	employeeRp := repository.CreateEmployeeRepository(slqDb)
 	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
+
+	inboundRp := repository.NewInboundService(slqDb)
+	inboundSv := service.NewInboundOrderService(inboundRp, employeeSv, warehousesService)
+	inboundHd := handler.NewInboundHandler(inboundSv)
 
 	purchaseOrderRepository := repository.NewPurchaseOrderRepository(slqDb)
 	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordHandler)
 	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd
+
 }

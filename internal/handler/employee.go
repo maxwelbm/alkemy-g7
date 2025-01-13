@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -39,15 +39,6 @@ func (e *EmployeeJSON) fromEmployeeEntity(employee model.Employee) {
 	e.WarehouseId = employee.WarehouseId
 }
 
-type ResponseBody struct {
-	Data any `json:"data"`
-}
-
-type ResponseBodyError struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
-
 type EmployeeHandler struct {
 	sv interfaces.IEmployeeService
 }
@@ -60,7 +51,11 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 	data, err := e.sv.GetEmployees()
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBody{Data: nil})
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 		return
 	}
 
@@ -76,7 +71,7 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 		})
 	}
 
-	response.JSON(w, http.StatusOK, ResponseBody{Data: employeesJSON})
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeesJSON))
 
 }
 
@@ -91,19 +86,18 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 	data, err := e.sv.GetEmployeeById(id)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-
-		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 		return
 	}
 
 	employeeJSON := EmployeeJSON{}
 	employeeJSON.fromEmployeeEntity(data)
 
-	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
 func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +105,7 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	err := request.JSON(r, &newEmployee)
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the request body"})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the request body", nil))
 		return
 	}
 
@@ -120,31 +114,25 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	data, err := e.sv.InsertEmployee(*employee)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.InvalidErr) {
-			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-
-		if errors.As(err, &custom_error.CustomError{}) {
-			response.JSON(w, http.StatusUnprocessableEntity, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
-			return
-		}
-
-		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 		return
 	}
 
 	var employeeJSON EmployeeJSON
 	employeeJSON.fromEmployeeEntity(data)
 
-	response.JSON(w, http.StatusCreated, ResponseBody{Data: employeeJSON})
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", employeeJSON))
 }
 
 func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the id in path param"})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the id in path param", nil))
 		return
 	}
 
@@ -153,7 +141,7 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	err = request.JSON(r, &reqBody)
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the request body"})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the request body", nil))
 		return
 	}
 
@@ -162,43 +150,36 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	updatedEmployee, err := e.sv.UpdateEmployee(id, employee)
 
 	if err != nil {
-
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-
-		if errors.As(err, &custom_error.CustomError{}) {
-			response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
-			return
-		}
-
-		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 		return
 	}
 
 	employeeJSON := EmployeeJSON{}
 	employeeJSON.fromEmployeeEntity(updatedEmployee)
 
-	response.JSON(w, http.StatusOK, ResponseBody{Data: employeeJSON})
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
 func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ResponseBodyError{Status: "error", Message: "error parsing the id in path param"})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the id in path param", nil))
 		return
 	}
 
 	err = e.sv.DeleteEmployee(id)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ResponseBodyError{Status: "error", Message: err.(custom_error.CustomError).Err.Error()})
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, http.StatusInternalServerError, ResponseBodyError{Status: "error", Message: err.Error()})
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 		return
 	}
 
