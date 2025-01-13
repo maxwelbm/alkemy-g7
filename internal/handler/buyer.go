@@ -200,3 +200,42 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 
 }
+
+func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+
+	if idStr == "" {
+		count, err := bh.svc.CountPurchaseOrderBuyer()
+		if err != nil {
+			if err, ok := err.(*custom_error.BuyerError); ok {
+				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+				return
+			}
+
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+		return
+	}
+
+	count, err := bh.svc.CountPurchaseOrderByBuyerID(id)
+	if err != nil {
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+
+}
