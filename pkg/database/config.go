@@ -160,9 +160,7 @@ func GetDbConfig() (*mysql.Config, error) {
 	}
 
 	dbHost := os.Getenv("DB_HOST")
-	if err != nil {
-		return nil, errors.New("Database address in incorrect")
-	}
+
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")

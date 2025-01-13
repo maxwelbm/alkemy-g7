@@ -6,14 +6,14 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
-func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, *handler.SellersController, 
-	*handler.BuyerHandler, *handler.WarehouseHandler, *handler.SectionController, *handler.ProductRecHandler) {
-	db := database.CreateDatabase()
+func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, 
+	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, 
+	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler, 
+	*handler.ProductRecHandler) {
 
-	sellersRepository := repository.CreateRepositorySellers(db.TbSellers)
+	sellersRepository := repository.CreateRepositorySellers(slqDb)
 	sellersService := service.CreateServiceSellers(sellersRepository)
 	sellersHandler := handler.CreateHandlerSellers(sellersService)
 
@@ -30,17 +30,26 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	buyerService := service.NewBuyerService(buyersRepository)
 	buyerHandler := handler.NewBuyerHandler(buyerService)
 
-	warehousesRepository := repository.NewWareHouseRepository(*db)
+	warehousesRepository := repository.NewWareHouseRepository(slqDb)
 	warehousesService := service.NewWareHoureService(warehousesRepository)
 	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
-	sectionsRep := repository.CreateRepositorySections(*db)
+	sectionsRep := repository.CreateRepositorySections(slqDb)
 	sectionsSvc := service.CreateServiceSection(*sectionsRep)
 	sectionsHandler := handler.CreateHandlerSections(sectionsSvc)
 
-	employeeRp := repository.CreateEmployeeRepository(db.TbEmployees)
+	employeeRp := repository.CreateEmployeeRepository(slqDb)
 	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, productRecordHandler
+	inboundRp := repository.NewInboundService(slqDb)
+	inboundSv := service.NewInboundOrderService(inboundRp, employeeSv, warehousesService)
+	inboundHd := handler.NewInboundHandler(inboundSv)
+
+	purchaseOrderRepository := repository.NewPurchaseOrderRepository(slqDb)
+	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ)
+	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
+
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler
+
 }

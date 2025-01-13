@@ -23,7 +23,7 @@ func (s *SectionService) GetById(id int) (section model.Section, err error) {
 	return
 }
 
-func (s *SectionService) Post(section model.Section) (sec model.Section, err error) {
+func (s *SectionService) Post(section *model.Section) (sec model.Section, err error) {
 	if err := section.Validate(); err != nil {
 		return model.Section{}, err
 	}
@@ -31,7 +31,7 @@ func (s *SectionService) Post(section model.Section) (sec model.Section, err err
 	return
 }
 
-func (s *SectionService) Update(id int, section model.Section) (sec model.Section, err error) {
+func (s *SectionService) Update(id int, section *model.Section) (sec model.Section, err error) {
 	existingSection, err := s.GetById(id)
 	if err != nil {
 		sec = model.Section{}
@@ -40,7 +40,7 @@ func (s *SectionService) Update(id int, section model.Section) (sec model.Sectio
 
 	updateSectionFields(&existingSection, section)
 
-	sec, err = s.rp.Update(id, existingSection)
+	sec, err = s.rp.Update(id, &existingSection)
 	return
 }
 
@@ -49,8 +49,8 @@ func (s *SectionService) Delete(id int) (err error) {
 	return
 }
 
-func updateSectionFields(existingSection *model.Section, updatedSection model.Section) {
-	if updatedSection.SectionNumber != 0 {
+func updateSectionFields(existingSection *model.Section, updatedSection *model.Section) {
+	if updatedSection.SectionNumber != "" {
 		existingSection.SectionNumber = updatedSection.SectionNumber
 	}
 	if updatedSection.CurrentTemperature != 0 {
