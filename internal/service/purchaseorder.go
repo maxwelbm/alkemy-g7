@@ -38,6 +38,6 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 func (p *PurchaseOrderService) GetPurchaseOrderByID(id int) (purchaseOrder model.PurchaseOrder, err error) {
 	return p.rp.GetById(id)
 }
-func NewPurchaseOrderService(rp interfaces.IPurchaseOrdersRepo, svcBuyer svc.IBuyerservice) *PurchaseOrderService {
-	return &PurchaseOrderService{rp: rp, svcBuyer: svcBuyer}
+func NewPurchaseOrderService(rp interfaces.IPurchaseOrdersRepo, svcBuyer svc.IBuyerservice, svcProductRec svc.IProductRecRepo) *PurchaseOrderService {
+	return &PurchaseOrderService{rp: rp, svcBuyer: svcBuyer, svcProductRec: svcProductRec}
 }
