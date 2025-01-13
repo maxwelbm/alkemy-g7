@@ -50,7 +50,7 @@ func (s *SectionService) Delete(id int) (err error) {
 }
 
 func updateSectionFields(existingSection *model.Section, updatedSection model.Section) {
-	if updatedSection.SectionNumber != 0 {
+	if updatedSection.SectionNumber != "" {
 		existingSection.SectionNumber = updatedSection.SectionNumber
 	}
 	if updatedSection.CurrentTemperature != 0 {
