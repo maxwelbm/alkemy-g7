@@ -8,6 +8,4 @@ type IBuyerRepo interface {
 	Post(newBuyer model.Buyer) (id int64, err error)
 	Update(id int, newBuyer model.Buyer) (err error)
 	Delete(id int) (err error)
-	CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error)
-	CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error)
 }
