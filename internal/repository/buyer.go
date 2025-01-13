@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"net/http"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -18,7 +19,7 @@ func (r BuyerRepository) Delete(id int) (err error) {
 	if err != nil {
 
 		if err.(*mysql.MySQLError).Number == 1451 {
-			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.DependenciesErr.Error(), "Buyer")
 		}
 		return
 	}
@@ -32,15 +33,14 @@ func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var buyer model.Buyer
-
 		err = rows.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 		if err != nil {
 			return
 		}
-
 		buyers = append(buyers, buyer)
 	}
 
@@ -56,7 +56,7 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
 		}
 		return
 	}
@@ -76,7 +76,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.Conflict.Error(), "card_number_id")
 		}
 		return
 	}
@@ -99,9 +99,44 @@ func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.Conflict.Error(), "card_number_id")
 		}
 		return
+	}
+	return
+}
+
+func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
+	row := r.db.QueryRow("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id WHERE b.id = ? GROUP BY b.id", id)
+
+	err = row.Scan(&countBuyerPurchaseOrder.Id, &countBuyerPurchaseOrder.CardNumberId, &countBuyerPurchaseOrder.FirstName, &countBuyerPurchaseOrder.LastName, &countBuyerPurchaseOrder.PurchaseOrdersCount)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
+		}
+		return
+	}
+
+	return
+}
+
+func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
+	rows, err := r.db.Query("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id GROUP BY b.id")
+
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var buyerPurchaseOrder model.BuyerPurchaseOrder
+		err = rows.Scan(&buyerPurchaseOrder.Id, &buyerPurchaseOrder.CardNumberId, &buyerPurchaseOrder.FirstName, &buyerPurchaseOrder.LastName, &buyerPurchaseOrder.PurchaseOrdersCount)
+		if err != nil {
+			return
+		}
+		countBuyerPurchaseOrder = append(countBuyerPurchaseOrder, buyerPurchaseOrder)
 	}
 
 	return
