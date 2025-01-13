@@ -84,22 +84,26 @@ func (r *SectionRepository) Post(section *model.Section) (s model.Section, err e
 	return
 }
 
-func (r *SectionRepository) Update(id int, section model.Section) (newSec model.Section, err error) {
-	// if _, exists := r.dbSection.TbSections[id]; !exists {
-	// 	err = NotFoundError
-	// 	return
-	// }
-	// sectionExists := sectionNumberExists(section.SectionNumber, r)
-	// if r.dbSection.TbSections[id].SectionNumber != section.SectionNumber {
-	// 	if sectionExists {
-	// 		err = ConflictError
-	// 		return
-	// 	}
-	// }
-	// newSec = section
-	// r.dbSection.TbSections[id] = newSec
-	// return
-	return model.Section{}, nil
+func (r *SectionRepository) Update(id int, section *model.Section) (newSec model.Section, err error) {
+	queryUpdate := "UPDATE `sections` SET `section_number` = ?, `current_temperature` = ?, `minimum_temperature` = ?, `current_capacity` = ?, `minimum_capacity` = ?, `maximum_capacity` = ?, `warehouse_id` = ?, `product_type_id` = ? WHERE `id` = ?"
+	_, err = r.db.Exec(queryUpdate, (*section).SectionNumber, (*section).CurrentTemperature, (*section).MinimumTemperature, (*section).CurrentCapacity, (*section).MinimumCapacity, (*section).MaximumCapacity, (*section).WarehouseID, (*section).ProductTypeID, id)
+
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				err = custom_error.ConflictErrorSection
+			default:
+			}
+			return
+		}
+		return
+	}
+
+	newSec, _ = r.GetById(id)
+
+	return
 }
 
 func (r *SectionRepository) Delete(id int) (err error) {
