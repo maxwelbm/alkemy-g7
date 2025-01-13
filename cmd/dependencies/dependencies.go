@@ -37,7 +37,7 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	employeeHd := handler.CreateEmployeeHandler(employeeSv)
 
 	inboundRp := repository.NewInboundService(slqDb)
-	inboundSv := service.NewInboundOrderService(inboundRp, employeeRp, warehousesRepository)
+	inboundSv := service.NewInboundOrderService(inboundRp, employeeSv, warehousesService)
 	inboundHd := handler.NewInboundHandler(inboundSv)
 
 	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, inboundHd

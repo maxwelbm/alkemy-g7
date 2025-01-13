@@ -4,23 +4,24 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
+	servicesInterfaces "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type InboundOrderService struct {
 	rp          interfaces.IInboundOrderRepository
-	employeeRp  interfaces.IEmployeeRepo
-	warehouseRp interfaces.IWarehouseRepo
+	employeeSv  servicesInterfaces.IEmployeeService
+	warehouseSv servicesInterfaces.IWarehouseService
 }
 
 func NewInboundOrderService(
 	rp interfaces.IInboundOrderRepository,
-	employeeRp interfaces.IEmployeeRepo,
-	warehouseRp interfaces.IWarehouseRepo) *InboundOrderService {
+	employeeSv servicesInterfaces.IEmployeeService,
+	warehouseSv interfaces.IWarehouseRepo) *InboundOrderService {
 	return &InboundOrderService{
 		rp:          rp,
-		employeeRp:  employeeRp,
-		warehouseRp: warehouseRp,
+		employeeSv:  employeeSv,
+		warehouseSv: warehouseSv,
 	}
 }
 
@@ -31,7 +32,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 		return model.InboundOrder{}, custom_error.InboundErrInvalidEntry
 	}
 
-	_, err := i.employeeRp.GetById(inboundOrder.EmployeeId)
+	_, err := i.employeeSv.GetEmployeeById(inboundOrder.EmployeeId)
 
 	if err != nil {
 		return model.InboundOrder{}, custom_error.InboundErrInvalidEmployee
@@ -40,7 +41,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	//@todo
 	// productBatchExists := @todo
 
-	_, err = i.warehouseRp.GetByIdWareHouse(inboundOrder.WareHouseId)
+	_, err = i.warehouseSv.GetByIdWareHouse(inboundOrder.WareHouseId)
 
 	if err != nil {
 		return model.InboundOrder{}, custom_error.InboundErrInvalidWarehouse
