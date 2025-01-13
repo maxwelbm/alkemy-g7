@@ -9,7 +9,7 @@ import (
 type PurchaseOrderService struct {
 	rp            interfaces.IPurchaseOrdersRepo
 	svcBuyer      svc.IBuyerservice
-	svcProductRec svc.IProductRecRepo
+	svcProductRec svc.IProductRecService
 }
 
 // CreatePurchaseOrder implements interfaces.IPurchaseOrdersService.

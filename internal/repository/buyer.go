@@ -142,42 +142,6 @@ func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []
 	return
 }
 
-func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
-	row := r.db.QueryRow("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id WHERE b.id = ? GROUP BY b.id", id)
-
-	err = row.Scan(&countBuyerPurchaseOrder.Id, &countBuyerPurchaseOrder.CardNumberId, &countBuyerPurchaseOrder.FirstName, &countBuyerPurchaseOrder.LastName, &countBuyerPurchaseOrder.PurchaseOrdersCount)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
-		}
-		return
-	}
-
-	return
-}
-
-func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
-	rows, err := r.db.Query("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id GROUP BY b.id")
-
-	if err != nil {
-		return
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var buyerPurchaseOrder model.BuyerPurchaseOrder
-		err = rows.Scan(&buyerPurchaseOrder.Id, &buyerPurchaseOrder.CardNumberId, &buyerPurchaseOrder.FirstName, &buyerPurchaseOrder.LastName, &buyerPurchaseOrder.PurchaseOrdersCount)
-		if err != nil {
-			return
-		}
-		countBuyerPurchaseOrder = append(countBuyerPurchaseOrder, buyerPurchaseOrder)
-	}
-
-	return
-}
-
 func NewBuyerRepository(db *sql.DB) *BuyerRepository {
 	return &BuyerRepository{db: db}
 }

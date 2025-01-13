@@ -47,7 +47,7 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 			return
 		}
 
-		if err, ok := err.(*custom_error.ProductRecError); ok {
+		if err, ok := err.(*custom_error.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
