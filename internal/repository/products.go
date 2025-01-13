@@ -86,7 +86,7 @@ func (pr *ProductRepository) Update(id int, product model.Product) (model.Produc
 func (pr *ProductRepository) Delete(id int) error {
 	_, err := pr.DB.Exec("DELETE FROM product WHERE id = ?", id)
 	if err != nil {
-		return err
+		return appErr.HandleError("product", appErr.ErrDep, "product record")
 	}
 
 	return nil

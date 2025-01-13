@@ -13,7 +13,7 @@ type BuyerRepository struct {
 	db *sql.DB
 }
 
-func (r BuyerRepository) Delete(id int) (err error) {
+func (r *BuyerRepository) Delete(id int) (err error) {
 
 	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
