@@ -25,7 +25,11 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		wareHouse, err := h.srv.GetAllWareHouse()
 		if err != nil {
-			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
+			if err, ok := err.(*custom_error.WareHouseError); ok {
+				response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
+				return
+			}
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to search warehouses", nil))
 			return
 		}
 
