@@ -12,6 +12,14 @@ type Buyer struct {
 	LastName     string `json:"last_name"`
 }
 
+type BuyerPurchaseOrder struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}
+
 func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	var fieldsEmpty []string
 
@@ -26,7 +34,7 @@ func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	}
 
 	if !isPatch && len(fieldsEmpty) > 0 {
-		return fmt.Errorf("Field(s) %s cannot be empty", strings.Join(fieldsEmpty, ","))
+		return fmt.Errorf("Field(s) %s cannot be empty", strings.Join(fieldsEmpty, ", "))
 	}
 
 	if isPatch && len(fieldsEmpty) == 3 {
