@@ -8,6 +8,4 @@ type IBuyerservice interface {
 	DeleteBuyerByID(id int) (err error)
 	CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, err error)
 	UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.Buyer, err error)
-	CountPurchaseOrderBuyer() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error)
-	CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error)
 }
