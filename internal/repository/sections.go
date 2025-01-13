@@ -107,11 +107,10 @@ func (r *SectionRepository) Update(id int, section *model.Section) (newSec model
 }
 
 func (r *SectionRepository) Delete(id int) (err error) {
-	// if _, exists := r.dbSection.TbSections[id]; !exists {
-	// 	err = NotFoundError
-	// 	return
-	// }
-	// delete(r.dbSection.TbSections, id)
-	// return
-	return err
+	queryDelete := "DELETE FROM `sections` WHERE `id` = ?"
+	_, err = r.db.Exec(queryDelete, id)
+	if err != nil {
+		return
+	}
+	return
 }
