@@ -7,9 +7,9 @@ import (
 
 type Section struct {
 	ID                 int
-	SectionNumber      int
-	CurrentTemperature int
-	MinimumTemperature int
+	SectionNumber      string
+	CurrentTemperature float64
+	MinimumTemperature float64
 	CurrentCapacity    int
 	MinimumCapacity    int
 	MaximumCapacity    int
@@ -20,7 +20,7 @@ type Section struct {
 func (s *Section) Validate() error {
 	var errorMessages []string
 
-	if s.SectionNumber == 0 {
+	if s.SectionNumber == "" {
 		errorMessages = append(errorMessages, "SectionNumber não pode ser vazio")
 	}
 	if s.CurrentTemperature == 0 {

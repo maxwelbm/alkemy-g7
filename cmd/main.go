@@ -23,9 +23,10 @@ func main() {
 
 	defer db.Close()
 
-	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies(db.Connection)
 
-	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler)
+	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler, purchaseOrderHandler,inboundHandler := dependencies.LoadDependencies(db.Connection)
+
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler, purchaseOrderHandler,inboundHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
@@ -34,7 +35,7 @@ func main() {
 
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
-	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
+	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler, purchaseOrderHandler *handler.PurchaseOrderHandler,inboundHandler *handler.InboundOrderHandler) *chi.Mux {
 
 	rt := chi.NewRouter()
 
@@ -70,7 +71,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", buyerHandler.HandlerCreateBuyer)
 		r.Patch("/{id}", buyerHandler.HandlerUpdateBuyer)
 		r.Delete("/{id}", buyerHandler.HandlerDeleteBuyerById)
-		r.Get("/reportPurchaseOrders", nil)
+		r.Get("/reportPurchaseOrders", buyerHandler.HandlerCountPurchaseOrderBuyer)
 	})
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
@@ -109,11 +110,11 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/inboundOrders", func(r chi.Router) {
-		r.Post("/", nil)
+		r.Post("/", inboundHandler.PostInboundOrder)
 	})
 
 	rt.Route("/api/v1/purchaseOrders", func(r chi.Router) {
-		r.Post("/", nil)
+		r.Post("/", purchaseOrderHandler.HandlerCreatePurchaseOrder)
 	})
 
 	return rt
