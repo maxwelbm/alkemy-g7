@@ -17,7 +17,7 @@ type InboundOrderService struct {
 func NewInboundOrderService(
 	rp interfaces.IInboundOrderRepository,
 	employeeSv servicesInterfaces.IEmployeeService,
-	warehouseSv interfaces.IWarehouseRepo) *InboundOrderService {
+	warehouseSv servicesInterfaces.IWarehouseService) *InboundOrderService {
 	return &InboundOrderService{
 		rp:          rp,
 		employeeSv:  employeeSv,
@@ -50,11 +50,19 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	entry, err := i.rp.Post(inboundOrder)
 
 	if err != nil {
-		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.InboundErrDuplicatedOrderNumber
+		mysqlErr, ok := err.(*mysql.MySQLError)
+		if !ok {
+			return model.InboundOrder{}, err
 		}
 
-		return model.InboundOrder{}, err
+		switch mysqlErr.Number {
+		case 1452:
+			return model.InboundOrder{}, custom_error.InboundErrInvalidProductBatch
+		case 1062:
+			return model.InboundOrder{}, custom_error.InboundErrDuplicatedOrderNumber
+		default:
+			return model.InboundOrder{}, err
+		}
 	}
 
 	return entry, nil
