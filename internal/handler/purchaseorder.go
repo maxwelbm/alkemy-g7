@@ -9,6 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type PurchaseOrderHandler struct {
@@ -33,6 +34,7 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 	}
 
 	err = reqBody.ValidateEmptyFields()
+
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -47,7 +49,7 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 			return
 		}
 
-		if err, ok := err.(*custom_error.ProductRecError); ok {
+		if err, ok := err.(*appErr.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
