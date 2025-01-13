@@ -5,8 +5,8 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 )
 
-func CreateServiceSellers(rp interfaces.ISellerRepo) *SellersService {
-	return &SellersService{rp: rp}
+func CreateServiceSellers(rp interfaces.ISellerRepo, rpl interfaces.ILocalityRepo) *SellersService {
+	return &SellersService{rp: rp, rpl: rpl}
 }
 
 func (s *SellersService) validateUpdateFields(sl *model.Seller, existSeller *model.Seller) {
@@ -22,17 +22,21 @@ func (s *SellersService) validateUpdateFields(sl *model.Seller, existSeller *mod
 	if sl.Telephone == "" {
 		sl.Telephone = existSeller.Telephone
 	}
+	if sl.Locality == 0 {
+		sl.Locality = existSeller.Locality
+	}
 }
 
 func (s *SellersService) validateEmptyFields(sl model.Seller) error {
-	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" {
+	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" || sl.Locality == 0 {
 		return model.ErrorNullAttribute
 	}
 	return nil
 }
 
 type SellersService struct {
-	rp interfaces.ISellerRepo
+	rp  interfaces.ISellerRepo
+	rpl interfaces.ILocalityRepo
 }
 
 func (s *SellersService) GetAll() (sellers []model.Seller, err error) {
@@ -46,6 +50,11 @@ func (s *SellersService) GetById(id int) (seller model.Seller, err error) {
 }
 
 func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, err error) {
+	_, err = s.rpl.GetById(seller.Locality)
+	if err != nil {
+		return
+	}
+
 	if err := s.validateEmptyFields(*seller); err != nil {
 		return sl, err
 	}
@@ -54,6 +63,13 @@ func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, er
 }
 
 func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Seller, err error) {
+	if seller.Locality != 0 {
+		_, err := s.rpl.GetById(seller.Locality)
+		if err != nil {
+			return sl, err
+		}
+	}
+
 	existSl, err := s.GetById(id)
 	if err != nil {
 		return

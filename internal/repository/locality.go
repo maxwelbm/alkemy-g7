@@ -64,8 +64,8 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 }
 
 func (rp *LocalitiesRepository) Post(locality *model.Locality) (l model.Locality, err error) {
-	query := "INSERT INTO `locality` (`id`, `locality_name`, `province_id`) VALUES (?, ?, ?)"
-	result, err := rp.db.Exec(query, (*locality).ID, (*locality).Locality, (*locality).Province)
+	query := "INSERT INTO `locality` (`locality_name`, `province_id`) VALUES (?, ?)"
+	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {

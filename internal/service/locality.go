@@ -17,7 +17,7 @@ func (s *LocalitiesService) validateEmptyFields(l model.Locality) error {
 }
 
 type LocalitiesService struct {
-	rp interfaces.ILocalityRepo
+	rp  interfaces.ILocalityRepo
 }
 
 func (s *LocalitiesService) GetCarries(id int) (locality model.LocalitiesJSONCarries, err error) {
