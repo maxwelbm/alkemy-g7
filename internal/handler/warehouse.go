@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,8 +24,6 @@ func NewWareHouseHandler(srv interfaces.IWarehouseService) *WarehouseHandler {
 func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		wareHouse, err := h.srv.GetAllWareHouse()
-
-		fmt.Println(wareHouse)
 		if err != nil {
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
 			return
