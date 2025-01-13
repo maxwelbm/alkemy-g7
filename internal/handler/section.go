@@ -106,7 +106,7 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Post(section)
+	s, err := h.sv.Post(&section)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
