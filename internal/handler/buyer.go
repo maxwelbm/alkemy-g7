@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -17,27 +16,6 @@ import (
 
 type BuyerHandler struct {
 	svc interfaces.IBuyerservice
-}
-
-type ResponseBuyerJson struct {
-	Id           int    `json:"id"`
-	CardNumberId string `json:"card_number_id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-}
-
-type RequestBuyerJson struct {
-	CardNumberId string `json:"card_number_id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-}
-
-type ErrorResponse struct {
-	Message string `json:"Message"`
-}
-
-type Data struct {
-	Data any
 }
 
 func NewBuyerHandler(svc *service.BuyerService) *BuyerHandler {
@@ -67,8 +45,9 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	buyer, err := bh.svc.GetBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
+
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
@@ -91,22 +70,17 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	err = bh.svc.DeleteBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
+
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusLocked, responses.CreateResponseBody("You cannot delete the buyer because there are dependencies related to it.", nil))
-			return
-		}
-
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to delete for buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to delete buyer", nil))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	response.JSON(w, http.StatusNoContent, nil)
 
 }
 
@@ -133,19 +107,14 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.svc.CreateBuyer(reqBody)
 
 	if err != nil {
-
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
-			return
-		}
-
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to create buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create buyer", nil))
 		return
+
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
@@ -182,21 +151,56 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.svc.UpdateBuyer(id, reqBody)
 
 	if err != nil {
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
+
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
-		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
-			return
-		}
-
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to update buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
 		return
 
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
+
+}
+
+func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+
+	if idStr == "" {
+		count, err := bh.svc.CountPurchaseOrderBuyer()
+		if err != nil {
+			if err, ok := err.(*custom_error.BuyerError); ok {
+				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+				return
+			}
+
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+		return
+	}
+
+	count, err := bh.svc.CountPurchaseOrderByBuyerID(id)
+	if err != nil {
+		if err, ok := err.(*custom_error.BuyerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 
 }

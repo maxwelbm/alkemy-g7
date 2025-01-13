@@ -72,3 +72,16 @@ func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.B
 	return
 
 }
+
+func (bs *BuyerService) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
+
+	countBuyerPurchaseOrder, err = bs.rp.CountPurchaseOrderByBuyerId(id)
+	return
+}
+
+func (bs *BuyerService) CountPurchaseOrderBuyer() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
+
+	countBuyerPurchaseOrder, err = bs.rp.CountPurchaseOrderBuyers()
+	return
+
+}
