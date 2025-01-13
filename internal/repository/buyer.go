@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -13,18 +12,23 @@ type BuyerRepository struct {
 	db *sql.DB
 }
 
-func (r BuyerRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM `buyers` WHERE `id` = ?", id)
+func (r BuyerRepository) Delete(id int) (err error) {
+
+	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
-		return err
+
+		if err.(*mysql.MySQLError).Number == 1451 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
+		return
 	}
 
-	return err
+	return
 }
 
 func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
-	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyer")
+	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyers")
 	if err != nil {
 		return
 	}
@@ -44,73 +48,65 @@ func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
 
 }
 
-func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
-	// buyer, ok := br.dbBuyer.TbBuyer[id]
+func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
-	// if !ok {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
-	// }
+	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyers WHERE id= ?", id)
 
-	// return buyer, nil
+	err = row.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 
-	return model.Buyer{}, nil
-}
-
-func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
-	// BuyerExists := isCardNumberIdExists(newBuyer.CardNumberId, br)
-	// lastId := getLastIdBuyer(br.dbBuyer.TbBuyer)
-
-	// if BuyerExists {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: newBuyer, Err: custom_error.Conflict}
-	// }
-	// buyer := model.Buyer{
-	// 	Id:           lastId,
-	// 	CardNumberId: newBuyer.CardNumberId,
-	// 	FirstName:    newBuyer.FirstName,
-	// 	LastName:     newBuyer.LastName,
-	// }
-
-	// br.dbBuyer.TbBuyer[buyer.Id] = buyer
-
-	// return br.GetById(buyer.Id)
-
-	return model.Buyer{}, nil
-
-}
-
-func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) error {
-
-	_, err := r.db.Exec(
-		"UPDATE `buyers` SET `card_number_id` = ?, `first_name` = ?, `last_name` = ? WHERE `id` = ?",
-		newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, newBuyer.Id,
-	)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = custom_error.Conflict
-			default:
-
-			}
-			return err
+		if err == sql.ErrNoRows {
+			err = custom_error.CustomError{Object: id, Err: custom_error.NotFound}
 		}
+		return
 	}
 
-	return err
+	return
+}
+
+func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
+
+	prepare, err := r.db.Prepare("INSERT INTO buyers (card_number_id, first_name, last_name) VALUES (?,?,?)")
+
+	if err != nil {
+		return
+	}
+
+	result, err := prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
+		return
+	}
+
+	id, err = result.LastInsertId()
+
+	return
+
+}
+
+func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
+
+	prepare, err := r.db.Prepare("UPDATE buyers SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
+
+	if err != nil {
+		return
+	}
+
+	_, err = prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, id)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.CustomError{Object: id, Err: custom_error.Conflict}
+		}
+		return
+	}
+
+	return
 }
 
 func NewBuyerRepository(db *sql.DB) *BuyerRepository {
 	return &BuyerRepository{db: db}
 }
-
-// func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
-
-// 	for _, b := range br.dbBuyer.TbBuyer {
-// 		if b.CardNumberId == CardNumberId {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }

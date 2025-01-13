@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type BuyerService struct {
@@ -18,46 +17,58 @@ func (bs *BuyerService) GetAllBuyer() (buyers []model.Buyer, err error) {
 	return bs.rp.Get()
 }
 
-func (bs *BuyerService) GetBuyerByID(id int) (model.Buyer, error) {
+func (bs *BuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
 	return bs.rp.GetById(id)
 }
 
-func (bs *BuyerService) DeleteBuyerByID(id int) error {
+func (bs *BuyerService) DeleteBuyerByID(id int) (err error) {
+
+	_, err = bs.GetBuyerByID(id)
+	if err != nil {
+		return
+	}
+
 	return bs.rp.Delete(id)
 }
 
-func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (model.Buyer, error) {
-	return bs.rp.Post(newBuyer)
+func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, err error) {
+
+	id, err := bs.rp.Post(newBuyer)
+
+	if err != nil {
+		return
+	}
+
+	buyer, err = bs.GetBuyerByID(int(id))
+
+	return
 }
 
-func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (model.Buyer, error) {
+func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.Buyer, err error) {
 
 	existingBuyer, err := bs.GetBuyerByID(id)
 
-	if newBuyer.CardNumberId == "" && newBuyer.FirstName == "" && newBuyer.LastName == "" {
-		return model.Buyer{}, custom_error.EmptyFields
+	if err != nil {
+		return
 	}
 
-	if err == nil {
-
-		if newBuyer.CardNumberId != "" {
-			existingBuyer.CardNumberId = newBuyer.CardNumberId
-		}
-		if newBuyer.FirstName != "" {
-			existingBuyer.FirstName = newBuyer.FirstName
-		}
-		if newBuyer.LastName != "" {
-			existingBuyer.LastName = newBuyer.LastName
-		}
-
-		err := bs.rp.Update(id, existingBuyer)
-		if err != nil {
-			return model.Buyer{}, err
-		}
-
-		return model.Buyer{}, nil
-	} else {
-
-		return model.Buyer{}, err
+	if newBuyer.CardNumberId != "" {
+		existingBuyer.CardNumberId = newBuyer.CardNumberId
 	}
+	if newBuyer.FirstName != "" {
+		existingBuyer.FirstName = newBuyer.FirstName
+	}
+	if newBuyer.LastName != "" {
+		existingBuyer.LastName = newBuyer.LastName
+	}
+
+	err = bs.rp.Update(existingBuyer.Id, existingBuyer)
+	if err != nil {
+		return
+	}
+
+	buyer, err = bs.GetBuyerByID(id)
+
+	return
+
 }

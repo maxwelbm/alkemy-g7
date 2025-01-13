@@ -60,50 +60,23 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
 	buyer, err := bh.svc.GetBuyerByID(id)
 
 	if err != nil {
-		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-			response.JSON(w, http.StatusNotFound, ErrorResponse{
-				Message: "Buyer Not Found",
-			})
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
 			return
 		}
 
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to search for buyer", nil))
 		return
 	}
 
-	responseBuyer := ResponseBuyerJson{
-		Id:           buyer.Id,
-		CardNumberId: buyer.CardNumberId,
-		FirstName:    buyer.FirstName,
-		LastName:     buyer.LastName,
-	}
-
-	data := Data{
-		responseBuyer,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(data)
-
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
-		return
-	}
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 
 }
 
@@ -111,68 +84,71 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
 	err = bh.svc.DeleteBuyerByID(id)
 
-	if err != nil && errors.Is(err.(*custom_error.CustomError).Err, custom_error.NotFound) {
-		response.JSON(w, http.StatusNotFound, ErrorResponse{
-			Message: "Buyer Not Found",
-		})
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("Buyer not found", nil))
+			return
+		}
+
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusLocked, responses.CreateResponseBody("You cannot delete the buyer because there are dependencies related to it.", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to delete for buyer", nil))
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 
-	w.Write([]byte(""))
-
 }
 
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
-	var reqBody RequestBuyerJson
+	var reqBody model.Buyer
 
-	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
 
-	if err != nil || reqBody.CardNumberId == "" || reqBody.FirstName == "" || reqBody.LastName == "" {
+	err := decoder.Decode(&reqBody)
 
-		response.JSON(w, http.StatusUnprocessableEntity, nil)
+	if err != nil {
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 		return
 	}
 
-	buyer, err := bh.svc.CreateBuyer(model.Buyer{
-		CardNumberId: reqBody.CardNumberId,
-		FirstName:    reqBody.FirstName,
-		LastName:     reqBody.LastName,
-	})
+	err = reqBody.ValidateEmptyFields(false)
 
 	if err != nil {
-		if errors.Is(err.(*custom_error.CustomError).Err, custom_error.Conflict) {
-			response.JSON(w, http.StatusConflict, ErrorResponse{
-				Message: "card_number_id already exists",
-			})
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+		return
+	}
+
+	buyer, err := bh.svc.CreateBuyer(reqBody)
+
+	if err != nil {
+
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
 			return
 		}
-	}
 
-	data := Data{
-		Data: buyer,
-	}
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
+			return
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to create buyer", nil))
 		return
 	}
+
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
 
 }
 
@@ -180,70 +156,47 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "Invalid ID",
-		})
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
 		return
 	}
 
-	var reqBody RequestBuyerJson
+	var reqBody model.Buyer
 
-	err = json.NewDecoder(r.Body).Decode(&reqBody)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	err = decoder.Decode(&reqBody)
 
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: "erro de desserialização dos dados",
-		})
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 		return
 	}
 
-	buyer, err := bh.svc.UpdateBuyer(id, model.Buyer{
-		CardNumberId: reqBody.CardNumberId,
-		FirstName:    reqBody.FirstName,
-		LastName:     reqBody.LastName,
-	})
+	err = reqBody.ValidateEmptyFields(true)
 
 	if err != nil {
-		var customErr custom_error.CustomError
-		if errors.As(err, &customErr) {
-			switch customErr.Err {
-			case custom_error.NotFound:
-				response.JSON(w, http.StatusNotFound, ErrorResponse{
-					Message: "Buyer Not Found",
-				})
-				return
-			case custom_error.EmptyFields:
-				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-					Message: "At least one field must be mandatory to send the request",
-				})
-				return
-			case custom_error.Conflict:
-				response.JSON(w, http.StatusUnprocessableEntity, ErrorResponse{
-					Message: "card_number_id already exists",
-				})
-				return
-			}
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+		return
+	}
+
+	buyer, err := bh.svc.UpdateBuyer(id, reqBody)
+
+	if err != nil {
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.NotFound) {
+			response.JSON(w, http.StatusNotFound, responses.CreateResponseBody("buyer not found", nil))
+			return
 		}
 
-		response.JSON(w, http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		if errors.Is(err.(custom_error.CustomError).Err, custom_error.Conflict) {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody("card_number_id already exists", nil))
+			return
+		}
+
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to update buyer", nil))
 		return
+
 	}
 
-	data := Data{
-		Data: buyer,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, ErrorResponse{
-			Message: "Erro ao serializar os dados",
-		})
-		return
-	}
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 
 }
