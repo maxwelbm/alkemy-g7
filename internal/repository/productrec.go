@@ -97,7 +97,7 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 	return productRecordList, nil
 }
 
-func (pr *ProductRecRepository) GetByIdProduct(idProduct int)([]model.ProductRecords, error) {
+func (pr *ProductRecRepository) GetByIdProduct(idProduct int) ([]model.ProductRecords, error) {
 	var productRecordList []model.ProductRecords
 
 	query := `
@@ -131,4 +131,37 @@ func (pr *ProductRecRepository) GetByIdProduct(idProduct int)([]model.ProductRec
 	}
 
 	return productRecordList, nil
+}
+
+func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, error) {
+	var productRecordReport []model.ProductRecordsReport
+
+	query := `
+	SELECT  
+	p.id, 
+	p.description, 
+	count(p.id) as record_count 
+	FROM product p
+	inner join product_records pr on pr.product_id = p.id 
+	GROUP by p.id, p.description
+	`
+	rows, err := pr.DB.Query(query)
+	if err != nil {
+		return productRecordReport, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var productRecord model.ProductRecordsReport
+		err := rows.Scan(&productRecord.ProductId, &productRecord.Description, &productRecord.RecordsCount)
+		if err != nil {
+			return nil, err
+		}
+		productRecordReport = append(productRecordReport, productRecord)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return productRecordReport, nil
 }

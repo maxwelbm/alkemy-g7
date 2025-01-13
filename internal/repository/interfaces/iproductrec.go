@@ -7,4 +7,5 @@ type IProductRecRepository interface {
 	GetAll() ([]model.ProductRecords, error)
 	GetById(id int) (model.ProductRecords, error)
 	GetByIdProduct(idProduct int) ([]model.ProductRecords, error)
+	GetAllReport() ([]model.ProductRecordsReport, error)
 }

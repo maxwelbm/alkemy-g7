@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -39,27 +38,36 @@ func (prh *ProductRecHandler) CreateProductRecServ(w http.ResponseWriter, r *htt
 		return
 	}
 
-	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("success", product))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", product))
 }
 
 func (prh *ProductRecHandler) GetProductRecReport(w http.ResponseWriter, r *http.Request) {
-	idProduct, err := strconv.Atoi(r.URL.Query().Get("id"))
-	fmt.Println(idProduct)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid Parameter", nil))
-		return
-	}
+    idProductStr := r.URL.Query().Get("id")
+    idProduct := 0
 
-	product, err := prh.ProductRecServ.GetProductRecordReport(idProduct)
-	if err != nil {
-		if err, ok := err.(*appErr.GenericError); ok {
-			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(appErr.UnknowErr.Error(), nil))
-		return
-	}
+    if idProductStr != "" {
+        var err error
+        idProduct, err = strconv.Atoi(idProductStr)
+        if err != nil {
+            response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid Parameter", nil))
+            return
+        }
+    }
 
+    product, err := prh.ProductRecServ.GetProductRecordReport(idProduct)
+    if err != nil {
+        if appErr, ok := err.(*appErr.GenericError); ok {
+            response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
+            return
+        }
+        response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
+        return
+    }
 
-	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("success", product))
+    if len(product) == 0 {
+        response.JSON(w, http.StatusOK, responses.CreateResponseBody("empty list", nil))
+        return
+    }
+
+    response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }
