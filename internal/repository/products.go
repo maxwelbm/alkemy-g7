@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type ProductRepository struct {
@@ -15,7 +15,7 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 }
 
 func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
-	 query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM product"
+	query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM product"
 	var products = make(map[int]model.Product)
 	rows, err := pr.DB.Query(query)
 	if err != nil {
@@ -48,7 +48,7 @@ func (pr *ProductRepository) GetById(id int) (model.Product, error) {
 	err := row.Scan(&product.ID, &product.ProductCode, &product.Description, &product.Width, &product.Height, &product.Length, &product.NetWeight, &product.ExpirationRate, &product.RecommendedFreezingTemperature, &product.FreezingRate, &product.ProductTypeID, &product.SellerID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return product, custom_error.CustomError{Object: id, Err: custom_error.NotFound}
+			return product, appErr.HandleError("product", appErr.ErrNotFound, "")
 		}
 		return product, err
 	}
