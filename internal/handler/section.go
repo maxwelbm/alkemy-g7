@@ -146,7 +146,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Update(idInt, sec)
+	s, err := h.sv.Update(idInt, &sec)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
