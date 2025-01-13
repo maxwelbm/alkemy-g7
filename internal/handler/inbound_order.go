@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
@@ -57,9 +58,10 @@ func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Re
 }
 
 func toInboundOrder(inboundOrder InboundOrderJSON) model.InboundOrder {
+	formatedDate, _ := time.Parse("2006-01-02", inboundOrder.OrderDate)
 	return model.InboundOrder{
 		Id:             inboundOrder.Id,
-		OrderDate:      inboundOrder.OrderDate,
+		OrderDate:      formatedDate,
 		OrderNumber:    inboundOrder.OrderNumber,
 		EmployeeId:     inboundOrder.EmployeeId,
 		ProductBatchId: inboundOrder.ProductBatchId,
@@ -70,7 +72,7 @@ func toInboundOrder(inboundOrder InboundOrderJSON) model.InboundOrder {
 func toInboundOrderJSON(inboundOrder model.InboundOrder) InboundOrderJSON {
 	return InboundOrderJSON{
 		Id:             inboundOrder.Id,
-		OrderDate:      inboundOrder.OrderDate,
+		OrderDate:      inboundOrder.OrderDate.Format("2006-01-02"),
 		OrderNumber:    inboundOrder.OrderNumber,
 		EmployeeId:     inboundOrder.EmployeeId,
 		ProductBatchId: inboundOrder.ProductBatchId,

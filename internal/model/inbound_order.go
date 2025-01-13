@@ -6,7 +6,7 @@ import (
 
 type InboundOrder struct {
 	Id             int
-	OrderDate      string
+	OrderDate      time.Time
 	OrderNumber    string
 	EmployeeId     int
 	ProductBatchId int
@@ -18,7 +18,7 @@ func (i *InboundOrder) IsValid() bool {
 		return false
 	}
 
-	if _, err := time.Parse("2006-01-02", i.OrderDate); err != nil {
+	if i.OrderDate.IsZero() {
 		return false
 	}
 
