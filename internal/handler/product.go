@@ -10,6 +10,7 @@ import (
 	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type ProductHandler struct {
@@ -34,7 +35,7 @@ func (ph *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request)
 func (ph *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("id invalido", nil))
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
 
@@ -51,24 +52,28 @@ func (ph *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Reque
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("id invalido", nil))
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
 
 	err = ph.ProductService.DeleteProduct(id)
 	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+		if appErr, ok := err.(*appErr.GenericError); ok {
+			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
 		return
 	}
 
-	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("produto deletado", nil))
+	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("product deleted", nil))
 }
 
 func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var productBody model.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("json mal formatado ou invalido", nil))
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid json syntax", nil))
 		return
 	}
 
@@ -90,7 +95,7 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	var productBody model.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("json mal formatado ou invalido", nil))
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid json syntax", nil))
 		return
 	}
 

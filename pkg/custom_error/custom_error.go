@@ -20,6 +20,9 @@ var (
 	Conflict             = errors.New("It already exists")
 	EmptyFields          = errors.New("No fields filled")
 	InvalidErr           = errors.New("Invalid object")
+	DependenciesErr      = errors.New("Cannot be deleted because there are dependencies")
 	NotFoundErrorSection = errors.New("there's no section with this id")
 	ConflictErrorSection = errors.New("section with this id already exists")
+  UnknowErr = errors.New("Unknow server error")
+
 )

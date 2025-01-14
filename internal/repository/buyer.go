@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
+	"net/http"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -13,93 +13,135 @@ type BuyerRepository struct {
 	db *sql.DB
 }
 
-func (r BuyerRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM `buyers` WHERE `id` = ?", id)
+func (r *BuyerRepository) Delete(id int) (err error) {
+
+	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
-		return err
-	}
 
-	return err
-}
-
-func (br *BuyerRepository) Get() (map[int]model.Buyer, error) {
-
-	// if len(br.dbBuyer.TbBuyer) == 0 {
-	// 	return nil, fmt.Errorf("no buyers found")
-	// }
-	// return br.dbBuyer.TbBuyer, nil
-
-	return nil, nil
-
-}
-
-func (br *BuyerRepository) GetById(id int) (model.Buyer, error) {
-	// buyer, ok := br.dbBuyer.TbBuyer[id]
-
-	// if !ok {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: id, Err: custom_error.NotFound}
-	// }
-
-	// return buyer, nil
-
-	return model.Buyer{}, nil
-}
-
-func (br *BuyerRepository) Post(newBuyer model.Buyer) (model.Buyer, error) {
-	// BuyerExists := isCardNumberIdExists(newBuyer.CardNumberId, br)
-	// lastId := getLastIdBuyer(br.dbBuyer.TbBuyer)
-
-	// if BuyerExists {
-	// 	return model.Buyer{}, &custom_error.CustomError{Object: newBuyer, Err: custom_error.Conflict}
-	// }
-	// buyer := model.Buyer{
-	// 	Id:           lastId,
-	// 	CardNumberId: newBuyer.CardNumberId,
-	// 	FirstName:    newBuyer.FirstName,
-	// 	LastName:     newBuyer.LastName,
-	// }
-
-	// br.dbBuyer.TbBuyer[buyer.Id] = buyer
-
-	// return br.GetById(buyer.Id)
-
-	return model.Buyer{}, nil
-
-}
-
-func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) error {
-
-	_, err := r.db.Exec(
-		"UPDATE `buyers` SET `card_number_id` = ?, `first_name` = ?, `last_name` = ? WHERE `id` = ?",
-		newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, newBuyer.Id,
-	)
-	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = custom_error.Conflict
-			default:
-
-			}
-			return err
+		if err.(*mysql.MySQLError).Number == 1451 {
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.DependenciesErr.Error(), "Buyer")
 		}
+		return
 	}
 
-	return err
+	return
+}
+
+func (r *BuyerRepository) Get() (buyers []model.Buyer, err error) {
+
+	rows, err := r.db.Query("SELECT id, card_number_id,first_name,last_name FROM buyers")
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var buyer model.Buyer
+		err = rows.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
+		if err != nil {
+			return
+		}
+		buyers = append(buyers, buyer)
+	}
+
+	return buyers, nil
+
+}
+
+func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
+
+	row := r.db.QueryRow("SELECT id, card_number_id,first_name,last_name FROM buyers WHERE id= ?", id)
+
+	err = row.Scan(&buyer.Id, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
+		}
+		return
+	}
+
+	return
+}
+
+func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
+
+	prepare, err := r.db.Prepare("INSERT INTO buyers (card_number_id, first_name, last_name) VALUES (?,?,?)")
+
+	if err != nil {
+		return
+	}
+
+	result, err := prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.Conflict.Error(), "card_number_id")
+		}
+		return
+	}
+
+	id, err = result.LastInsertId()
+
+	return
+
+}
+
+func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
+
+	prepare, err := r.db.Prepare("UPDATE buyers SET card_number_id = ?, first_name = ?, last_name = ? WHERE id = ?")
+
+	if err != nil {
+		return
+	}
+
+	_, err = prepare.Exec(newBuyer.CardNumberId, newBuyer.FirstName, newBuyer.LastName, id)
+
+	if err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.Conflict.Error(), "card_number_id")
+		}
+		return
+	}
+	return
+}
+
+func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
+	row := r.db.QueryRow("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id WHERE b.id = ? GROUP BY b.id", id)
+
+	err = row.Scan(&countBuyerPurchaseOrder.Id, &countBuyerPurchaseOrder.CardNumberId, &countBuyerPurchaseOrder.FirstName, &countBuyerPurchaseOrder.LastName, &countBuyerPurchaseOrder.PurchaseOrdersCount)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
+		}
+		return
+	}
+
+	return
+}
+
+func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
+	rows, err := r.db.Query("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id GROUP BY b.id")
+
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var buyerPurchaseOrder model.BuyerPurchaseOrder
+		err = rows.Scan(&buyerPurchaseOrder.Id, &buyerPurchaseOrder.CardNumberId, &buyerPurchaseOrder.FirstName, &buyerPurchaseOrder.LastName, &buyerPurchaseOrder.PurchaseOrdersCount)
+		if err != nil {
+			return
+		}
+		countBuyerPurchaseOrder = append(countBuyerPurchaseOrder, buyerPurchaseOrder)
+	}
+
+	return
 }
 
 func NewBuyerRepository(db *sql.DB) *BuyerRepository {
 	return &BuyerRepository{db: db}
 }
-
-// func isCardNumberIdExists(CardNumberId string, br *BuyerRepository) bool {
-
-// 	for _, b := range br.dbBuyer.TbBuyer {
-// 		if b.CardNumberId == CardNumberId {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }
