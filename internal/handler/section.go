@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type SectionsJSON struct {
@@ -19,15 +19,15 @@ type SectionsJSON struct {
 }
 
 type SectionJSON struct {
-	ID                 int `json:"id"`
-	SectionNumber      int `json:"section_number"`
-	CurrentTemperature int `json:"current_temperature"`
-	MinimumTemperature int `json:"minimum_temperature"`
-	CurrentCapacity    int `json:"current_capacity"`
-	MinimumCapacity    int `json:"minimum_capacity"`
-	MaximumCapacity    int `json:"maximum_capacity"`
-	WarehouseID        int `json:"warehouse_id"`
-	ProductTypeID      int `json:"product_type_id"`
+	ID                 int     `json:"id"`
+	SectionNumber      string  `json:"section_number"`
+	CurrentTemperature float64 `json:"current_temperature"`
+	MinimumTemperature float64 `json:"minimum_temperature"`
+	CurrentCapacity    int     `json:"current_capacity"`
+	MinimumCapacity    int     `json:"minimum_capacity"`
+	MaximumCapacity    int     `json:"maximum_capacity"`
+	WarehouseID        int     `json:"warehouse_id"`
+	ProductTypeID      int     `json:"product_type_id"`
 }
 
 func CreateHandlerSections(sv *service.SectionService) *SectionController {
@@ -106,7 +106,7 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Post(section)
+	s, err := h.sv.Post(&section)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -146,7 +146,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Update(idInt, sec)
+	s, err := h.sv.Update(idInt, &sec)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -172,11 +172,38 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("section removed successfully", nil))
 }
 
+func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+
+	if idStr == "" {
+		count, err := h.sv.CountProductBatchesSections()
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
+			return
+		}
+		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
+		return
+	}
+
+	count, err := h.sv.CountProductBatchesBySectionId(id)
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
+		return
+	}
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+}
+
 func handleError(err error) int {
-	if errors.Is(err, repository.NotFoundError) {
+	if errors.Is(err, custom_error.NotFoundErrorSection) {
 		return http.StatusNotFound
 	}
-	if errors.Is(err, repository.ConflictError) {
+	if errors.Is(err, custom_error.ConflictErrorSection) {
 		return http.StatusConflict
 	}
 

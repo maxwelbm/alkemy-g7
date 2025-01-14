@@ -1,7 +1,7 @@
 [
     {
       "ID": 1,
-      "SectionNumber": 1,
+      "SectionNumber": "1",
       "CurrentTemperature": 1,
       "MinimumTemperature": 1,
       "CurrentCapacity": 1,
@@ -12,7 +12,7 @@
     },
     {
       "ID": 2,
-      "SectionNumber": 2,
+      "SectionNumber": "2",
       "CurrentTemperature": 2,
       "MinimumTemperature": 2,
       "CurrentCapacity": 2,
@@ -23,7 +23,7 @@
     },
     {
       "ID": 3,
-      "SectionNumber": 3,
+      "SectionNumber": "3",
       "CurrentTemperature": 3,
       "MinimumTemperature": 3,
       "CurrentCapacity": 3,

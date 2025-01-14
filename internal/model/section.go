@@ -7,9 +7,9 @@ import (
 
 type Section struct {
 	ID                 int
-	SectionNumber      int
-	CurrentTemperature int
-	MinimumTemperature int
+	SectionNumber      string
+	CurrentTemperature float64
+	MinimumTemperature float64
 	CurrentCapacity    int
 	MinimumCapacity    int
 	MaximumCapacity    int
@@ -17,10 +17,16 @@ type Section struct {
 	ProductTypeID      int
 }
 
+type SectionProductBatches struct {
+	ID            int    `json:"id"`
+	SectionNumber string `json:"section_number"`
+	ProductsCount int    `json:"products_count"`
+}
+
 func (s *Section) Validate() error {
 	var errorMessages []string
 
-	if s.SectionNumber == 0 {
+	if s.SectionNumber == "" {
 		errorMessages = append(errorMessages, "SectionNumber não pode ser vazio")
 	}
 	if s.CurrentTemperature == 0 {
