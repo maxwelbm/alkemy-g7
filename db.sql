@@ -1,3 +1,4 @@
+CRUD - DB - GO
 DROP DATABASE IF EXISTS `meli_fresh`;
 
 CREATE DATABASE `meli_fresh`;
@@ -115,6 +116,40 @@ CREATE TABLE `products` (
     FOREIGN KEY (`product_type_id`) REFERENCES `product_type`(`id`),
     FOREIGN KEY (`seller_id`) REFERENCES `sellers`(`id`)  -- Corrigido para 'sellers'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+-- table `sellers`
+CREATE TABLE `sellers` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `cid` int(11) NOT NULL,
+    `company_name` varchar(255) NOT NULL,
+    `address` varchar(255) NOT NULL,
+    `telephone` varchar(15) NOT NULL,
+    `locality_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE(`cid`),
+    FOREIGN KEY (`locality_id`) REFERENCES `locality`(`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+-- table `products`
+CREATE TABLE `products` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `product_code` varchar(25) NOT NULL,
+    `description` text NOT NULL,
+    `height` float NOT NULL,
+    `lenght` float NOT NULL,
+    `width` float NOT NULL,
+    `weight` float NOT NULL,
+    `expiration_rate` float NOT NULL,
+    `freezing_rate` float NOT NULL,
+    `recommended_freezing_temperature` float NOT NULL,
+    `seller_id` int(11) NOT NULL,
+    `product_type_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE(`product_code`),
+    FOREIGN KEY (`product_type_id`) REFERENCES `product_type`(`id`),
+    FOREIGN KEY (`seller_id`) REFERENCES `sellers`(`id`)  -- Corrigido para 'sellers'
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
 
 CREATE TABLE `carriers`(
     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -242,6 +277,7 @@ INSERT INTO meli_fresh.buyers (`card_number_id`, `first_name`, `last_name`) VALU
 ('B1008', 'Steven', 'Clark'),
 ('B1009', 'Betty', 'Lopez'),
 ('B1010', 'Edward', 'Gonzalez');
+
 -- Insert records into the 'countries' table
 INSERT INTO meli_fresh.countries (`country_name`) VALUES
 ('Country 1'),

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 func CreateRepositorySellers(db *sql.DB) *SellersRepository {
@@ -18,7 +19,7 @@ type SellersRepository struct {
 }
 
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
-	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone` FROM `sellers`"
+	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers`"
 	rows, err := rp.db.Query(query)
 	if err != nil {
 		return
@@ -26,7 +27,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 
 	for rows.Next() {
 		var seller model.Seller
-		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Locality)
 		if err != nil {
 			return
 		}
@@ -42,31 +43,31 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 }
 
 func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
-	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone` FROM `sellers` WHERE `id` = ?"
+	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers` WHERE `id` = ?"
 	row := rp.db.QueryRow(query, id)
 
-	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone)
+	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorSellerNotFound
+		err = er.ErrorSellerNotFound
 		return
 	}
 	return
 }
 
 func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
-	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`) VALUES (?, ?, ?, ?)"
-	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone)
+	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
+	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDAlreadyExist
+				err = er.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidJSONFormat
+				err = er.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullAttribute
+				err = er.ErrorNullSellerAttribute
 			}
 			return
 		}
@@ -103,12 +104,16 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		updates = append(updates, "`telephone` = ?")
 		args = append(args, (*seller).Telephone)
 	}
+	if seller.Locality != 0 {
+		updates = append(updates, "`locality_id` = ?")
+		args = append(args, (*seller).Locality)
+	}
 
 	if len(updates) > 0 {
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
 	} else {
-		err = model.ErrorNullAttribute
+		err = er.ErrorNullSellerAttribute
 		return
 	}
 
@@ -118,11 +123,11 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDAlreadyExist
+				err = er.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidJSONFormat
+				err = er.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullAttribute
+				err = er.ErrorNullSellerAttribute
 			}
 
 			return

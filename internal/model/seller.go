@@ -1,7 +1,7 @@
 package model
 
 import (
-	"errors"
+	er 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type Seller struct {
@@ -10,12 +10,30 @@ type Seller struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
+	Locality    int    `json:"locality_id"`
 }
 
-var (
-	ErrorSellerNotFound    error = errors.New("Seller not found")
-	ErrorCIDAlreadyExist   error = errors.New("Seller's CID already exist")
-	ErrorMissingID         error = errors.New("Missing int ID")
-	ErrorInvalidJSONFormat error = errors.New("Invalid JSON request format attribute")
-	ErrorNullAttribute     error = errors.New("Invalid body, empty value received.")
-)
+func (s *Seller) ValidateUpdateFields(sl *Seller, existSeller *Seller) {
+	if sl.CID == 0 {
+		sl.CID = existSeller.CID
+	}
+	if sl.Address == "" {
+		sl.Address = existSeller.Address
+	}
+	if sl.CompanyName == "" {
+		sl.CompanyName = existSeller.CompanyName
+	}
+	if sl.Telephone == "" {
+		sl.Telephone = existSeller.Telephone
+	}
+	if sl.Locality == 0 {
+		sl.Locality = existSeller.Locality
+	}
+}
+
+func (s *Seller) ValidateEmptyFields(sl *Seller) error {
+	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" || sl.Locality == 0 {
+		return er.ErrorNullSellerAttribute
+	}
+	return nil
+}

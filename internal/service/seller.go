@@ -3,36 +3,16 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
+	serviceInterface "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
-func CreateServiceSellers(rp interfaces.ISellerRepo) *SellersService {
-	return &SellersService{rp: rp}
-}
-
-func (s *SellersService) validateUpdateFields(sl *model.Seller, existSeller *model.Seller) {
-	if sl.CID == 0 {
-		sl.CID = existSeller.CID
-	}
-	if sl.Address == "" {
-		sl.Address = existSeller.Address
-	}
-	if sl.CompanyName == "" {
-		sl.CompanyName = existSeller.CompanyName
-	}
-	if sl.Telephone == "" {
-		sl.Telephone = existSeller.Telephone
-	}
-}
-
-func (s *SellersService) validateEmptyFields(sl model.Seller) error {
-	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" {
-		return model.ErrorNullAttribute
-	}
-	return nil
+func CreateServiceSellers(rp interfaces.ISellerRepo, rpl serviceInterface.ILocalityService) *SellersService {
+	return &SellersService{rp: rp, rpl: rpl}
 }
 
 type SellersService struct {
-	rp interfaces.ISellerRepo
+	rp  interfaces.ISellerRepo
+	rpl serviceInterface.ILocalityService
 }
 
 func (s *SellersService) GetAll() (sellers []model.Seller, err error) {
@@ -46,7 +26,12 @@ func (s *SellersService) GetById(id int) (seller model.Seller, err error) {
 }
 
 func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, err error) {
-	if err := s.validateEmptyFields(*seller); err != nil {
+	_, err = s.rpl.GetById(seller.Locality)
+	if err != nil {
+		return
+	}
+
+	if err := seller.ValidateEmptyFields(seller); err != nil {
 		return sl, err
 	}
 	sl, err = s.rp.Post(seller)
@@ -54,12 +39,19 @@ func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, er
 }
 
 func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Seller, err error) {
+	if seller.Locality != 0 {
+		_, err := s.rpl.GetById(seller.Locality)
+		if err != nil {
+			return sl, err
+		}
+	}
+
 	existSl, err := s.GetById(id)
 	if err != nil {
 		return
 	}
 
-	s.validateUpdateFields(seller, &existSl)
+	seller.ValidateUpdateFields(seller, &existSl)
 	sl, err = s.rp.Patch(id, seller)
 	return sl, err
 }
