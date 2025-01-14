@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
@@ -21,7 +20,6 @@ type WarehouseMysql struct {
 
 func (r *WarehouseMysql) GetAllWareHouse() (w []model.WareHouse, err error) {
 	rows, err := r.db.Query("SELECT w.id, w.warehouse_code, w.address, w.telephone, w.minimum_capacity, w.minimum_temperature FROM warehouses w")
-	fmt.Println(rows)
 	if err != nil {
 		return
 	}

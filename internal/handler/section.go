@@ -73,6 +73,10 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.sv.GetById(idInt)
 	if err != nil {
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
@@ -193,6 +197,10 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 
 	count, err := h.sv.CountProductBatchesBySectionId(id)
 	if err != nil {
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
 		return
 	}
