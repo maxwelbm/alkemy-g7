@@ -10,31 +10,6 @@ func CreateServiceSellers(rp interfaces.ISellerRepo, rpl serviceInterface.ILocal
 	return &SellersService{rp: rp, rpl: rpl}
 }
 
-func (s *SellersService) validateUpdateFields(sl *model.Seller, existSeller *model.Seller) {
-	if sl.CID == 0 {
-		sl.CID = existSeller.CID
-	}
-	if sl.Address == "" {
-		sl.Address = existSeller.Address
-	}
-	if sl.CompanyName == "" {
-		sl.CompanyName = existSeller.CompanyName
-	}
-	if sl.Telephone == "" {
-		sl.Telephone = existSeller.Telephone
-	}
-	if sl.Locality == 0 {
-		sl.Locality = existSeller.Locality
-	}
-}
-
-func (s *SellersService) validateEmptyFields(sl model.Seller) error {
-	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" || sl.Locality == 0 {
-		return model.ErrorNullSellerAttribute
-	}
-	return nil
-}
-
 type SellersService struct {
 	rp  interfaces.ISellerRepo
 	rpl serviceInterface.ILocalityService
@@ -56,7 +31,7 @@ func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, er
 		return
 	}
 
-	if err := s.validateEmptyFields(*seller); err != nil {
+	if err := seller.ValidateEmptyFields(seller); err != nil {
 		return sl, err
 	}
 	sl, err = s.rp.Post(seller)
@@ -76,7 +51,7 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 		return
 	}
 
-	s.validateUpdateFields(seller, &existSl)
+	seller.ValidateUpdateFields(seller, &existSl)
 	sl, err = s.rp.Patch(id, seller)
 	return sl, err
 }

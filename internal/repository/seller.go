@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 func CreateRepositorySellers(db *sql.DB) *SellersRepository {
@@ -48,7 +49,7 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorSellerNotFound
+		err = er.ErrorSellerNotFound
 		return
 	}
 	return
@@ -62,11 +63,11 @@ func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDSellerAlreadyExist
+				err = er.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidSellerJSONFormat
+				err = er.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullSellerAttribute
+				err = er.ErrorNullSellerAttribute
 			}
 			return
 		}
@@ -112,7 +113,7 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
 	} else {
-		err = model.ErrorNullSellerAttribute
+		err = er.ErrorNullSellerAttribute
 		return
 	}
 
@@ -122,11 +123,11 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDSellerAlreadyExist
+				err = er.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidSellerJSONFormat
+				err = er.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullSellerAttribute
+				err = er.ErrorNullSellerAttribute
 			}
 
 			return

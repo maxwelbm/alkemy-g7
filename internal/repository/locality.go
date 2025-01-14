@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 func CreateRepositoryLocalities(db *sql.DB) *LocalitiesRepository {
@@ -50,8 +51,7 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return locality, er.HandleError("locality", er.ErrNotFound, "")
 	}
 
 	locality = append(locality, c)
@@ -92,8 +92,7 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 	var l model.LocalitiesJSONSellers
 	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return locality, er.HandleError("locality", er.ErrNotFound, "")
 	}
 
 	locality = append(locality, l)
@@ -131,8 +130,7 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return l, er.HandleError("locality", er.ErrNotFound, "")
 	}
 	return
 }
@@ -145,9 +143,9 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1064:
-				err = model.ErrorInvalidLocalityJSONFormat
+				err = er.ErrorInvalidLocalityJSONFormat
 			case 1048:
-				err = model.ErrorNullLocalityAttribute
+				err = er.ErrorNullLocalityAttribute
 			}
 			return
 		}
