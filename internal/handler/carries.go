@@ -44,7 +44,7 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 			}
 
 			if err, ok := err.(*custom_error.LocalityError); ok {
-				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
 
