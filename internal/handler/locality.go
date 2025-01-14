@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 func CreateHandlerLocality(service interfaces.ILocalityService) *LocalitiesController {
@@ -25,7 +25,7 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingLocalityID.Error(), nil))
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
 		return
 	}
 
@@ -41,21 +41,17 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Request) {
 	var locality model.Locality
 	if err := request.JSON(r, &locality); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidLocalityJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityJSONFormat.Error(), nil))
 		return
 	}
 
 	createdLocality, err := hd.service.CreateLocality(&locality)
 	if err != nil {
-		if ok := errors.Is(err, model.ErrorIDAlreadyExist); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", createdLocality))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdLocality))
 }
 
 func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
@@ -64,15 +60,23 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
 		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
 			return
 		}
 		param := r.URL.Query().Get("id")
+		if param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+			return
+		}
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
+			if idParam == 0 {
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				return
+			}
 			id = idParam
 			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 		}
@@ -93,15 +97,24 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
 		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
 			return
 		}
 		param := r.URL.Query().Get("id")
+		if param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+			return
+		}
+
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
+			if idParam == 0 {
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				return
+			}
 			id = idParam
 			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 		}

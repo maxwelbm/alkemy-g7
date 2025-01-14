@@ -141,7 +141,7 @@ func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, er
 	p.id, 
 	p.description, 
 	count(p.id) as record_count 
-	FROM product p
+	FROM products p
 	inner join product_records pr on pr.product_id = p.id
 	GROUP by p.id, p.description
 	`

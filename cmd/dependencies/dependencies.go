@@ -11,14 +11,14 @@ import (
 func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler,
 	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler,
 	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler,
-	*handler.ProductRecHandler, *handler.ProductBatchesController, *handler.CarrierHandler, *handler.LocalityController) {
+	*handler.ProductRecHandler, *handler.ProductBatchesController, *handler.LocalitiesController, *handler.CarrierHandler) {
 
 	localitiesRepository := repository.CreateRepositoryLocalities(slqDb)
 	localitiesService := service.CreateServiceLocalities(localitiesRepository)
 	localitiesHandler := handler.CreateHandlerLocality(localitiesService)
 
 	sellersRepository := repository.CreateRepositorySellers(slqDb)
-	sellersService := service.CreateServiceSellers(sellersRepository)
+	sellersService := service.CreateServiceSellers(sellersRepository, localitiesService)
 	sellersHandler := handler.CreateHandlerSellers(sellersService)
 
 	productRepo := repository.NewProductRepository(slqDb)
@@ -54,13 +54,13 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
 
 	productBatchesRep := repository.CreateProductBatchesRepository(slqDb)
-	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep)
+	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep, productServ, sectionsSvc)
 	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc)
 
 	carrierRep := repository.NewCarriersRepository(slqDb)
 	carrierSv := service.NewCarrierService(carrierRep, localitiesService)
 	carrierHd := handler.NewCarrierHandler(carrierSv)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler, carrierHd, localitiesHandler
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler, localitiesHandler, carrierHd
 
 }

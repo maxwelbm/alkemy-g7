@@ -9,6 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type ProductBatchesJSON struct {
@@ -16,7 +17,7 @@ type ProductBatchesJSON struct {
 	BatchNumber        string    `json:"batch_number"`
 	CurrentQuantity    int       `json:"current_quantity"`
 	CurrentTemperature float64   `json:"current_temperature"`
-	MinimumTeperature  float64   `json:"minimum_temperature"`
+	MinimumTemperature float64   `json:"minimum_temperature"`
 	DueDate            time.Time `json:"due_date"`
 	InitialQuantity    int       `json:"initial_quantity"`
 	ManufacturingDate  time.Time `json:"manufacturing_date"`
@@ -36,7 +37,10 @@ func CreateProductBatchesHandler(sv *service.ProductBatchesService) *ProductBatc
 func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) {
 	var reqBody ProductBatchesJSON
 
-	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(&reqBody)
 
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid request body", nil))
@@ -52,7 +56,7 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 		BatchNumber:        reqBody.BatchNumber,
 		CurrentQuantity:    reqBody.CurrentQuantity,
 		CurrentTemperature: reqBody.CurrentTemperature,
-		MinimumTeperature:  reqBody.MinimumTeperature,
+		MinimumTemperature: reqBody.MinimumTemperature,
 		DueDate:            reqBody.DueDate,
 		InitialQuantity:    reqBody.InitialQuantity,
 		ManufacturingDate:  reqBody.ManufacturingDate,
@@ -62,10 +66,14 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 	}
 
 	pb, err := h.sv.Post(&productBatches)
+
 	if err != nil {
-		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create product batches", nil))
 		return
 	}
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", pb))
-	return
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type SectionService struct {
@@ -45,6 +46,14 @@ func (s *SectionService) Update(id int, section *model.Section) (sec model.Secti
 }
 
 func (s *SectionService) Delete(id int) (err error) {
+	_, err = s.GetById(id)
+	if err != nil {
+		return
+	}
+	secProdBatches, _ := s.rp.CountProductBatchesBySectionId(id)
+	if secProdBatches.ProductsCount > 0 {
+		return custom_error.HandleError("section", custom_error.ErrDep, "")
+	}
 	err = s.rp.Delete(id)
 	return
 }

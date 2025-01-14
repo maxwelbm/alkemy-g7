@@ -42,13 +42,14 @@ func (r *SectionRepository) Get() (sections []model.Section, err error) {
 }
 
 func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
-	queryGetById := "SELECT `id`, `section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id` FROM `sections` WHERE `id` = ?"
+	queryGetById := "SELECT id, section_number, current_temperature, minimum_temperature, current_capacity, minimum_capacity, maximum_capacity, warehouse_id, product_type_id FROM sections WHERE id = ?"
 	row := r.db.QueryRow(queryGetById, id)
 
 	err = row.Scan(&section.ID, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseID, &section.ProductTypeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NotFoundErrorSection
+			err = custom_error.HandleError("section", custom_error.ErrNotFound, "")
+			return
 		}
 		return
 	}
@@ -124,7 +125,7 @@ func (r *SectionRepository) CountProductBatchesBySectionId(id int) (countProdBat
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NotFound
+			err = custom_error.HandleError("section", custom_error.ErrNotFound, "")
 		}
 		return
 	}
