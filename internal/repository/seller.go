@@ -62,11 +62,11 @@ func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDAlreadyExist
+				err = model.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidJSONFormat
+				err = model.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullAttribute
+				err = model.ErrorNullSellerAttribute
 			}
 			return
 		}
@@ -112,7 +112,7 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
 	} else {
-		err = model.ErrorNullAttribute
+		err = model.ErrorNullSellerAttribute
 		return
 	}
 
@@ -122,11 +122,11 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = model.ErrorCIDAlreadyExist
+				err = model.ErrorCIDSellerAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidJSONFormat
+				err = model.ErrorInvalidSellerJSONFormat
 			case 1048:
-				err = model.ErrorNullAttribute
+				err = model.ErrorNullSellerAttribute
 			}
 
 			return

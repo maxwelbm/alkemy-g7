@@ -30,7 +30,7 @@ func (s *SellersService) validateUpdateFields(sl *model.Seller, existSeller *mod
 
 func (s *SellersService) validateEmptyFields(sl model.Seller) error {
 	if sl.CID == 0 || sl.Address == "" || sl.CompanyName == "" || sl.Telephone == "" || sl.Locality == 0 {
-		return model.ErrorNullAttribute
+		return model.ErrorNullSellerAttribute
 	}
 	return nil
 }

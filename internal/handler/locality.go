@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -47,15 +46,11 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 
 	createdLocality, err := hd.service.CreateLocality(&locality)
 	if err != nil {
-		if ok := errors.Is(err, model.ErrorIDAlreadyExist); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", createdLocality))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdLocality))
 }
 
 func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +59,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
 		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingSellerID.Error(), nil))
 			return
 		}
 		param := r.URL.Query().Get("id")
@@ -72,7 +67,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 			idParam, err := strconv.Atoi(param)
 			id = idParam
 			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 		}
@@ -93,7 +88,7 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
 		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingSellerID.Error(), nil))
 			return
 		}
 		param := r.URL.Query().Get("id")
@@ -101,7 +96,7 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 			idParam, err := strconv.Atoi(param)
 			id = idParam
 			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 		}

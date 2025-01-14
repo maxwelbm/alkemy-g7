@@ -138,14 +138,12 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 }
 
 func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
-	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?)"
+	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?, ?)"
 	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
-			case 1062:
-				err = model.ErrorIDAlreadyExist
 			case 1064:
 				err = model.ErrorInvalidLocalityJSONFormat
 			case 1048:
