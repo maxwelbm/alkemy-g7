@@ -11,7 +11,7 @@ type ProductBatches struct {
 	DueDate            time.Time
 	InitialQuantity    int
 	ManufacturingDate  time.Time
-	ManufacturingHour  time.Time
+	ManufacturingHour  int
 	ProductID          int
 	SectionID          int
 }

@@ -17,6 +17,12 @@ type Section struct {
 	ProductTypeID      int
 }
 
+type SectionProductBatches struct {
+	ID            int    `json:"id"`
+	SectionNumber string `json:"section_number"`
+	ProductsCount int    `json:"products_count"`
+}
+
 func (s *Section) Validate() error {
 	var errorMessages []string
 

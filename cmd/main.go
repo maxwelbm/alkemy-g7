@@ -23,9 +23,9 @@ func main() {
 
 	defer db.Close()
 
-	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler := dependencies.LoadDependencies(db.Connection)
+	productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionHandler, productBatchesHandler := dependencies.LoadDependencies(db.Connection)
 
-	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler)
+	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler, productBatchesHandler)
 
 	if err := http.ListenAndServe(":8080", rt); err != nil {
 		panic(err)
@@ -34,7 +34,7 @@ func main() {
 
 func initRoutes(productHandler *handler.ProductHandler,
 	employeeHd *handler.EmployeeHandler, sellersHandler *handler.SellersController,
-	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler) *chi.Mux {
+	buyerHandler *handler.BuyerHandler, sectionHandler *handler.SectionController, warehouseHandler *handler.WarehouseHandler, productBatchesHandler *handler.ProductBatchesController) *chi.Mux {
 
 	rt := chi.NewRouter()
 
@@ -52,7 +52,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", sectionHandler.Post)
 		r.Patch("/{id}", sectionHandler.Update)
 		r.Delete("/{id}", sectionHandler.Delete)
-		r.Get("/reportProducts", nil)
+		r.Get("/reportProducts", sectionHandler.CountProductBatchesSections)
 	})
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
@@ -101,7 +101,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 	})
 
 	rt.Route("/api/v1/productBatches", func(r chi.Router) {
-		r.Post("/", nil)
+		r.Post("/", productBatchesHandler.Post)
 	})
 
 	rt.Route("/api/v1/productRecords", func(r chi.Router) {

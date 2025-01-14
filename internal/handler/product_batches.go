@@ -20,7 +20,7 @@ type ProductBatchesJSON struct {
 	DueDate            time.Time `json:"due_date"`
 	InitialQuantity    int       `json:"initial_quantity"`
 	ManufacturingDate  time.Time `json:"manufacturing_date"`
-	ManufacturingHour  time.Time `json:"manufacturing_hour"`
+	ManufacturingHour  int       `json:"manufacturing_hour"`
 	ProductID          int       `json:"product_id"`
 	SectionID          int       `json:"section_id"`
 }
@@ -33,7 +33,7 @@ func CreateProductBatchesHandler(sv *service.ProductBatchesService) *ProductBatc
 	return &ProductBatchesController{sv}
 }
 
-func (h *ProductBatchesController) Get(w http.ResponseWriter, r *http.Request) {
+func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) {
 	var reqBody ProductBatchesJSON
 
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
@@ -66,7 +66,6 @@ func (h *ProductBatchesController) Get(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
-	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("product batches created", pb))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", pb))
+	return
 }
-
-func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) {}
