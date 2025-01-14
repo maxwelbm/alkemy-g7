@@ -107,7 +107,7 @@ func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 }
 
 func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
-	row := r.db.QueryRow("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id WHERE b.id = ? GROUP BY b.id", id)
+	row := r.db.QueryRow("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b LEFT JOIN purchase_orders po ON po.buyer_id = b.id WHERE b.id = ? GROUP BY b.id", id)
 
 	err = row.Scan(&countBuyerPurchaseOrder.Id, &countBuyerPurchaseOrder.CardNumberId, &countBuyerPurchaseOrder.FirstName, &countBuyerPurchaseOrder.LastName, &countBuyerPurchaseOrder.PurchaseOrdersCount)
 
@@ -122,7 +122,7 @@ func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchas
 }
 
 func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
-	rows, err := r.db.Query("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b INNER JOIN purchase_orders po ON po.buyer_id = b.id GROUP BY b.id")
+	rows, err := r.db.Query("SELECT b.id, b.card_number_id, b.first_name, b.last_name, COUNT(po.id) as purchase_orders_count FROM buyers b LEFT JOIN purchase_orders po ON po.buyer_id = b.id GROUP BY b.id")
 
 	if err != nil {
 		return
