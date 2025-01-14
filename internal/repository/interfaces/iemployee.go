@@ -8,6 +8,4 @@ type IEmployeeRepo interface {
 	Update(id int, employee model.Employee) (model.Employee, error)
 	Post(employee model.Employee) (model.Employee, error)
 	Delete(id int) error
-	GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error)
-	GetInboundOrdersReports() ([]model.InboundOrdersReportByEmployee, error)
 }

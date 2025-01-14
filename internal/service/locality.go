@@ -9,13 +9,6 @@ func CreateServiceLocalities(rp interfaces.ILocalityRepo) *LocalitiesService {
 	return &LocalitiesService{rp: rp}
 }
 
-func (s *LocalitiesService) validateEmptyFields(l model.Locality) error {
-	if l.Locality == "" || l.Province == "" || l.Country == "" {
-		return model.ErrorNullLocalityAttribute
-	}
-	return nil
-}
-
 type LocalitiesService struct {
 	rp interfaces.ILocalityRepo
 }
@@ -46,7 +39,7 @@ func (s *LocalitiesService) GetById(id int) (locality model.Locality, err error)
 }
 
 func (s *LocalitiesService) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
-	if err := s.validateEmptyFields(*locality); err != nil {
+	if err := locality.ValidateEmptyFields(locality); err != nil {
 		return l, err
 	}
 	l, err = s.rp.CreateLocality(locality)

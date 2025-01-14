@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 func CreateRepositoryLocalities(db *sql.DB) *LocalitiesRepository {
@@ -17,7 +18,7 @@ type LocalitiesRepository struct {
 }
 
 func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJSONCarriers, err error) {
-	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c INNER JOIN `locality` l ON c.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c RIGHT JOIN `locality` l ON c.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
 	rows, err := rp.db.Query(query)
 	if err != nil {
 		return
@@ -44,14 +45,13 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 		return locality, err
 	}
 
-	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c INNER JOIN `locality` l ON c.locality_id = l.id WHERE c.locality_id = ? GROUP BY l.id, l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c RIGHT JOIN `locality` l ON c.locality_id = l.id WHERE l.id = ? GROUP BY l.id, l.locality_name"
 	row := rp.db.QueryRow(query, id)
 
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return locality, er.HandleError("locality", er.ErrNotFound, "")
 	}
 
 	locality = append(locality, c)
@@ -59,7 +59,7 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 }
 
 func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSONSellers, err error) {
-	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s INNER JOIN `locality` l ON s.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
 	rows, err := rp.db.Query(query)
 	if err != nil {
 		return
@@ -86,14 +86,13 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 		return locality, err
 	}
 
-	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s INNER JOIN `locality` l ON s.locality_id = l.id WHERE s.locality_id = ? GROUP BY l.id, l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id WHERE l.id = ? GROUP BY l.id, l.locality_name"
 	row := rp.db.QueryRow(query, id)
 
 	var l model.LocalitiesJSONSellers
 	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return locality, er.HandleError("locality", er.ErrNotFound, "")
 	}
 
 	locality = append(locality, l)
@@ -131,25 +130,22 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
+		return l, er.HandleError("locality", er.ErrNotFound, "")
 	}
 	return
 }
 
 func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
-	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?)"
+	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?, ?)"
 	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
-			case 1062:
-				err = model.ErrorIDAlreadyExist
 			case 1064:
-				err = model.ErrorInvalidLocalityJSONFormat
+				err = er.ErrorInvalidLocalityJSONFormat
 			case 1048:
-				err = model.ErrorNullLocalityAttribute
+				err = er.ErrorNullLocalityAttribute
 			}
 			return
 		}
