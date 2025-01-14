@@ -84,6 +84,9 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 		} else if ok := errors.Is(err, er.ErrorLocalityNotFound); ok {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
 			return
+		} else if ok := errors.Is(err, model.ErrorLocalityNotFound); ok {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
+			return
 		} else {
 			response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -115,6 +118,9 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
 			return
 		} else if ok := errors.Is(err, er.ErrorLocalityNotFound); ok {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
+			return
+		} else if ok := errors.Is(err, model.ErrorLocalityNotFound); ok {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
 			return
 		} else {
