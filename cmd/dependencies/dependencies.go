@@ -11,7 +11,11 @@ import (
 func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler,
 	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler,
 	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler,
-	*handler.ProductRecHandler, *handler.ProductBatchesController) {
+	*handler.ProductRecHandler, *handler.ProductBatchesController, *handler.CarrierHandler, *handler.LocalityController) {
+
+	localitiesRepository := repository.CreateRepositoryLocalities(slqDb)
+	localitiesService := service.CreateServiceLocalities(localitiesRepository)
+	localitiesHandler := handler.CreateHandlerLocality(localitiesService)
 
 	sellersRepository := repository.CreateRepositorySellers(slqDb)
 	sellersService := service.CreateServiceSellers(sellersRepository)
@@ -53,6 +57,10 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep)
 	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler
+	carrierRep := repository.NewCarriersRepository(slqDb)
+	carrierSv := service.NewCarrierService(carrierRep, localitiesService)
+	carrierHd := handler.NewCarrierHandler(carrierSv)
+
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler, carrierHd, localitiesHandler
 
 }
