@@ -14,7 +14,7 @@ type SectionRepository struct {
 }
 
 func CreateRepositorySections(db *sql.DB) *SectionRepository {
-	return &SectionRepository{db}
+	return &SectionRepository{db: db}
 }
 
 func (r *SectionRepository) Get() (sections []model.Section, err error) {
@@ -111,6 +111,44 @@ func (r *SectionRepository) Delete(id int) (err error) {
 	_, err = r.db.Exec(queryDelete, id)
 	if err != nil {
 		return
+	}
+	return
+}
+
+func (r *SectionRepository) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
+	query := "SELECT s.id, s.section_number, COUNT(pb.section_id) as products_count FROM sections s INNER JOIN product_batches pb ON pb.section_id = s.id WHERE s.id = ? GROUP BY s.id"
+
+	row := r.db.QueryRow(query, id)
+
+	err = row.Scan(&countProdBatches.ID, &countProdBatches.SectionNumber, &countProdBatches.ProductsCount)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.NotFound
+		}
+		return
+	}
+	return
+}
+
+func (r *SectionRepository) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {
+	query := "SELECT s.id, s.section_number, COUNT(pb.section_id) as products_count FROM sections s INNER JOIN product_batches pb ON pb.section_id = s.id GROUP BY s.id"
+
+	rows, err := r.db.Query(query)
+
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var sectionProductBatches model.SectionProductBatches
+		err = rows.Scan(&sectionProductBatches.ID, &sectionProductBatches.SectionNumber, &sectionProductBatches.ProductsCount)
+		if err != nil {
+			return
+		}
+		countProductBatches = append(countProductBatches, sectionProductBatches)
 	}
 	return
 }

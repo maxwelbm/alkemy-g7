@@ -75,3 +75,13 @@ func updateSectionFields(existingSection *model.Section, updatedSection *model.S
 		existingSection.ProductTypeID = updatedSection.WarehouseID
 	}
 }
+
+func (s *SectionService) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
+	countProdBatches, err = s.rp.CountProductBatchesBySectionId(id)
+	return
+}
+
+func (s *SectionService) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {
+	countProductBatches, err = s.rp.CountProductBatchesSections()
+	return
+}

@@ -8,10 +8,10 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
 
-func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler, 
-	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler, 
-	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler, 
-	*handler.ProductRecHandler) {
+func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.EmployeeHandler,
+	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler,
+	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler,
+	*handler.ProductRecHandler, *handler.ProductBatchesController) {
 
 	sellersRepository := repository.CreateRepositorySellers(slqDb)
 	sellersService := service.CreateServiceSellers(sellersRepository)
@@ -20,7 +20,6 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	productRepo := repository.NewProductRepository(slqDb)
 	productServ := service.NewProductService(productRepo, sellersRepository)
 	productHandler := handler.NewProductHandler(productServ)
-
 
 	productRecordRepo := repository.NewProductRecRepository(slqDb)
 	productRecordServ := service.NewProductRecService(productRecordRepo, productServ)
@@ -50,6 +49,10 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ)
 	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
 
-	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler
+	productBatchesRep := repository.CreateProductBatchesRepository(slqDb)
+	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep)
+	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc)
+
+	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler
 
 }
