@@ -20,10 +20,10 @@ func (r *ProductBatchesRepository) GetById(id int) (prodBatches model.ProductBat
 	getByIdQuery := "SELECT `id`, `batch_number`, `current_quantity`, `current_temperature`, `minimum_temperature`, `due_date`, `initial_quantity`, `manufacturing_date`, `manufacturing_hour`, `product_id`, `section_id` FROM `product_batches` WHERE `id` = ?"
 	row := r.db.QueryRow(getByIdQuery, id)
 
-	err = row.Scan(&prodBatches.ID, &prodBatches.BatchNumber, &prodBatches.CurrentQuantity, &prodBatches.CurrentTemperature, &prodBatches.MinimumTeperature, &prodBatches.DueDate, &prodBatches.InitialQuantity, &prodBatches.ManufacturingDate, &prodBatches.ManufacturingHour, &prodBatches.ProductID, &prodBatches.SectionID)
+	err = row.Scan(&prodBatches.ID, &prodBatches.BatchNumber, &prodBatches.CurrentQuantity, &prodBatches.CurrentTemperature, &prodBatches.MinimumTemperature, &prodBatches.DueDate, &prodBatches.InitialQuantity, &prodBatches.ManufacturingDate, &prodBatches.ManufacturingHour, &prodBatches.ProductID, &prodBatches.SectionID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NotFound
+			err = custom_error.HandleError("product batches", custom_error.ErrNotFound, "")
 		}
 		return
 	}
@@ -33,10 +33,11 @@ func (r *ProductBatchesRepository) GetById(id int) (prodBatches model.ProductBat
 func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newProdBatches model.ProductBatches, err error) {
 	postQuery := "INSERT INTO product_batches (batch_number, current_quantity, current_temperature, minimum_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, product_id, section_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-	result, err := r.db.Exec(postQuery, (*prodBatches).BatchNumber, (*prodBatches).CurrentQuantity, (*prodBatches).CurrentTemperature, (*prodBatches).MinimumTeperature, (*prodBatches).DueDate, (*prodBatches).InitialQuantity, (*prodBatches).ManufacturingDate, (*prodBatches).ManufacturingHour, (*prodBatches).ProductID, (*prodBatches).SectionID)
+	result, err := r.db.Exec(postQuery, (*prodBatches).BatchNumber, (*prodBatches).CurrentQuantity, (*prodBatches).CurrentTemperature, (*prodBatches).MinimumTemperature, (*prodBatches).DueDate, (*prodBatches).InitialQuantity, (*prodBatches).ManufacturingDate, (*prodBatches).ManufacturingHour, (*prodBatches).ProductID, (*prodBatches).SectionID)
+
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.Conflict
+			err = custom_error.HandleError("product batches:", custom_error.ErrConflict, "")
 		}
 		return
 	}

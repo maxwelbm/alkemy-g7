@@ -50,7 +50,7 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
 
 	productBatchesRep := repository.CreateProductBatchesRepository(slqDb)
-	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep)
+	productBatchesSvc := service.CreateProductBatchesService(*productBatchesRep, productServ, sectionsSvc)
 	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc)
 
 	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
@@ -15,7 +16,7 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 }
 
 func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
-	query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM product"
+	query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM products"
 	var products = make(map[int]model.Product)
 	rows, err := pr.DB.Query(query)
 	if err != nil {
@@ -25,9 +26,9 @@ func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
 
 	for rows.Next() {
 		var product model.Product
-		err := rows.Scan(&product.ID, &product.ProductCode, &product.Description, 
-			&product.Width, &product.Height, &product.Length, &product.NetWeight, 
-			&product.ExpirationRate, &product.RecommendedFreezingTemperature, 
+		err := rows.Scan(&product.ID, &product.ProductCode, &product.Description,
+			&product.Width, &product.Height, &product.Length, &product.NetWeight,
+			&product.ExpirationRate, &product.RecommendedFreezingTemperature,
 			&product.FreezingRate, &product.ProductTypeID, &product.SellerID)
 		if err != nil {
 			return nil, err
@@ -44,7 +45,7 @@ func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
 
 func (pr *ProductRepository) GetById(id int) (model.Product, error) {
 	var product model.Product
-	row := pr.DB.QueryRow("SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM product WHERE id = ?", id)
+	row := pr.DB.QueryRow("SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM products WHERE id = ?", id)
 	err := row.Scan(&product.ID, &product.ProductCode, &product.Description, &product.Width, &product.Height, &product.Length, &product.NetWeight, &product.ExpirationRate, &product.RecommendedFreezingTemperature, &product.FreezingRate, &product.ProductTypeID, &product.SellerID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -57,7 +58,7 @@ func (pr *ProductRepository) GetById(id int) (model.Product, error) {
 }
 
 func (pr *ProductRepository) Create(product model.Product) (model.Product, error) {
-	result, err := pr.DB.Exec("INSERT INTO product (product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+	result, err := pr.DB.Exec("INSERT INTO products (product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		product.ProductCode, product.Description, product.Width, product.Height, product.Length, product.NetWeight, product.ExpirationRate, product.RecommendedFreezingTemperature, product.FreezingRate, product.ProductTypeID, product.SellerID)
 	if err != nil {
 		return product, err
@@ -73,7 +74,7 @@ func (pr *ProductRepository) Create(product model.Product) (model.Product, error
 }
 
 func (pr *ProductRepository) Update(id int, product model.Product) (model.Product, error) {
-	_, err := pr.DB.Exec("UPDATE product SET product_code = ?, description = ?, width = ?, height = ?, length = ?, net_weight = ?, expiration_rate = ?, recommended_freezing_temperature = ?, freezing_rate = ?, product_type_id = ?, seller_id = ? WHERE id = ?", 
+	_, err := pr.DB.Exec("UPDATE products SET product_code = ?, description = ?, width = ?, height = ?, length = ?, net_weight = ?, expiration_rate = ?, recommended_freezing_temperature = ?, freezing_rate = ?, product_type_id = ?, seller_id = ? WHERE id = ?",
 		product.ProductCode, product.Description, product.Width, product.Height, product.Length, product.NetWeight, product.ExpirationRate, product.RecommendedFreezingTemperature, product.FreezingRate, product.ProductTypeID, product.SellerID, id)
 	if err != nil {
 		return product, err
@@ -84,7 +85,7 @@ func (pr *ProductRepository) Update(id int, product model.Product) (model.Produc
 }
 
 func (pr *ProductRepository) Delete(id int) error {
-	_, err := pr.DB.Exec("DELETE FROM product WHERE id = ?", id)
+	_, err := pr.DB.Exec("DELETE FROM products WHERE id = ?", id)
 	if err != nil {
 		return appErr.HandleError("product", appErr.ErrDep, "product record")
 	}
