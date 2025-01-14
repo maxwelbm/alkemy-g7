@@ -10,6 +10,7 @@ type Seller struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
+	Locality    int    `json:"locality_id"`
 }
 
 var (

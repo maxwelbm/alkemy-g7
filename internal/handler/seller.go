@@ -19,6 +19,7 @@ type SellersJSON struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
+	Locality    int    `json:"locality_id"`
 }
 
 func CreateHandlerSellers(service interfaces.ISellerService) *SellersController {
@@ -44,6 +45,7 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 			CompanyName: value.CompanyName,
 			Address:     value.Address,
 			Telephone:   value.Telephone,
+			Locality:    value.Locality,
 		})
 	}
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
@@ -78,6 +80,9 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 		if ok := errors.Is(err, model.ErrorCIDAlreadyExist); ok {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
 			return
+		} else if ok := errors.Is(err, model.ErrorLocalityNotFound); ok {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
+			return
 		} else {
 			response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -106,6 +111,9 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		if ok := errors.Is(err, model.ErrorCIDAlreadyExist); ok {
+			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
+			return
+		} else if ok := errors.Is(err, model.ErrorLocalityNotFound); ok {
 			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
 			return
 		} else {
