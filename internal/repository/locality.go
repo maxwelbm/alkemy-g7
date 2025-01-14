@@ -45,7 +45,7 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 		return locality, err
 	}
 
-	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c RIGHT JOIN `locality` l ON c.locality_id = l.id WHERE c.locality_id = ? GROUP BY l.id, l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c RIGHT JOIN `locality` l ON c.locality_id = l.id WHERE l.id = ? GROUP BY l.id, l.locality_name"
 	row := rp.db.QueryRow(query, id)
 
 	var c model.LocalitiesJSONCarriers
@@ -86,7 +86,7 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 		return locality, err
 	}
 
-	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id WHERE s.locality_id = ? GROUP BY l.id, l.locality_name"
+	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id WHERE l.id = ? GROUP BY l.id, l.locality_name"
 	row := rp.db.QueryRow(query, id)
 
 	var l model.LocalitiesJSONSellers
