@@ -89,6 +89,30 @@ func (e *EmployeeService) DeleteEmployee(id int) error {
 	return e.rp.Delete(id)
 }
 
+func (e *EmployeeService) GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error) {
+	if employeeId <= 0 {
+		return model.InboundOrdersReportByEmployee{}, custom_error.EmployeeErrInvalid
+	}
+
+	_, err := e.GetEmployeeById(employeeId)
+
+	if err != nil {
+		return model.InboundOrdersReportByEmployee{}, err
+	}
+
+	data, err := e.rp.GetInboundOrdersReportByEmployee(employeeId)
+
+	if err != nil {
+		return model.InboundOrdersReportByEmployee{}, err
+	}
+
+	return data, nil
+}
+
+func (e *EmployeeService) GetInboundOrdersReports() ([]model.InboundOrdersReportByEmployee, error) {
+	return e.rp.GetInboundOrdersReports()
+}
+
 func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
 	if updates.CardNumberId != "" {
 		existing.CardNumberId = updates.CardNumberId
