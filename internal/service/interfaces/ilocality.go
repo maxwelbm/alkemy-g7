@@ -5,8 +5,8 @@ import (
 )
 
 type ILocalityService interface {
-	GetSellers(id int) (locality model.LocalitiesJSONSellers, err error)
-	GetCarries(id int) (locality model.LocalitiesJSONCarries, err error)
+	GetSellers(id int) (report []model.LocalitiesJSONSellers, err error)
+	GetCarriers(id int) (report []model.LocalitiesJSONCarriers, err error)
 	GetById(id int) (locality model.Locality, err error)
 	CreateLocality(locality *model.Locality) (l model.Locality, err error)
 }
