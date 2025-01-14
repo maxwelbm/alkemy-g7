@@ -19,9 +19,8 @@ func NewEmployeerErr(message string, statusCode int) *EmployeerErr {
 }
 
 var (
-	EmployeeErrNotFound              = NewEmployeerErr("employee not found", http.StatusNotFound)
-	EmployeeErrDuplicatedCardNumber  = NewEmployeerErr("duplicated card number id", http.StatusConflict)
-	EmployeeErrInvalid               = NewEmployeerErr("invalid employeee", http.StatusUnprocessableEntity)
-	EmployeeErrInvalidWarehouseID    = NewEmployeerErr("invalid warehouse id", http.StatusUnprocessableEntity)
-	EmployeeErrNotFoundInboundOrders = NewEmployeerErr("inboud orders not found", http.StatusNotFound)
+	EmployeeErrNotFound             = NewEmployeerErr("employee not found", http.StatusNotFound)
+	EmployeeErrDuplicatedCardNumber = NewEmployeerErr("duplicated card number id", http.StatusConflict)
+	EmployeeErrInvalid              = NewEmployeerErr("invalid employeee", http.StatusUnprocessableEntity)
+	EmployeeErrInvalidWarehouseID   = NewEmployeerErr("invalid warehouse id", http.StatusUnprocessableEntity)
 )

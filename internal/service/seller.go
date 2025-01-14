@@ -8,6 +8,7 @@ import (
 
 func CreateServiceSellers(rp interfaces.ISellerRepo, rpl serviceInterface.ILocalityService) *SellersService {
 	return &SellersService{rp: rp, rpl: rpl}
+}
 
 type SellersService struct {
 	rp  interfaces.ISellerRepo
@@ -31,7 +32,9 @@ func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, er
 	}
 
 	if err := seller.ValidateEmptyFields(seller); err != nil {
-	  sl, err = s.rp.Post(seller)
+		return sl, err
+	}
+	sl, err = s.rp.Post(seller)
 	return
 }
 

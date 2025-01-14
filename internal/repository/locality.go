@@ -58,25 +58,6 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 	return
 }
 
-func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []model.LocalitiesJSONCarriers, err error) {
-	if _, err := rp.GetById(id); err != nil {
-		return locality, err
-	}
-
-	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c INNER JOIN `locality` l ON c.locality_id = l.id WHERE c.locality_id = ? GROUP BY l.id, l.locality_name"
-	row := rp.db.QueryRow(query, id)
-
-	var c model.LocalitiesJSONCarriers
-	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
-	if errors.Is(err, sql.ErrNoRows) {
-		err = model.ErrorLocalityNotFound
-		return
-	}
-
-	locality = append(locality, c)
-	return
-}
-
 func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSONSellers, err error) {
 	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s INNER JOIN `locality` l ON s.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
 	rows, err := rp.db.Query(query)

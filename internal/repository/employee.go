@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -83,67 +82,6 @@ func (e *EmployeeRepository) Delete(id int) error {
 		return err
 	}
 	return nil
-}
-
-func (e *EmployeeRepository) GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error) {
-	query := `
-		SELECT
-			e.id, e.card_number_id, e.first_name, e.last_name, e.warehouse_id, COUNT(i.id) as inbound_orders_count
-		FROM	
-				employees e
-		LEFT JOIN 
-			inbound_orders i 
-			ON i.employee_id = e.id
-		WHERE e.id = ?
-		GROUP BY e.id `
-
-	rows := e.db.QueryRow(query, employeeId)
-
-	var inboundReport model.InboundOrdersReportByEmployee
-
-	err := rows.Scan(&inboundReport.Id, &inboundReport.CardNumberId, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseId, &inboundReport.InboundOrdersCount)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = custom_error.EmployeeErrNotFoundInboundOrders
-		}
-		return model.InboundOrdersReportByEmployee{}, err
-	}
-
-	return inboundReport, nil
-}
-
-func (e *EmployeeRepository) GetInboundOrdersReports() ([]model.InboundOrdersReportByEmployee, error) {
-	query := `
-		SELECT
-			e.id, e.card_number_id, e.first_name, e.last_name, e.warehouse_id, COUNT(i.id) as inbound_orders_count
-		FROM	
-			employees e
-		LEFT JOIN 
-			inbound_orders i 
-			ON i.employee_id = e.id
-		GROUP BY e.id `
-
-	rows, err := e.db.Query(query)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var inboundReports []model.InboundOrdersReportByEmployee
-	for rows.Next() {
-		var inboundReport model.InboundOrdersReportByEmployee
-		err = rows.Scan(&inboundReport.Id, &inboundReport.CardNumberId, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseId, &inboundReport.InboundOrdersCount)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		inboundReports = append(inboundReports, inboundReport)
-	}
-
-	return inboundReports, nil
 }
 
 func (e *EmployeeRepository) getEmployeeByCardNumber(cardNumberId string) (model.Employee, error) {

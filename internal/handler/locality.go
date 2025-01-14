@@ -82,34 +82,6 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-		}
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
-		return
-	}
-
-	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", createdLocality))
-}
-
-func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
-
-	if len(r.URL.Query()) > 0 {
-		existID := r.URL.Query().Has("id")
-		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
-			return
-		}
-		param := r.URL.Query().Get("id")
-		if param != "" {
-			idParam, err := strconv.Atoi(param)
-			id = idParam
-			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
-				return
-			}
-		}
-	}
-
 	result, err := hd.service.GetSellers(id)
 	if err != nil {
 		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
@@ -143,25 +115,6 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 			id = idParam
 			if err != nil {
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
-
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", result))
-}
-
-func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
-
-	if len(r.URL.Query()) > 0 {
-		existID := r.URL.Query().Has("id")
-		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorMissingID.Error(), nil))
-			return
-		}
-		param := r.URL.Query().Get("id")
-		if param != "" {
-			idParam, err := strconv.Atoi(param)
-			id = idParam
-			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(model.ErrorInvalidPathParam.Error(), nil))
 				return
 			}
 		}
