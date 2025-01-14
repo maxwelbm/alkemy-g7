@@ -29,7 +29,7 @@ func (ph *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("Success", products))
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", products))
 }
 
 func (ph *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {

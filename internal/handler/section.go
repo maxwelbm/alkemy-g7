@@ -60,7 +60,7 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 		})
 
 	}
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", data))
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
 func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
