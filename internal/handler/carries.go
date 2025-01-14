@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
@@ -38,13 +39,14 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 		carrier, err := h.srv.PostCarrier(reqBody)
 
 		if err != nil {
+
 			if err, ok := err.(*custom_error.CarrierError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
 
-			if err, ok := err.(*custom_error.LocalityError); ok {
-				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
+			if strings.Contains(err.Error(), custom_error.ErrorLocalityNotFound.Error()) {
+				response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
 

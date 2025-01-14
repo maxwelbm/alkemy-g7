@@ -16,7 +16,7 @@ func (l LocalityError) Error() string {
 }
 
 var (
-	ErrorLocalityNotFound          error = errors.New("Locality not found in the database")
+	ErrorLocalityNotFound          error = errors.New("locality Not found")
 	ErrorMissingLocalityID         error = errors.New("Missing 'id' parameter in the request")
 	ErrorInvalidLocalityJSONFormat error = errors.New("Invalid JSON format in the request body")
 	ErrorInvalidLocalityPathParam  error = errors.New("Invalid value for request path parameter")
