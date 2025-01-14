@@ -11,7 +11,6 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
-
 )
 
 func CreateHandlerLocality(service interfaces.ILocalityService) *LocalitiesController {
@@ -65,8 +64,16 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 			return
 		}
 		param := r.URL.Query().Get("id")
+		if param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+			return
+		}
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
+			if idParam == 0 {
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				return
+			}
 			id = idParam
 			if err != nil {
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
@@ -94,8 +101,17 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		param := r.URL.Query().Get("id")
+		if param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+			return
+		}
+
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
+			if idParam == 0 {
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				return
+			}
 			id = idParam
 			if err != nil {
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))

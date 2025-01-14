@@ -14,13 +14,13 @@ type Locality struct {
 type LocalitiesJSONSellers struct {
 	ID       string `json:"locality_id"`
 	Locality string `json:"locality_name"`
-	Sellers  string `json:"sellers_count"`
+	Sellers  int `json:"sellers_count"`
 }
 
 type LocalitiesJSONCarriers struct {
 	ID       string `json:"locality_id"`
 	Locality string `json:"locality_name"`
-	Carriers string `json:"carriers_count"`
+	Carriers int `json:"carriers_count"`
 }
 
 func (s *Locality) ValidateEmptyFields(l *Locality) error {
