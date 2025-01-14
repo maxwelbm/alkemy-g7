@@ -14,9 +14,9 @@ type Seller struct {
 }
 
 var (
-	ErrorSellerNotFound    error = errors.New("Seller not found")
-	ErrorCIDAlreadyExist   error = errors.New("Seller's CID already exist")
-	ErrorMissingID         error = errors.New("Missing int ID")
-	ErrorInvalidJSONFormat error = errors.New("Invalid JSON request format attribute")
-	ErrorNullAttribute     error = errors.New("Invalid body, empty value received.")
+	ErrorSellerNotFound    error = errors.New("Seller not found in the database")
+	ErrorCIDAlreadyExist   error = errors.New("Seller's CID already exists")
+	ErrorMissingID         error = errors.New("Missing 'id' parameter in the request")
+	ErrorInvalidJSONFormat error = errors.New("Invalid JSON format in the request body")
+	ErrorNullAttribute     error = errors.New("Invalid request body: received empty or null value")
 )
