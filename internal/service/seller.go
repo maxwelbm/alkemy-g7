@@ -3,9 +3,10 @@ package service
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
+	serviceInterface "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 )
 
-func CreateServiceSellers(rp interfaces.ISellerRepo, rpl interfaces.ILocalityRepo) *SellersService {
+func CreateServiceSellers(rp interfaces.ISellerRepo, rpl serviceInterface.ILocalityService) *SellersService {
 	return &SellersService{rp: rp, rpl: rpl}
 }
 
@@ -36,7 +37,7 @@ func (s *SellersService) validateEmptyFields(sl model.Seller) error {
 
 type SellersService struct {
 	rp  interfaces.ISellerRepo
-	rpl interfaces.ILocalityRepo
+	rpl serviceInterface.ILocalityService
 }
 
 func (s *SellersService) GetAll() (sellers []model.Seller, err error) {

@@ -16,18 +16,60 @@ type LocalitiesRepository struct {
 	db *sql.DB
 }
 
-// GetCarries implements interfaces.ILocalityRepo.
-func (rp *LocalitiesRepository) GetCarries(id int) (locality model.LocalitiesJSONCarries, err error) {
+// GetCarries implements interfaces.ILocalityService.
+func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJSONCarriers, err error) {
 	panic("unimplemented")
 }
 
-// GetSellers implements interfaces.ILocalityRepo.
-func (rp *LocalitiesRepository) GetSellers(id int) (locality model.LocalitiesJSONSellers, err error) {
+// GetReportCarriesWithId implements interfaces.ILocalityRepo.
+func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []model.LocalitiesJSONCarriers, err error) {
 	panic("unimplemented")
+}
+
+func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSONSellers, err error) {
+	query := "SELECT l.id, l.locality_name, COUNT(locality_id) AS `sellers_count` FROM `sellers` s INNER JOIN `locality` l ON s.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
+	rows, err := rp.db.Query(query)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		var l model.LocalitiesJSONSellers
+		err = rows.Scan(&l.ID, &l.Locality, &l.Sellers)
+		if err != nil {
+			return
+		}
+		report = append(report, l)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model.LocalitiesJSONSellers, err error) {
+	if _, err := rp.GetById(id); err != nil {
+		return locality, err
+	}
+
+	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s INNER JOIN `locality` l ON s.locality_id = l.id WHERE s.locality_id = ? GROUP BY l.id, l.locality_name"
+	row := rp.db.QueryRow(query, id)
+
+	var l model.LocalitiesJSONSellers
+	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
+	if errors.Is(err, sql.ErrNoRows) {
+		err = model.ErrorLocalityNotFound
+		return
+	}
+
+	locality = append(locality, l)
+	return
 }
 
 func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
-	query := "SELECT `id`, `locality_name`, `province_id` FROM `locality`"
+	query := "SELECT `id`, `locality_name`, `province_name`, `country_name` FROM `locality`"
 	rows, err := rp.db.Query(query)
 	if err != nil {
 		return
@@ -35,7 +77,7 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 
 	for rows.Next() {
 		var locality model.Locality
-		err = rows.Scan(&locality.ID, &locality.Locality, &locality.Province)
+		err = rows.Scan(&locality.ID, &locality.Locality, &locality.Province, &locality.Country)
 		if err != nil {
 			return
 		}
@@ -51,10 +93,10 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 }
 
 func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
-	query := "SELECT `id`, `locality_name`, `province_id` FROM `locality` WHERE `id` = ?"
+	query := "SELECT `id`, `locality_name`, `province_name`, `country_name` FROM `locality` WHERE `id` = ?"
 	row := rp.db.QueryRow(query, id)
 
-	err = row.Scan(&l.ID, &l.Locality, &l.Province)
+	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		err = model.ErrorLocalityNotFound
@@ -63,9 +105,9 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	return
 }
 
-func (rp *LocalitiesRepository) Post(locality *model.Locality) (l model.Locality, err error) {
-	query := "INSERT INTO `locality` (`locality_name`, `province_id`) VALUES (?, ?)"
-	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province)
+func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
+	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?)"
+	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
