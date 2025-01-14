@@ -185,3 +185,42 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 
 	response.JSON(w, http.StatusNoContent, nil)
 }
+
+func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		data, err := e.sv.GetInboundOrdersReports()
+
+		if err != nil {
+			if err, ok := err.(*custom_error.EmployeerErr); ok {
+				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
+				return
+			}
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+			return
+		}
+		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
+		return
+	}
+	idInt, err := strconv.Atoi(id)
+
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid employee id", nil))
+		return
+	}
+
+	data, err := e.sv.GetInboundOrdersReportByEmployee(idInt)
+
+	if err != nil {
+		if err, ok := err.(*custom_error.EmployeerErr); ok {
+			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
+
+}
