@@ -97,7 +97,6 @@ func initRoutes(productHandler *handler.ProductHandler,
 		r.Post("/", employeeHd.InsertEmployee)
 		r.Patch("/{id}", employeeHd.UpdateEmployee)
 		r.Delete("/{id}", employeeHd.DeleteEmployee)
-		r.Get("/reportInboundOrders", employeeHd.GetInboundOrdersReports)
 	})
 
 	rt.Route("/api/v1/localities", func(r chi.Router) {

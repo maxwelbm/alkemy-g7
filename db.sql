@@ -1,19 +1,9 @@
+CRUD - DB - GO
 DROP DATABASE IF EXISTS `meli_fresh`;
 
 CREATE DATABASE `meli_fresh`;
 
 USE `meli_fresh`;
-
--- table `sellers`
-CREATE TABLE `sellers` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `cid` int(11) NOT NULL,
-    `company_name` varchar(255) NOT NULL,
-    `address` varchar(255) NOT NULL,
-    `telephone` varchar(15) NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE(`cid`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 -- table `warehouses`
 CREATE TABLE `warehouses` (
@@ -31,26 +21,6 @@ CREATE TABLE `product_type`(
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `type_name` varchar(100) NOT NULL,
     PRIMARY KEY(`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
--- table `products`
-CREATE TABLE `products` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `product_code` varchar(25) NOT NULL,
-    `description` text NOT NULL,
-    `height` float NOT NULL,
-    `lenght` float NOT NULL,
-    `width` float NOT NULL,
-    `weight` float NOT NULL,
-    `expiration_rate` float NOT NULL,
-    `freezing_rate` float NOT NULL,
-    `recommended_freezing_temperature` float NOT NULL,
-    `seller_id` int(11) NOT NULL,
-    `product_type_id` int(11) NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE(`product_code`),
-    FOREIGN KEY (`product_type_id`) REFERENCES `product_type`(`id`),
-    FOREIGN KEY (`seller_id`) REFERENCES `sellers`(`id`)  -- Corrigido para 'sellers'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 -- table `employees`
@@ -109,10 +79,44 @@ CREATE TABLE `provinces`(
 CREATE TABLE `locality`(
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `locality_name` varchar(255),
-    `province_id` int(11),
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`province_id`) REFERENCES `provinces`(`id`)
+    `province_name` varchar(255),
+    `country_name` varchar(255),
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+-- table `sellers`
+CREATE TABLE `sellers` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `cid` int(11) NOT NULL,
+    `company_name` varchar(255) NOT NULL,
+    `address` varchar(255) NOT NULL,
+    `telephone` varchar(15) NOT NULL,
+    `locality_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE(`cid`),
+    FOREIGN KEY (`locality_id`) REFERENCES `locality`(`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+-- table `products`
+CREATE TABLE `products` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `product_code` varchar(25) NOT NULL,
+    `description` text NOT NULL,
+    `height` float NOT NULL,
+    `lenght` float NOT NULL,
+    `width` float NOT NULL,
+    `weight` float NOT NULL,
+    `expiration_rate` float NOT NULL,
+    `freezing_rate` float NOT NULL,
+    `recommended_freezing_temperature` float NOT NULL,
+    `seller_id` int(11) NOT NULL,
+    `product_type_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE(`product_code`),
+    FOREIGN KEY (`product_type_id`) REFERENCES `product_type`(`id`),
+    FOREIGN KEY (`seller_id`) REFERENCES `sellers`(`id`)  -- Corrigido para 'sellers'
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
 
 CREATE TABLE `carriers`(
     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -184,19 +188,6 @@ CREATE TABLE `purchase_orders`(
 
 USE `meli_fresh`;
 
--- DML
-INSERT INTO meli_fresh.sellers (`cid`, `company_name`, `address`, `telephone`) VALUES
-(1, 'Company A', '123 Main St', '123-456-7890'),
-(2, 'Company B', '456 Elm St', '123-456-7891'),
-(3, 'Company C', '789 Oak St', '123-456-7892'),
-(4, 'Company D', '101 Pine St', '123-456-7893'),
-(5, 'Company E', '102 Maple St', '123-456-7894'),
-(6, 'Company F', '103 Cedar St', '123-456-7895'),
-(7, 'Company G', '104 Birch St', '123-456-7896'),
-(8, 'Company H', '105 Willow St', '123-456-7897'),
-(9, 'Company I', '106 Cherry St', '123-456-7898'),
-(10, 'Company J', '107 Walnut St', '123-456-7899');
-
 INSERT INTO meli_fresh.warehouses (`warehouse_code`, `address`, `telephone`, `minimum_capacity`, `minimum_temperature`) VALUES
 ('WH01', '200 Warehouse Rd', '234-567-8901', 100, 0),
 ('WH02', '201 Warehouse Ln', '234-567-8902', 150, -5),
@@ -233,18 +224,6 @@ INSERT INTO meli_fresh.sections (`section_number`, `current_temperature`, `minim
 (9, 4, -7, 130, 100, 180, 9, 9),
 (10, -6, -10, 140, 110, 190, 10, 10);
 
-INSERT INTO meli_fresh.products (`product_code`, `description`, `height`, `lenght`, `width`, `weight`, `expiration_rate`, `freezing_rate`, `recommended_freezing_temperature`, `seller_id`, `product_type_id`) VALUES
-('P1001', 'Product 1', 10, 5, 8, 2, 0.1, 0.2, -5, 1, 1),
-('P1002', 'Product 2', 12, 6, 9, 2.5, 0.15, 0.25, -6, 2, 2),
-('P1003', 'Product 3', 14, 7, 10, 3, 0.2, 0.3, -7, 3, 3),
-('P1004', 'Product 4', 16, 8, 11, 3.5, 0.25, 0.35, -8, 4, 4),
-('P1005', 'Product 5', 18, 9, 12, 4, 0.3, 0.4, -9, 5, 5),
-('P1006', 'Product 6', 20, 10, 13, 4.5, 0.35, 0.45, -10, 6, 6),
-('P1007', 'Product 7', 22, 11, 14, 5, 0.4, 0.5, -11, 7, 7),
-('P1008', 'Product 8', 24, 12, 15, 5.5, 0.45, 0.55, -12, 8, 8),
-('P1009', 'Product 9', 26, 13, 16, 6, 0.5, 0.6, -13, 9, 9),
-('P1010', 'Product 10', 28, 14, 17, 6.5, 0.55, 0.65, -14, 10, 10);
-
 INSERT INTO meli_fresh.employees (`card_number_id`, `first_name`, `last_name`, `warehouse_id`) VALUES
 ('E1001', 'John', 'Doe', 1),
 ('E1002', 'Jane', 'Smith', 2),
@@ -268,6 +247,7 @@ INSERT INTO meli_fresh.buyers (`card_number_id`, `first_name`, `last_name`) VALU
 ('B1008', 'Steven', 'Clark'),
 ('B1009', 'Betty', 'Lopez'),
 ('B1010', 'Edward', 'Gonzalez');
+
 -- Insert records into the 'countries' table
 INSERT INTO meli_fresh.countries (`country_name`) VALUES
 ('Country 1'),
@@ -285,12 +265,38 @@ INSERT INTO meli_fresh.provinces (`province_name`, `id_country_fk`) VALUES
 ('Province E', 4);
 
 -- Insert records into the 'locality' table
-INSERT INTO meli_fresh.locality (`locality_name`, `province_id`) VALUES
-('Locality X', 1),
-('Locality Y', 2),
-('Locality Z', 3),
-('Locality W', 4),
-('Locality V', 5);
+INSERT INTO meli_fresh.locality (`locality_name`, `province_name`, `country_name`) VALUES
+('Locality X', 'Province 1', 'Country A'),
+('Locality Y', 'Province 2', 'Country B'),
+('Locality Z', 'Province 3', 'Country C'),
+('Locality W', 'Province 4', 'Country D'),
+('Locality V', 'Province 5', 'Country E');
+
+-- DML
+INSERT INTO meli_fresh.sellers (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES
+(1, 'Company A', '123 Main St', '123-456-7890', 1),
+(2, 'Company B', '456 Elm St', '123-456-7891', 2),
+(3, 'Company C', '789 Oak St', '123-456-7892', 3),
+(4, 'Company D', '101 Pine St', '123-456-7893', 4),
+(5, 'Company E', '102 Maple St', '123-456-7894', 5),
+(6, 'Company F', '103 Cedar St', '123-456-7895', 5),
+(7, 'Company G', '104 Birch St', '123-456-7896', 4),
+(8, 'Company H', '105 Willow St', '123-456-7897', 3),
+(9, 'Company I', '106 Cherry St', '123-456-7898', 3),
+(10, 'Company J', '107 Walnut St', '123-456-7899', 1);
+
+
+INSERT INTO meli_fresh.products (`product_code`, `description`, `height`, `lenght`, `width`, `weight`, `expiration_rate`, `freezing_rate`, `recommended_freezing_temperature`, `seller_id`, `product_type_id`) VALUES
+('P1001', 'Product 1', 10, 5, 8, 2, 0.1, 0.2, -5, 1, 1),
+('P1002', 'Product 2', 12, 6, 9, 2.5, 0.15, 0.25, -6, 2, 2),
+('P1003', 'Product 3', 14, 7, 10, 3, 0.2, 0.3, -7, 3, 3),
+('P1004', 'Product 4', 16, 8, 11, 3.5, 0.25, 0.35, -8, 4, 4),
+('P1005', 'Product 5', 18, 9, 12, 4, 0.3, 0.4, -9, 5, 5),
+('P1006', 'Product 6', 20, 10, 13, 4.5, 0.35, 0.45, -10, 6, 6),
+('P1007', 'Product 7', 22, 11, 14, 5, 0.4, 0.5, -11, 7, 7),
+('P1008', 'Product 8', 24, 12, 15, 5.5, 0.45, 0.55, -12, 8, 8),
+('P1009', 'Product 9', 26, 13, 16, 6, 0.5, 0.6, -13, 9, 9),
+('P1010', 'Product 10', 28, 14, 17, 6.5, 0.55, 0.65, -14, 10, 10);
 
 -- Insert records into the 'carriers' table
 INSERT INTO meli_fresh.carriers (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES
