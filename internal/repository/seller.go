@@ -99,10 +99,12 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		args = append(args, (*seller).Locality)
 	}
 
-	if len(updates) > 0 {
+	lenght := len(updates)
+	if lenght > 0 {
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
-	} else {
+	}
+	if lenght == 0 {
 		err = er.ErrorNullSellerAttribute
 		return
 	}

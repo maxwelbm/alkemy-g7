@@ -88,6 +88,11 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	_, err = hd.service.GetById(id)
+	if ok := hd.handlerError(err, w); ok {
+		return
+	}
+
 	var s model.Seller
 	err = request.JSON(r, &s)
 	if ok := hd.handlerError(err, w); ok {
@@ -105,6 +110,11 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
+	if ok := hd.handlerError(err, w); ok {
+		return
+	}
+
+	_, err = hd.service.GetById(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -128,7 +138,8 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal server error", nil))
+
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrorInvalidSellerJSONFormat.Error(), nil))
 		return true
 	}
 	return false

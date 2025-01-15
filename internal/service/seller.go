@@ -46,22 +46,13 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 		}
 	}
 
-	existSl, err := s.GetById(id)
-	if err != nil {
-		return
-	}
-
+	existSl, _ := s.GetById(id)
 	seller.ValidateUpdateFields(seller, &existSl)
 	sl, err = s.rp.Patch(id, seller)
 	return sl, err
 }
 
 func (s *SellersService) DeleteSeller(id int) error {
-	_, err := s.GetById(id)
-	if err != nil {
-		return err
-	}
-
-	err = s.rp.Delete(id)
+	err := s.rp.Delete(id)
 	return err
 }

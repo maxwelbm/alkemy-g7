@@ -121,7 +121,8 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal server error", nil))
+	
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrorInvalidLocalityJSONFormat.Error(), nil))
 		return true
 	}
 	return false
