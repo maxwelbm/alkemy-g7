@@ -104,10 +104,6 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
 	}
-	if lenght == 0 {
-		err = er.ErrorNullSellerAttribute
-		return
-	}
 
 	_, err = rp.db.Exec(query, args...)
 	err = rp.validateSQLError(err)

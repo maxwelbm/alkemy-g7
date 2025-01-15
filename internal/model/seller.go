@@ -13,7 +13,11 @@ type Seller struct {
 	Locality    int    `json:"locality_id"`
 }
 
-func (s *Seller) ValidateUpdateFields(sl *Seller, existSeller *Seller) {
+func (s *Seller) ValidateUpdateFields(sl *Seller, existSeller *Seller) error {
+	if sl.CID == 0 && sl.Address == "" && sl.CompanyName == "" && sl.Telephone == "" && sl.Locality == 0 {
+		return er.ErrorNullLocalityAttribute
+	}
+
 	if sl.CID == 0 {
 		sl.CID = existSeller.CID
 	}
@@ -29,6 +33,8 @@ func (s *Seller) ValidateUpdateFields(sl *Seller, existSeller *Seller) {
 	if sl.Locality == 0 {
 		sl.Locality = existSeller.Locality
 	}
+
+	return nil
 }
 
 func (s *Seller) ValidateEmptyFields(sl *Seller) error {

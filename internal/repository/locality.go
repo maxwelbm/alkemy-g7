@@ -159,14 +159,12 @@ func (rp *LocalitiesRepository) validateSQLError(err error) (e error) {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
-			case 1062:
-				e = er.ErrorCIDSellerAlreadyExist
 			case 1064:
-				e = er.ErrorInvalidSellerJSONFormat
+				e = er.ErrorInvalidLocalityJSONFormat
 			case 1048:
-				e = er.ErrorNullSellerAttribute
+				e = er.ErrorNullLocalityAttribute
 			default:
-				e = er.ErrorDefaultSellerSQL
+				e = er.ErrorDefaultLocalitySQL
 			}
 		}
 	}
