@@ -24,5 +24,5 @@ var (
 	ErrorMissingSellerID         = NewSellerErr("Missing 'id' parameter in the request", http.StatusBadRequest)
 	ErrorInvalidSellerJSONFormat = NewSellerErr("Invalid JSON format in the request body", http.StatusBadRequest)
 	ErrorNullSellerAttribute     = NewSellerErr("Invalid request body: received empty or null value", http.StatusUnprocessableEntity)
-	ErrorDefaultSellerSQL        = NewLocalityErr("SQL internal error", http.StatusInternalServerError)
+	ErrorDefaultSellerSQL        = NewSellerErr("SQL internal error", http.StatusInternalServerError)
 )

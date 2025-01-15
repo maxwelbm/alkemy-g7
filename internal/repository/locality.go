@@ -140,19 +140,9 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
 	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?, ?)"
 	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
+	err = rp.validateSQLError(err)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1064:
-				err = er.ErrorInvalidLocalityJSONFormat
-			case 1048:
-				err = er.ErrorNullLocalityAttribute
-			default: 
-				err = er.ErrorDefaultLocalitySQL
-			}
-			return
-		}
+		return
 	}
 
 	id, err := result.LastInsertId()
@@ -162,4 +152,23 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 	l, _ = rp.GetById(int(id))
 
 	return
+}
+
+func (rp *LocalitiesRepository) validateSQLError(err error) (e error) {
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				e = er.ErrorCIDSellerAlreadyExist
+			case 1064:
+				e = er.ErrorInvalidSellerJSONFormat
+			case 1048:
+				e = er.ErrorNullSellerAttribute
+			default:
+				e = er.ErrorDefaultSellerSQL
+			}
+		}
+	}
+	return e
 }

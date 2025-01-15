@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"strconv"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
@@ -98,7 +98,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
-		
+
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
 
@@ -113,7 +113,7 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
-		
+
 	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", nil))
 }
 

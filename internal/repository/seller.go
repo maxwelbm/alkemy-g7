@@ -58,7 +58,10 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
 	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
 	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
-	rp.validateSQLError(err)
+	err = rp.validateSQLError(err)
+	if err != nil {
+		return
+	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -105,7 +108,10 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 	}
 
 	_, err = rp.db.Exec(query, args...)
-	rp.validateSQLError(err)
+	err = rp.validateSQLError(err)
+	if err != nil {
+		return
+	}
 	sl, _ = rp.GetById(int(id))
 
 	return
