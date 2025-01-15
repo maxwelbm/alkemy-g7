@@ -51,7 +51,8 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 	if errors.Is(err, sql.ErrNoRows) {
-		return locality, er.HandleError("locality", er.ErrNotFound, "")
+		e := er.ErrorLocalityNotFound
+		return locality, e
 	}
 
 	locality = append(locality, c)
@@ -91,8 +92,8 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 
 	var l model.LocalitiesJSONSellers
 	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
-	if errors.Is(err, sql.ErrNoRows) {
-		return locality, er.HandleError("locality", er.ErrNotFound, "")
+	if err != nil {
+		return
 	}
 
 	locality = append(locality, l)
@@ -130,7 +131,8 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return l, er.HandleError("locality", er.ErrNotFound, "")
+		e := er.ErrorLocalityNotFound
+		return l, e
 	}
 	return
 }
@@ -146,6 +148,8 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 				err = er.ErrorInvalidLocalityJSONFormat
 			case 1048:
 				err = er.ErrorNullLocalityAttribute
+			default: 
+				err = er.ErrorDefaultLocalitySQL
 			}
 			return
 		}

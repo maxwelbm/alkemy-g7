@@ -1,24 +1,28 @@
 package custom_error
 
-import (
-	"errors"
-	"fmt"
-)
+import "net/http"
 
 type SellerError struct {
-	Object     any
-	Err        error
-	StatusCode int
+	Message string
+	Code    int
 }
 
-func (s SellerError) Error() string {
-	return fmt.Sprintf("error: %v, message: %v", s.Object, s.Err.Error())
+func NewSellerErr(message string, statusCode int) *SellerError {
+	return &SellerError{
+		Message: message,
+		Code:    statusCode,
+	}
+}
+
+func (e *SellerError) Error() string {
+	return e.Message
 }
 
 var (
-	ErrorSellerNotFound          error = errors.New("Seller not found in the database")
-	ErrorCIDSellerAlreadyExist   error = errors.New("Seller's CID already exists")
-	ErrorMissingSellerID         error = errors.New("Missing 'id' parameter in the request")
-	ErrorInvalidSellerJSONFormat error = errors.New("Invalid JSON format in the request body")
-	ErrorNullSellerAttribute     error = errors.New("Invalid request body: received empty or null value")
+	ErrorSellerNotFound          = NewSellerErr("Seller not found", http.StatusNotFound)
+	ErrorCIDSellerAlreadyExist   = NewSellerErr("Seller's CID already exists", http.StatusConflict)
+	ErrorMissingSellerID         = NewSellerErr("Missing 'id' parameter in the request", http.StatusBadRequest)
+	ErrorInvalidSellerJSONFormat = NewSellerErr("Invalid JSON format in the request body", http.StatusBadRequest)
+	ErrorNullSellerAttribute     = NewSellerErr("Invalid request body: received empty or null value", http.StatusUnprocessableEntity)
+	ErrorDefaultSellerSQL        = NewLocalityErr("SQL internal error", http.StatusInternalServerError)
 )

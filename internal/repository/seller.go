@@ -36,7 +36,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 
 	err = rows.Err()
 	if err != nil {
-		return
+		return sellers, er.ErrorDefaultSellerSQL
 	}
 
 	return
@@ -58,20 +58,7 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
 	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
 	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
-	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = er.ErrorCIDSellerAlreadyExist
-			case 1064:
-				err = er.ErrorInvalidSellerJSONFormat
-			case 1048:
-				err = er.ErrorNullSellerAttribute
-			}
-			return
-		}
-	}
+	rp.validateSQLError(err)
 
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -118,21 +105,7 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 	}
 
 	_, err = rp.db.Exec(query, args...)
-	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = er.ErrorCIDSellerAlreadyExist
-			case 1064:
-				err = er.ErrorInvalidSellerJSONFormat
-			case 1048:
-				err = er.ErrorNullSellerAttribute
-			}
-
-			return
-		}
-	}
+	rp.validateSQLError(err)
 	sl, _ = rp.GetById(int(id))
 
 	return
@@ -142,4 +115,23 @@ func (rp *SellersRepository) Delete(id int) error {
 	query := "DELETE FROM `sellers` WHERE `id` = ?"
 	_, err := rp.db.Exec(query, id)
 	return err
+}
+
+func (rp *SellersRepository) validateSQLError(err error) (e error) {
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				e = er.ErrorCIDSellerAlreadyExist
+			case 1064:
+				e = er.ErrorInvalidSellerJSONFormat
+			case 1048:
+				e = er.ErrorNullSellerAttribute
+			default:
+				e = er.ErrorDefaultSellerSQL
+			}
+		}
+	}
+	return e
 }

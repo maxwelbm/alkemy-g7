@@ -24,14 +24,12 @@ type LocalitiesController struct {
 func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	locality, err := hd.service.GetById(id)
-	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -40,14 +38,13 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 
 func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Request) {
 	var locality model.Locality
-	if err := request.JSON(r, &locality); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityJSONFormat.Error(), nil))
+	err := request.JSON(r, &locality)
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	createdLocality, err := hd.service.CreateLocality(&locality)
-	if err != nil {
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -59,32 +56,27 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
-		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
-			return
-		}
 		param := r.URL.Query().Get("id")
-		if param == "" {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+		if !existID || param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
 			return
 		}
+
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
 			if idParam == 0 {
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
 				return
 			}
-			id = idParam
-			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
+			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+			id = idParam
 		}
 	}
 
 	result, err := hd.service.GetSellers(id)
-	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -96,13 +88,9 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 
 	if len(r.URL.Query()) > 0 {
 		existID := r.URL.Query().Has("id")
-		if !existID {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
-			return
-		}
 		param := r.URL.Query().Get("id")
-		if param == "" {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+		if !existID || param == "" {
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
 			return
 		}
 
@@ -112,19 +100,29 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
 				return
 			}
-			id = idParam
-			if err != nil {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
+			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+			id = idParam
 		}
 	}
 
 	result, err := hd.service.GetCarriers(id)
-	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", result))
+}
+
+func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) bool {
+	if err != nil {
+		if err, ok := err.(*er.LocalityError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return true
+		}
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal server error", nil))
+		return true
+	}
+	return false
 }
