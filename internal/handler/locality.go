@@ -55,9 +55,8 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 	var id int = 0
 
 	if len(r.URL.Query()) > 0 {
-		existID := r.URL.Query().Has("id")
 		param := r.URL.Query().Get("id")
-		if !existID || param == "" {
+		if param == "" {
 			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
 			return
 		}
@@ -65,7 +64,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
 			if idParam == 0 {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 			if ok := hd.handlerError(err, w); ok {
@@ -87,9 +86,8 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 	var id int = 0
 
 	if len(r.URL.Query()) > 0 {
-		existID := r.URL.Query().Has("id")
 		param := r.URL.Query().Get("id")
-		if !existID || param == "" {
+		if param == "" {
 			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
 			return
 		}
@@ -97,7 +95,7 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
 			if idParam == 0 {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorLocalityNotFound.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 			if ok := hd.handlerError(err, w); ok {
@@ -121,7 +119,7 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-	
+
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrorInvalidLocalityJSONFormat.Error(), nil))
 		return true
 	}
