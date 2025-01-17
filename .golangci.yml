@@ -1,0 +1,21 @@
+# .golangci.yml
+
+# Disable all linters (you can leave this as is)
+disable-all: false
+
+# Enable specific linters
+enable:
+  - asasalint  # Ativa o asasalint
+  - asciicheck
+  - bidichk
+  - bodyclose
+  - canonicalheader
+  - staticcheck
+  # Outros linters que você deseja ativar
+
+# Disable specific linters
+disable:
+  - asciicheck  # Desabilita o asciicheck
+  - bidichk     # Desabilita o bidichk
+  - bodyclose   # Desabilita o bodyclose
+  # Outros linters que você deseja desabilitar
