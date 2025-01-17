@@ -9,6 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -73,4 +74,88 @@ func TestHandlerGetAllBuyers(t *testing.T) {
 		assert.JSONEq(t, expectedJson, response.Body.String())
 
 	})
+}
+
+func TestHandlerGetBuyerById(t *testing.T) {
+	t.Run("return buyer by id existing successfully", func(t *testing.T) {
+		hd := setup()
+
+		expectedBuyer := model.Buyer{Id: 2, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("GetBuyerByID", 2).Return(expectedBuyer, nil)
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/2", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerGetBuyerById(response, request)
+
+		expectedJson := `{
+    "data": 
+        {
+            "id": 2,
+            "card_number_id": "4321",
+            "first_name": "Ac",
+            "last_name": "Milan"
+        }
+}`
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Return buyer not Found", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("GetBuyerByID", 99).Return(model.Buyer{}, custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/99", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerGetBuyerById(response, request)
+
+		expectedJson := `{"message":"Buyer not found"}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Error return due to invalid ID", func(t *testing.T) {
+		hd := setup()
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/aaa", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerGetBuyerById(response, request)
+
+		expectedJson := `{"message":"Invalid ID"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+
+	})
+
+	t.Run("return an error when fetching buyer", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("GetBuyerByID", 2).Return(model.Buyer{}, errors.New("Unmapped error"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/2", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerGetBuyerById(response, request)
+
+		expectedJson := `{"message":"Unable to search for buyer"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
 }
