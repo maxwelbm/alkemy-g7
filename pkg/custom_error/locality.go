@@ -21,10 +21,10 @@ func (e *LocalityError) Error() string {
 }
 
 var (
-	ErrorLocalityNotFound          = NewLocalityErr("Locality not found", http.StatusNotFound)
-	ErrorMissingLocalityID         = NewLocalityErr("Missing 'id' parameter in the request", http.StatusBadRequest)
-	ErrorInvalidLocalityJSONFormat = NewLocalityErr("Invalid JSON format in the request body", http.StatusBadRequest)
-	ErrorInvalidLocalityPathParam  = NewLocalityErr("Invalid value for request path parameter", http.StatusUnprocessableEntity)
-	ErrorNullLocalityAttribute     = NewLocalityErr("Invalid request body: received empty or null value", http.StatusUnprocessableEntity)
-	ErrorDefaultLocalitySQL        = NewLocalityErr("SQL internal error", http.StatusInternalServerError)
+	ErrLocalityNotFound          = NewLocalityErr("locality not found", http.StatusNotFound)
+	ErrMissingLocalityID         = NewLocalityErr("missing 'id' parameter in the request", http.StatusBadRequest)
+	ErrInvalidLocalityJSONFormat = NewLocalityErr("invalid JSON format in the request body", http.StatusBadRequest)
+	ErrInvalidLocalityPathParam  = NewLocalityErr("invalid value for request path parameter", http.StatusUnprocessableEntity)
+	ErrNullLocalityAttribute     = NewLocalityErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
+	ErrDefaultLocalitySQL        = NewLocalityErr("sql internal error", http.StatusInternalServerError)
 )

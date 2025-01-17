@@ -57,14 +57,14 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
 		if param == "" {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrMissingLocalityID.Error(), nil))
 			return
 		}
 
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
 			if idParam == 0 {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 			if ok := hd.handlerError(err, w); ok {
@@ -88,14 +88,14 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
 		if param == "" {
-			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingLocalityID.Error(), nil))
+			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrMissingLocalityID.Error(), nil))
 			return
 		}
 
 		if param != "" {
 			idParam, err := strconv.Atoi(param)
 			if idParam == 0 {
-				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidLocalityPathParam.Error(), nil))
+				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
 			if ok := hd.handlerError(err, w); ok {
@@ -120,7 +120,7 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 			return true
 		}
 
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrorInvalidLocalityJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidLocalityJSONFormat.Error(), nil))
 		return true
 	}
 	return false

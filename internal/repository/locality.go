@@ -51,7 +51,7 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 	if errors.Is(err, sql.ErrNoRows) {
-		e := er.ErrorLocalityNotFound
+		e := er.ErrLocalityNotFound
 		return locality, e
 	}
 
@@ -131,7 +131,7 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		e := er.ErrorLocalityNotFound
+		e := er.ErrLocalityNotFound
 		return l, e
 	}
 	return
@@ -160,11 +160,11 @@ func (rp *LocalitiesRepository) validateSQLError(err error) (e error) {
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1064:
-				e = er.ErrorInvalidLocalityJSONFormat
+				e = er.ErrInvalidLocalityJSONFormat
 			case 1048:
-				e = er.ErrorNullLocalityAttribute
+				e = er.ErrNullLocalityAttribute
 			default:
-				e = er.ErrorDefaultLocalitySQL
+				e = er.ErrDefaultLocalitySQL
 			}
 		}
 	}

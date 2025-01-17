@@ -36,7 +36,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 
 	err = rows.Err()
 	if err != nil {
-		return sellers, er.ErrorDefaultSellerSQL
+		return sellers, er.ErrDefaultSellerSQL
 	}
 
 	return
@@ -49,7 +49,7 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = er.ErrorSellerNotFound
+		err = er.ErrSellerNotFound
 		return
 	}
 	return
@@ -118,6 +118,10 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 func (rp *SellersRepository) Delete(id int) error {
 	query := "DELETE FROM `sellers` WHERE `id` = ?"
 	_, err := rp.db.Exec(query, id)
+	err = rp.validateSQLError(err)
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -127,13 +131,15 @@ func (rp *SellersRepository) validateSQLError(err error) (e error) {
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				e = er.ErrorCIDSellerAlreadyExist
+				e = er.ErrCIDSellerAlreadyExist
 			case 1064:
-				e = er.ErrorInvalidSellerJSONFormat
+				e = er.ErrInvalidSellerJSONFormat
 			case 1048:
-				e = er.ErrorNullSellerAttribute
+				e = er.ErrNullSellerAttribute
+			case 1451:
+				e = er.ErrNotSellerDelete
 			default:
-				e = er.ErrorDefaultSellerSQL
+				e = er.ErrDefaultSellerSQL
 			}
 		}
 	}

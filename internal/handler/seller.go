@@ -139,7 +139,7 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			return true
 		}
 
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrorInvalidSellerJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
 		return true
 	}
 	return false

@@ -19,10 +19,11 @@ func (e *SellerError) Error() string {
 }
 
 var (
-	ErrorSellerNotFound          = NewSellerErr("Seller not found", http.StatusNotFound)
-	ErrorCIDSellerAlreadyExist   = NewSellerErr("Seller's CID already exists", http.StatusConflict)
-	ErrorMissingSellerID         = NewSellerErr("Missing 'id' parameter in the request", http.StatusBadRequest)
-	ErrorInvalidSellerJSONFormat = NewSellerErr("Invalid JSON format in the request body", http.StatusUnprocessableEntity)
-	ErrorNullSellerAttribute     = NewSellerErr("Invalid request body: received empty or null value", http.StatusUnprocessableEntity)
-	ErrorDefaultSellerSQL        = NewSellerErr("SQL internal error", http.StatusInternalServerError)
+	ErrSellerNotFound          = NewSellerErr("seller not found", http.StatusNotFound)
+	ErrCIDSellerAlreadyExist   = NewSellerErr("seller's CID already exists", http.StatusConflict)
+	ErrMissingSellerID         = NewSellerErr("missing 'id' parameter in the request", http.StatusBadRequest)
+	ErrInvalidSellerJSONFormat = NewSellerErr("invalid JSON format in the request body", http.StatusUnprocessableEntity)
+	ErrNullSellerAttribute     = NewSellerErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
+	ErrNotSellerDelete         = NewSellerErr("cannot delete seller, it is necessary to delete locality first.", http.StatusBadRequest)
+	ErrDefaultSellerSQL        = NewSellerErr("sql internal error", http.StatusInternalServerError)
 )
