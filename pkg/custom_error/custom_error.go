@@ -16,13 +16,12 @@ func (c CustomError) Error() string {
 }
 
 var (
-	NotFound             = errors.New("Not found")
-	Conflict             = errors.New("It already exists")
-	EmptyFields          = errors.New("No fields filled")
-	InvalidErr           = errors.New("Invalid object")
-	DependenciesErr      = errors.New("Cannot be deleted because there are dependencies")
-	NotFoundErrorSection = errors.New("there's no section with this id")
-	ConflictErrorSection = errors.New("section with this id already exists")
-  UnknowErr = errors.New("Unknow server error")
-
+	ErrNotFound             = errors.New("not found")
+	ErrConflict             = errors.New("it already exists")
+	ErrEmptyFields          = errors.New("no fields filled")
+	ErrInvalid              = errors.New("invalid object")
+	ErrDependencies         = errors.New("cannot be deleted because there are dependencies")
+	ErrNotFoundErrorSection = errors.New("there's no section with this id")
+	ErrConflictSection      = errors.New("section with this id already exists")
+	ErrUnknow               = errors.New("unknow server error")
 )

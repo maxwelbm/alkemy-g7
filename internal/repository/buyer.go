@@ -19,7 +19,7 @@ func (r *BuyerRepository) Delete(id int) (err error) {
 	if err != nil {
 
 		if err.(*mysql.MySQLError).Number == 1451 {
-			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.DependenciesErr.Error(), "Buyer")
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrDependencies.Error(), "Buyer")
 		}
 		return
 	}
@@ -56,7 +56,7 @@ func (r *BuyerRepository) GetById(id int) (buyer model.Buyer, err error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
 		}
 		return
 	}
@@ -76,7 +76,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.Conflict.Error(), "card_number_id")
+			err = custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
 		}
 		return
 	}
@@ -99,7 +99,7 @@ func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.Conflict.Error(), "card_number_id")
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrConflict.Error(), "card_number_id")
 		}
 		return
 	}
@@ -113,7 +113,7 @@ func (r *BuyerRepository) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchas
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.NotFound.Error(), "Buyer")
+			err = custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
 		}
 		return
 	}

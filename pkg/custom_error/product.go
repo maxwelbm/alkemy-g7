@@ -13,13 +13,12 @@ type GenericError struct {
 }
 
 const (
-    ErrNotFound = 1
-    ErrConflict = 2
-    ErrInvalid  = 3
-    ErrDep      = 4
-    ErrUnknown  = 5
+	ErrorNotFound = 1
+	ErrorConflict = 2
+	ErrorInvalid  = 3
+	ErrorDep      = 4
+	ErrorUnknown  = 5
 )
-
 
 func (b *GenericError) Error() string {
 	return fmt.Sprintf("%s %s", b.Entity, b.Message)
@@ -35,15 +34,15 @@ func NewError(code int, message string, entity string, detail string) error {
 
 func HandleError(entityName string, errorCode int, validationErrors string) error {
 	switch errorCode {
-	case ErrNotFound:
-		return NewError(http.StatusNotFound, NotFound.Error(), entityName, "")
-	case ErrConflict:
-		return NewError(http.StatusConflict, Conflict.Error(), entityName, "")
-	case ErrInvalid:
+	case ErrorNotFound:
+		return NewError(http.StatusNotFound, ErrNotFound.Error(), entityName, "")
+	case ErrorConflict:
+		return NewError(http.StatusConflict, ErrConflict.Error(), entityName, "")
+	case ErrorInvalid:
 		return NewError(http.StatusUnprocessableEntity, "had errors: "+validationErrors, entityName, "")
-	case ErrDep:
-		return NewError(http.StatusConflict, DependenciesErr.Error(), entityName, "")
+	case ErrorDep:
+		return NewError(http.StatusConflict, ErrDependencies.Error(), entityName, "")
 	default:
-		return NewError(http.StatusInternalServerError, UnknowErr.Error(), entityName, "")
+		return NewError(http.StatusInternalServerError, ErrUnknow.Error(), entityName, "")
 	}
 }

@@ -208,10 +208,10 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 }
 
 func handleError(err error) int {
-	if errors.Is(err, custom_error.NotFoundErrorSection) {
+	if errors.Is(err, custom_error.ErrNotFoundErrorSection) {
 		return http.StatusNotFound
 	}
-	if errors.Is(err, custom_error.ConflictErrorSection) {
+	if errors.Is(err, custom_error.ErrConflictSection) {
 		return http.StatusConflict
 	}
 

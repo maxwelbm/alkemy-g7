@@ -48,7 +48,7 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	err = row.Scan(&w.Id, &w.WareHouseCode, &w.Address, &w.Telephone, &w.MinimunCapacity, &w.MinimunTemperature)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewWareHouseError(custom_error.NotFound.Error(), "warehouse", http.StatusNotFound)
+			err = custom_error.NewWareHouseError(custom_error.ErrNotFound.Error(), "warehouse", http.StatusNotFound)
 		}
 		return
 	}
@@ -67,7 +67,7 @@ func (r *WarehouseMysql) PostWareHouse(warehouse *model.WareHouse) (id int64, er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = custom_error.NewWareHouseError(custom_error.Conflict.Error(), "warehouse_code", http.StatusConflict)
+				err = custom_error.NewWareHouseError(custom_error.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
 			default:
 				// ...
 			}
@@ -96,7 +96,7 @@ func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse *model.WareHouse) (er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = custom_error.NewWareHouseError(custom_error.Conflict.Error(), "warehouse_code", http.StatusConflict)
+				err = custom_error.NewWareHouseError(custom_error.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
 			default:
 				// ...
 			}

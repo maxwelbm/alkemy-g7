@@ -34,7 +34,7 @@ func (prh *ProductRecHandler) CreateProductRecServ(w http.ResponseWriter, r *htt
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(appErr.UnknowErr.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(appErr.ErrUnknow.Error(), nil))
 		return
 	}
 

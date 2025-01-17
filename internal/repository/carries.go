@@ -24,7 +24,7 @@ func (r *Carriers) GetById(id int) (carrier model.Carries, err error) {
 	err = row.Scan(&carrier.Id, &carrier.CID, &carrier.CompanyName, &carrier.Address, &carrier.Telephone, &carrier.LocalityId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewCarrierError(custom_error.NotFound.Error(), "carrier", http.StatusNotFound)
+			err = custom_error.NewCarrierError(custom_error.ErrNotFound.Error(), "carrier", http.StatusNotFound)
 		}
 		return
 	}
@@ -44,7 +44,7 @@ func (r *Carriers) PostCarrier(carrier model.Carries) (id int64, err error) {
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = custom_error.NewCarrierError(custom_error.Conflict.Error(), "cid", http.StatusConflict)
+				err = custom_error.NewCarrierError(custom_error.ErrConflict.Error(), "cid", http.StatusConflict)
 			default:
 				// ...
 			}

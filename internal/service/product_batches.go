@@ -24,7 +24,7 @@ func (s *ProductBatchesService) GetById(id int) (prodBatches model.ProductBatche
 
 func (s *ProductBatchesService) Post(prodBatches *model.ProductBatches) (newProdBatches model.ProductBatches, err error) {
 	if err = prodBatches.Validate(); err != nil {
-		return model.ProductBatches{}, custom_error.HandleError("product batches", custom_error.ErrInvalid, err.Error())
+		return model.ProductBatches{}, custom_error.HandleError("product batches", custom_error.ErrorInvalid, err.Error())
 	}
 	_, err = s.svcProd.GetProductById(prodBatches.ProductID)
 	if err != nil {

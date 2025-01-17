@@ -156,7 +156,7 @@ func (Db *Db) Close() error {
 func GetDbConfig() (*mysql.Config, error) {
 	err := godotenv.Load()
 	if err != nil {
-		return nil, errors.New("Error loading environment variables")
+		return nil, errors.New("error loading environment variables")
 	}
 
 	dbHost := os.Getenv("DB_HOST")
@@ -168,7 +168,7 @@ func GetDbConfig() (*mysql.Config, error) {
 
 	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbNet == "" {
 
-		return nil, errors.New("Missing required environment configuration for the database")
+		return nil, errors.New("missing required environment configuration for the database")
 	}
 
 	return &mysql.Config{
