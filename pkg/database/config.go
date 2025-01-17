@@ -168,7 +168,7 @@ func GetDbConfig() (*mysql.Config, error) {
 
 	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbNet == "" {
 
-		return nil, errors.New("missing required environment configuration for the database")
+		return nil, errors.New("m``issing required environment configuration for the database")
 	}
 
 	return &mysql.Config{
