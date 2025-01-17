@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -152,6 +153,141 @@ func TestHandlerGetBuyerById(t *testing.T) {
 		hd.HandlerGetBuyerById(response, request)
 
 		expectedJson := `{"message":"Unable to search for buyer"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
+}
+
+func TestHandlerCreateBuyer(t *testing.T) {
+	t.Run("Buyer created successfully", func(t *testing.T) {
+		hd := setup()
+
+		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}).
+			Return(createdBuyer, nil)
+
+		body := []byte(`{           
+           
+            "card_number_id": "4321",
+            "first_name": "Ac",
+            "last_name": "Milan"
+}`)
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/buyers", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		hd.HandlerCreateBuyer(response, request)
+
+		expectedJson := `{
+    "data": 
+        {
+            "id": 1,
+            "card_number_id": "4321",
+            "first_name": "Ac",
+            "last_name": "Milan"
+        }
+}`
+
+		assert.Equal(t, http.StatusCreated, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Buyer does not have the required fields", func(t *testing.T) {
+		hd := setup()
+		body := []byte(`{           
+           
+		"card_number_id": "",
+		"first_name": "",
+		"last_name": ""
+}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/buyers", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		hd.HandlerCreateBuyer(response, request)
+
+		expectedJson := `{
+    "message": "field(s) card_number_id, first_name, last_name cannot be empty"
+}`
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("Return error card_number already exists", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}).
+			Return(model.Buyer{}, custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id"))
+
+		body := []byte(`{           
+           
+            "card_number_id": "4321",
+            "first_name": "Ac",
+            "last_name": "Milan"
+}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/buyers", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		hd.HandlerCreateBuyer(response, request)
+
+		expectedJson := `{
+     "message": "card_number_id it already exists"
+}`
+
+		assert.Equal(t, http.StatusConflict, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Return error Json Syntax", func(t *testing.T) {
+		hd := setup()
+		body := []byte(`{           
+		"last_name": "",
+		FieldInexistingInBuyer
+}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/buyers", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		hd.HandlerCreateBuyer(response, request)
+
+		expectedJson := `{
+    "message": "JSON syntax error. Please verify your input."
+}`
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("return an error when created buyer", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}).Return(model.Buyer{}, errors.New("Unmapped error"))
+
+		body := []byte(`{           
+           
+		"card_number_id": "4321",
+		"first_name": "Ac",
+		"last_name": "Milan"
+}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/buyers", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		hd.HandlerCreateBuyer(response, request)
+
+		expectedJson := `{"message":"Unable to create buyer"}`
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.JSONEq(t, expectedJson, response.Body.String())
