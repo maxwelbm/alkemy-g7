@@ -34,7 +34,9 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 }
 
 func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
+
+	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
@@ -50,7 +52,7 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to search for buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to search for buyer", nil))
 		return
 	}
 
