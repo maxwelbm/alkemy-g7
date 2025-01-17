@@ -21,7 +21,12 @@ func (b *MockBuyerService) CountPurchaseOrderByBuyerID(id int) (countBuyerPurcha
 
 // CreateBuyer implements interfaces.IBuyerservice.
 func (b *MockBuyerService) CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, err error) {
-	panic("unimplemented")
+	args := b.Called(newBuyer)
+
+	buyer = args.Get(0).(model.Buyer)
+	err = args.Error(1)
+
+	return
 }
 
 // DeleteBuyerByID implements interfaces.IBuyerservice.
