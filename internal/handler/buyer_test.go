@@ -20,63 +20,6 @@ func setup() *handler.BuyerHandler {
 	return hd
 }
 
-func TestHandlerGetAllBuyers(t *testing.T) {
-	t.Run("return a list of all existing buyers successfully", func(t *testing.T) {
-		hd := setup()
-
-		expectedBuyers := []model.Buyer{{Id: 1, FirstName: "John", LastName: "Doe", CardNumberId: "1234"},
-			{Id: 2, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}}
-
-		mockSvc := hd.Svc.(*service.MockBuyerService)
-		mockSvc.On("GetAllBuyer").Return(expectedBuyers, nil)
-
-		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
-		response := httptest.NewRecorder()
-
-		hd.HandlerGetAllBuyers(response, request)
-
-		expectedJSON := `{
-    "data": [
-        {
-            "id": 1,
-            "card_number_id": "1234",
-            "first_name": "John",
-            "last_name": "Doe"
-        },
-        {
-            "id": 2,
-            "card_number_id": "4321",
-            "first_name": "Ac",
-            "last_name": "Milan"
-        }
-    ]
-}`
-
-		assert.Equal(t, http.StatusOK, response.Code)
-		assert.JSONEq(t, expectedJSON, response.Body.String())
-		mockSvc.AssertExpectations(t)
-
-	})
-
-	t.Run("return an error when fetching buyers", func(t *testing.T) {
-		hd := setup()
-
-		mockSvc := hd.Svc.(*service.MockBuyerService)
-		mockSvc.On("GetAllBuyer").Return([]model.Buyer{}, errors.New("Unmapped error"))
-
-		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
-		response := httptest.NewRecorder()
-
-		hd.HandlerGetAllBuyers(response, request)
-
-		expectedJson := `{"message":"Unable to list Buyers"}`
-
-		assert.Equal(t, http.StatusInternalServerError, response.Code)
-		assert.JSONEq(t, expectedJson, response.Body.String())
-
-	})
-}
-
 func TestHandlerGetBuyerById(t *testing.T) {
 	t.Run("return buyer by id existing successfully", func(t *testing.T) {
 		hd := setup()
@@ -467,4 +410,154 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 
 	})
 
+}
+
+func TestHandlerDeleteBuyerById(t *testing.T) {
+	t.Run("Deleted Buyer successfly", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("DeleteBuyerByID", 1).Return(nil)
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerDeleteBuyerById(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Buyer not Found", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("DeleteBuyerByID", 99).Return(custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer"))
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/99", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerDeleteBuyerById(response, request)
+
+		expectedJson := `{"message":"Buyer not found"}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("There are dependencies with the buyer", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("DeleteBuyerByID", 1).Return(custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrDependencies.Error(), "Buyer"))
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerDeleteBuyerById(response, request)
+
+		expectedJson := `{"message":"Buyer cannot be deleted because there are dependencies"}`
+
+		assert.Equal(t, http.StatusConflict, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("Invalid ID parameter", func(t *testing.T) {
+		hd := setup()
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/aaaa", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerDeleteBuyerById(response, request)
+
+		expectedJson := `{"message":"Invalid ID"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+
+	})
+
+	t.Run("return an error when deleted buyer", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("DeleteBuyerByID", 1).Return(errors.New("Unmapped error"))
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerDeleteBuyerById(response, request)
+
+		expectedJson := `{"message":"Unable to delete buyer"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+}
+
+func TestHandlerGetBuyers(t *testing.T) {
+
+	t.Run("return a list of all existing buyers successfully", func(t *testing.T) {
+
+		hd := setup()
+
+		expectedBuyers := []model.Buyer{{Id: 1, FirstName: "John", LastName: "Doe", CardNumberId: "1234"},
+			{Id: 2, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}}
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
+		response := httptest.NewRecorder()
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("GetAllBuyer").Return(expectedBuyers, nil)
+
+		hd.HandlerGetAllBuyers(response, request)
+
+		expectedJSON := `{
+    "data": [
+        {
+            "id": 1,
+            "card_number_id": "1234",
+            "first_name": "John",
+            "last_name": "Doe"
+        },
+        {
+            "id": 2,
+            "card_number_id": "4321",
+            "first_name": "Ac",
+            "last_name": "Milan"
+        }
+    ]
+}`
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedJSON, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
+
+	t.Run("return an error when fetching buyers", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("GetAllBuyer").Return([]model.Buyer{}, errors.New("Unmapped error"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerGetAllBuyers(response, request)
+
+		expectedJson := `{"message":"Unable to list Buyers"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+
+	})
 }
