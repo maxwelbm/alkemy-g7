@@ -45,7 +45,12 @@ func (b *MockBuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
 
 // UpdateBuyer implements interfaces.IBuyerservice.
 func (b *MockBuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.Buyer, err error) {
-	panic("unimplemented")
+	args := b.Called(id, newBuyer)
+
+	buyer = args.Get(0).(model.Buyer)
+	err = args.Error(1)
+
+	return
 }
 
 func (b *MockBuyerService) GetAllBuyer() (buyers []model.Buyer, err error) {
