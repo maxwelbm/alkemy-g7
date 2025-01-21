@@ -2,6 +2,7 @@
 .PHONY tests:
 tests:
 	go test -v ./...
+	
 # This command will generate a coverage report for the project
 .PHONY: coverage
 coverage:
