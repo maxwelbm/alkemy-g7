@@ -11,7 +11,7 @@ jobs:
   #   if: github.event_name == 'pull_request'
   #   timeout-minutes: 3
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v5
   #       with:
   #         fetch-depth: 1
   #     - name: Setup Go
@@ -28,12 +28,16 @@ jobs:
     # needs: lint
     steps:
       - name: Checar código do repositório
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Configurar Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: '1.23.3'
 
-      - name: Executar Testes
-        run: go test ./... 
+      - name: Executar Testes com coverage
+        run: go test -cover -coverprofile=coverage.out ./...
+
+      - name: Verificar cobertura total do projeto
+        run: go tool cover -func="coverage.out"
+
