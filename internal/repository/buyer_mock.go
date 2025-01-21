@@ -21,7 +21,11 @@ func (m *MockBuyerRepo) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseO
 
 // Delete implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Delete(id int) (err error) {
-	panic("unimplemented")
+	args := m.Called(id)
+
+	err = args.Error(0)
+
+	return
 }
 
 // Get implements interfaces.IBuyerRepo.
