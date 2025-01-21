@@ -15,7 +15,7 @@ func (m *MockBuyerRepo) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []mo
 }
 
 // CountPurchaseOrderByBuyerId implements interfaces.IBuyerRepo.
-func (m *MockBuyerRepo) CountPurchaseOrderByBuyerId(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
+func (m *MockBuyerRepo) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
 	panic("unimplemented")
 }
 
@@ -40,7 +40,7 @@ func (m *MockBuyerRepo) Get() (buyers []model.Buyer, err error) {
 }
 
 // GetById implements interfaces.IBuyerRepo.
-func (m *MockBuyerRepo) GetById(id int) (buyer model.Buyer, err error) {
+func (m *MockBuyerRepo) GetByID(id int) (buyer model.Buyer, err error) {
 	args := m.Called(id)
 
 	buyer = args.Get(0).(model.Buyer)

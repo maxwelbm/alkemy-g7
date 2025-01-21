@@ -21,7 +21,6 @@ func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 }
 
 func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Request) {
-
 	buyers, err := bh.Svc.GetAllBuyer()
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to list Buyers", nil))
@@ -29,10 +28,9 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyers))
-
 }
 
-func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Request) {
+func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 
 	id, err := strconv.Atoi(idStr)
@@ -45,22 +43,20 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 	buyer, err := bh.Svc.GetBuyerByID(id)
 
 	if err != nil {
-
 		if err, ok := err.(*custom_error.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to search for buyer", nil))
+
 		return
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
-
 }
 
-func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Request) {
-
+func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
 
@@ -72,18 +68,17 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 	err = bh.Svc.DeleteBuyerByID(id)
 
 	if err != nil {
-
 		if err, ok := err.(*custom_error.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to delete buyer", nil))
+
 		return
 	}
 
 	response.JSON(w, http.StatusNoContent, nil)
-
 }
 
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
@@ -115,16 +110,14 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create buyer", nil))
-		return
 
+		return
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
-
 }
 
 func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Request) {
-
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
 
@@ -155,19 +148,17 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.Svc.UpdateBuyer(id, reqBody)
 
 	if err != nil {
-
 		if err, ok := err.(*custom_error.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
-		return
 
+		return
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
-
 }
 
 func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r *http.Request) {
@@ -182,10 +173,12 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
+
 			return
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+
 		return
 	}
 
@@ -199,12 +192,14 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 	if err != nil {
 		if err, ok := err.(*custom_error.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
+
 		return
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
-
 }
