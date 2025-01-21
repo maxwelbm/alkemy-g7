@@ -23,7 +23,8 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
           
       - name: Executar Linter
-        run: golangci-lint run --new-from-rev origin/main
+        run:   git fetch origin main
+          golangci-lint run --new-from-rev origin/main
 
   test:
     runs-on: ubuntu-latest
