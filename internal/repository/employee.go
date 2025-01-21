@@ -145,15 +145,3 @@ func (e *EmployeeRepository) GetInboundOrdersReports() ([]model.InboundOrdersRep
 
 	return inboundReports, nil
 }
-
-func (e *EmployeeRepository) getEmployeeByCardNumber(cardNumberId string) (model.Employee, error) {
-	var employee model.Employee
-	row := e.db.QueryRow("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE card_number_id = ?", cardNumberId)
-	err := row.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
-	if err == sql.ErrNoRows {
-		return model.Employee{}, custom_error.NotFound
-	} else if err != nil {
-		return model.Employee{}, err
-	}
-	return employee, nil
-}

@@ -25,7 +25,7 @@ func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.NewPurcahseOrderError(http.StatusConflict, custom_error.Conflict.Error(), "order_number")
+			err = custom_error.NewPurcahseOrderError(http.StatusConflict, custom_error.ErrConflict.Error(), "order_number")
 		}
 		return
 	}
@@ -43,7 +43,7 @@ func (p *PurchaseOrderRepository) GetById(id int) (purchaseOrder model.PurchaseO
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewPurcahseOrderError(http.StatusNotFound, custom_error.NotFound.Error(), "Purchase Order")
+			err = custom_error.NewPurcahseOrderError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Purchase Order")
 		}
 		return
 	}

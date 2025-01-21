@@ -23,7 +23,7 @@ func (r *ProductBatchesRepository) GetById(id int) (prodBatches model.ProductBat
 	err = row.Scan(&prodBatches.ID, &prodBatches.BatchNumber, &prodBatches.CurrentQuantity, &prodBatches.CurrentTemperature, &prodBatches.MinimumTemperature, &prodBatches.DueDate, &prodBatches.InitialQuantity, &prodBatches.ManufacturingDate, &prodBatches.ManufacturingHour, &prodBatches.ProductID, &prodBatches.SectionID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.HandleError("product batches", custom_error.ErrNotFound, "")
+			err = custom_error.HandleError("product batches", custom_error.ErrorNotFound, "")
 		}
 		return
 	}
@@ -37,7 +37,7 @@ func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newP
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.HandleError("product batches:", custom_error.ErrConflict, "")
+			err = custom_error.HandleError("product batches:", custom_error.ErrorConflict, "")
 		}
 		return
 	}

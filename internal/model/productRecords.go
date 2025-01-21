@@ -24,12 +24,12 @@ func (p *ProductRecords) Validate() error {
 	var errors []string
 	if p.PurchasePrice == 0.0 || p.PurchasePrice < 0.0 {
 		errors = append(errors, "Purchase price is invalid")
-	} 
+	}
 	if p.SalePrice == 0.0 || p.SalePrice < 0.0 {
 		errors = append(errors, "Sale Price is invalid")
 	}
 	if len(errors) > 0 {
-		return fmt.Errorf(strings.Join(errors, "; "))
+		return fmt.Errorf("%s", strings.Join(errors, "; "))
 	}
 	return nil
 }

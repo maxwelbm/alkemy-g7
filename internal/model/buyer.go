@@ -34,11 +34,11 @@ func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	}
 
 	if !isPatch && len(fieldsEmpty) > 0 {
-		return fmt.Errorf("Field(s) %s cannot be empty", strings.Join(fieldsEmpty, ", "))
+		return fmt.Errorf("field(s) %s cannot be empty", strings.Join(fieldsEmpty, ", "))
 	}
 
 	if isPatch && len(fieldsEmpty) == 3 {
-		return fmt.Errorf("At least one field must be filled in")
+		return fmt.Errorf("at least one field must be filled in")
 	}
 
 	return nil

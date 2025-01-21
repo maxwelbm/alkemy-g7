@@ -49,7 +49,7 @@ func (pr *ProductRepository) GetById(id int) (model.Product, error) {
 	err := row.Scan(&product.ID, &product.ProductCode, &product.Description, &product.Width, &product.Height, &product.Length, &product.NetWeight, &product.ExpirationRate, &product.RecommendedFreezingTemperature, &product.FreezingRate, &product.ProductTypeID, &product.SellerID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return product, appErr.HandleError("product", appErr.ErrNotFound, "")
+			return product, appErr.HandleError("product", appErr.ErrorNotFound, "")
 		}
 		return product, err
 	}
@@ -87,7 +87,7 @@ func (pr *ProductRepository) Update(id int, product model.Product) (model.Produc
 func (pr *ProductRepository) Delete(id int) error {
 	_, err := pr.DB.Exec("DELETE FROM products WHERE id = ?", id)
 	if err != nil {
-		return appErr.HandleError("product", appErr.ErrDep, "product record")
+		return appErr.HandleError("product", appErr.ErrorDep, "product record")
 	}
 
 	return nil

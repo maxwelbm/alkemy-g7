@@ -2,6 +2,7 @@ package service
 
 import (
 	"reflect"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
@@ -56,7 +57,7 @@ func (ps *ProductService) CreateProduct(product model.Product) (model.Product, e
 	existsByCode := existsByProductCode(product.ProductCode, productsList)
 
 	if existsByCode {
-		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.Conflict}
+		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.ErrConflict}
 	}
 
 	productDb, err := ps.ProductRepository.Create(product)
@@ -77,7 +78,7 @@ func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Pr
 
 	listOfProducts, _ := ps.ProductRepository.GetAll()
 	if existsByProductCode(product.ProductCode, listOfProducts) {
-		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.Conflict}
+		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.ErrConflict}
 	}
 
 	productInDb, err := ps.ProductRepository.GetById(id)
@@ -95,7 +96,7 @@ func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Pr
 func (ps *ProductService) DeleteProduct(id int) error {
 	_, err := ps.ProductRepository.GetById(id)
 	if err != nil {
-		return custom_error.HandleError("product", custom_error.ErrNotFound, "")
+		return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
 	}
 
 	err = ps.ProductRepository.Delete(id)

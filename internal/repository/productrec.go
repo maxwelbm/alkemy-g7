@@ -54,7 +54,7 @@ func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
 		&productRecord.ProductId, &productRecord.PurchasePrice, &productRecord.SalePrice)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrNotFound, "")
+			return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorNotFound, "")
 		}
 		return model.ProductRecords{}, err
 	}

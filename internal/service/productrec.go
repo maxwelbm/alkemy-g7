@@ -2,6 +2,7 @@ package service
 
 import (
 	"time"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	repo "github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	serv "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
@@ -22,7 +23,7 @@ func NewProductRecService(productRecRepo repo.IProductRecRepository, productServ
 
 func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (model.ProductRecords, error) {
 	if err := pr.Validate(); err != nil {
-		return model.ProductRecords{},  appErr.HandleError("product record", appErr.ErrInvalid, err.Error())
+		return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorInvalid, err.Error())
 	}
 
 	if _, err := prs.ProductSv.GetProductById(pr.ProductId); err != nil {
@@ -49,25 +50,25 @@ func (prs *ProductRecService) GetProductRecordById(id int) (model.ProductRecords
 }
 
 func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.ProductRecordsReport, error) {
-    allReports, err := prs.ProductRecRepository.GetAllReport()
+	allReports, err := prs.ProductRecRepository.GetAllReport()
 	var filteredReports []model.ProductRecordsReport
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    if idProduct == 0 {
-        return allReports, nil
-    }
+	if idProduct == 0 {
+		return allReports, nil
+	}
 
 	if _, err := prs.ProductSv.GetProductById(idProduct); err != nil {
 		return filteredReports, err
 	}
-    
-    for _, report := range allReports {
-        if report.ProductId == idProduct {
-            filteredReports = append(filteredReports, report)
-        }
-    }
 
-    return filteredReports, nil
+	for _, report := range allReports {
+		if report.ProductId == idProduct {
+			filteredReports = append(filteredReports, report)
+		}
+	}
+
+	return filteredReports, nil
 }
