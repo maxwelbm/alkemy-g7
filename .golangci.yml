@@ -1,4 +1,5 @@
 # .golangci.yml
+
 # Disable all linters (you can leave this as is)
 disable-all: false
 # Enable specific linters
