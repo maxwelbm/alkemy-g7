@@ -240,3 +240,68 @@ func TestUpdateBuyer(t *testing.T) {
 	})
 
 }
+
+func TestDeleteBuyerByID(t *testing.T) {
+	t.Run("Delete buyer successfuly", func(t *testing.T) {
+		svc := setup()
+
+		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+
+		mockRepo.On("Delete", 1).Return(nil)
+
+		err := svc.DeleteBuyerByID(1)
+
+		assert.NoError(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Buyer Not Found", func(t *testing.T) {
+		svc := setup()
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+
+		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		mockRepo.On("GetById", 99).Return(model.Buyer{}, expectedError)
+
+		err := svc.DeleteBuyerByID(99)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("There are dependencies with the buyer", func(t *testing.T) {
+		svc := setup()
+
+		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+
+		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrDependencies.Error(), "Buyer")
+		mockRepo.On("Delete", 1).Return(expectedError)
+
+		err := svc.DeleteBuyerByID(1)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("return an error when deleting buyer", func(t *testing.T) {
+		svc := setup()
+
+		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+
+		mockRepo.On("Delete", 1).Return(errors.New("unmapped Error"))
+
+		err := svc.DeleteBuyerByID(1)
+
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+}
