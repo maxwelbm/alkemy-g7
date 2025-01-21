@@ -1,24 +1,29 @@
 package custom_error
 
-import (
-	"errors"
-	"fmt"
-)
+import "net/http"
 
 type SellerError struct {
-	Object     any
-	Err        error
-	StatusCode int
+	Message string
+	Code    int
 }
 
-func (s SellerError) Error() string {
-	return fmt.Sprintf("error: %v, message: %v", s.Object, s.Err.Error())
+func NewSellerErr(message string, statusCode int) *SellerError {
+	return &SellerError{
+		Message: message,
+		Code:    statusCode,
+	}
+}
+
+func (e *SellerError) Error() string {
+	return e.Message
 }
 
 var (
-	ErrorSellerNotFound          error = errors.New("seller not found in the database")
-	ErrorCIDSellerAlreadyExist   error = errors.New("seller's CID already exists")
-	ErrorMissingSellerID         error = errors.New("missing 'id' parameter in the request")
-	ErrorInvalidSellerJSONFormat error = errors.New("invalid JSON format in the request body")
-	ErrorNullSellerAttribute     error = errors.New("invalid request body: received empty or null value")
+	ErrSellerNotFound          = NewSellerErr("seller not found", http.StatusNotFound)
+	ErrCIDSellerAlreadyExist   = NewSellerErr("seller's CID already exists", http.StatusConflict)
+	ErrMissingSellerID         = NewSellerErr("missing 'id' parameter in the request", http.StatusBadRequest)
+	ErrInvalidSellerJSONFormat = NewSellerErr("invalid JSON format in the request body", http.StatusUnprocessableEntity)
+	ErrNullSellerAttribute     = NewSellerErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
+	ErrNotSellerDelete         = NewSellerErr("cannot delete seller, it is necessary to delete locality first.", http.StatusBadRequest)
+	ErrDefaultSellerSQL        = NewSellerErr("sql internal error", http.StatusInternalServerError)
 )

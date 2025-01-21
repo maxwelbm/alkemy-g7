@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -33,8 +32,7 @@ type SellersController struct {
 
 func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
 	sellers, err := hd.service.GetAll()
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -55,14 +53,12 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	seller, err := hd.service.GetById(id)
-	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -71,23 +67,14 @@ func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
 	var seller model.Seller
-	if err := request.JSON(r, &seller); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidSellerJSONFormat.Error(), nil))
+	err := request.JSON(r, &seller)
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	createdseller, err := hd.service.CreateSeller(&seller)
-	if err != nil {
-		if ok := errors.Is(err, er.ErrorCIDSellerAlreadyExist); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		} else if ok := errors.Is(err, er.ErrorLocalityNotFound); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		} else {
-			response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
+	if ok := hd.handlerError(err, w); ok {
+		return
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdseller))
@@ -97,49 +84,63 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
+		return
+	}
+
+	_, err = hd.service.GetById(id)
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	var s model.Seller
-	if err := request.JSON(r, &s); err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorInvalidSellerJSONFormat.Error(), nil))
+	err = request.JSON(r, &s)
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	seller, err := hd.service.UpdateSeller(id, &s)
-
-	if err != nil {
-		if ok := errors.Is(err, er.ErrorCIDSellerAlreadyExist); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		} else if ok := errors.Is(err, er.ErrorLocalityNotFound); ok {
-			response.JSON(w, http.StatusConflict, responses.CreateResponseBody(err.Error(), nil))
-			return
-		} else {
-			response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
-	} else {
-		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
+	if ok := hd.handlerError(err, w); ok {
+		return
 	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
 
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrorMissingSellerID.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
+		return
+	}
+
+	_, err = hd.service.GetById(id)
+	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	err = hd.service.DeleteSeller(id)
-
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(err.Error(), nil))
+	if ok := hd.handlerError(err, w); ok {
 		return
-	} else {
-		response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", nil))
 	}
+
+	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", nil))
+}
+
+func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool {
+	if err != nil {
+		if err, ok := err.(*er.SellerError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return true
+		}
+
+		if err, ok := err.(*er.LocalityError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return true
+		}
+
+		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
+		return true
+	}
+	return false
 }

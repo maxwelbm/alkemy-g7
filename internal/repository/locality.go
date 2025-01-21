@@ -51,7 +51,8 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 	if errors.Is(err, sql.ErrNoRows) {
-		return locality, er.HandleError("locality", er.ErrorNotFound, "")
+		e := er.ErrLocalityNotFound
+		return locality, e
 	}
 
 	locality = append(locality, c)
@@ -91,8 +92,8 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 
 	var l model.LocalitiesJSONSellers
 	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
-	if errors.Is(err, sql.ErrNoRows) {
-		return locality, er.HandleError("locality", er.ErrorNotFound, "")
+	if err != nil {
+		return
 	}
 
 	locality = append(locality, l)
@@ -130,7 +131,8 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 	err = row.Scan(&l.ID, &l.Locality, &l.Province, &l.Country)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return l, er.HandleError("locality", er.ErrorNotFound, "")
+		e := er.ErrLocalityNotFound
+		return l, e
 	}
 	return
 }
@@ -138,17 +140,9 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l model.Locality, err error) {
 	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?, ?)"
 	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
+	err = rp.validateSQLError(err)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1064:
-				err = er.ErrorInvalidLocalityJSONFormat
-			case 1048:
-				err = er.ErrorNullLocalityAttribute
-			}
-			return
-		}
+		return
 	}
 
 	id, err := result.LastInsertId()
@@ -158,4 +152,21 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 	l, _ = rp.GetById(int(id))
 
 	return
+}
+
+func (rp *LocalitiesRepository) validateSQLError(err error) (e error) {
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1064:
+				e = er.ErrInvalidLocalityJSONFormat
+			case 1048:
+				e = er.ErrNullLocalityAttribute
+			default:
+				e = er.ErrDefaultLocalitySQL
+			}
+		}
+	}
+	return e
 }

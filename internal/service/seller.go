@@ -26,14 +26,15 @@ func (s *SellersService) GetById(id int) (seller model.Seller, err error) {
 }
 
 func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, err error) {
+	if err := seller.ValidateEmptyFields(seller); err != nil {
+		return sl, err
+	}
+
 	_, err = s.rpl.GetById(seller.Locality)
 	if err != nil {
 		return
 	}
 
-	if err := seller.ValidateEmptyFields(seller); err != nil {
-		return sl, err
-	}
 	sl, err = s.rp.Post(seller)
 	return
 }
@@ -46,22 +47,16 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 		}
 	}
 
-	existSl, err := s.GetById(id)
+	existSl, _ := s.GetById(id)
+	err = seller.ValidateUpdateFields(seller, &existSl)
 	if err != nil {
-		return
+		return sl, err
 	}
-
-	seller.ValidateUpdateFields(seller, &existSl)
 	sl, err = s.rp.Patch(id, seller)
 	return sl, err
 }
 
 func (s *SellersService) DeleteSeller(id int) error {
-	_, err := s.GetById(id)
-	if err != nil {
-		return err
-	}
-
-	err = s.rp.Delete(id)
+	err := s.rp.Delete(id)
 	return err
 }

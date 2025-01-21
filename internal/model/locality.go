@@ -1,7 +1,7 @@
 package model
 
 import (
-	er 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type Locality struct {
@@ -14,18 +14,18 @@ type Locality struct {
 type LocalitiesJSONSellers struct {
 	ID       string `json:"locality_id"`
 	Locality string `json:"locality_name"`
-	Sellers  int `json:"sellers_count"`
+	Sellers  int    `json:"sellers_count"`
 }
 
 type LocalitiesJSONCarriers struct {
 	ID       string `json:"locality_id"`
 	Locality string `json:"locality_name"`
-	Carriers int `json:"carriers_count"`
+	Carriers int    `json:"carriers_count"`
 }
 
 func (s *Locality) ValidateEmptyFields(l *Locality) error {
 	if l.Locality == "" || l.Province == "" || l.Country == "" {
-		return er.ErrorNullLocalityAttribute
+		return er.ErrNullLocalityAttribute
 	}
 	return nil
 }

@@ -36,7 +36,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 
 	err = rows.Err()
 	if err != nil {
-		return
+		return sellers, er.ErrDefaultSellerSQL
 	}
 
 	return
@@ -49,7 +49,7 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		err = er.ErrorSellerNotFound
+		err = er.ErrSellerNotFound
 		return
 	}
 	return
@@ -58,19 +58,9 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
 	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
 	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
+	err = rp.validateSQLError(err)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = er.ErrorCIDSellerAlreadyExist
-			case 1064:
-				err = er.ErrorInvalidSellerJSONFormat
-			case 1048:
-				err = er.ErrorNullSellerAttribute
-			}
-			return
-		}
+		return
 	}
 
 	id, err := result.LastInsertId()
@@ -109,29 +99,16 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		args = append(args, (*seller).Locality)
 	}
 
-	if len(updates) > 0 {
+	lenght := len(updates)
+	if lenght > 0 {
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
 		args = append(args, id)
-	} else {
-		err = er.ErrorNullSellerAttribute
-		return
 	}
 
 	_, err = rp.db.Exec(query, args...)
+	err = rp.validateSQLError(err)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = er.ErrorCIDSellerAlreadyExist
-			case 1064:
-				err = er.ErrorInvalidSellerJSONFormat
-			case 1048:
-				err = er.ErrorNullSellerAttribute
-			}
-
-			return
-		}
+		return
 	}
 	sl, _ = rp.GetById(int(id))
 
@@ -141,5 +118,30 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 func (rp *SellersRepository) Delete(id int) error {
 	query := "DELETE FROM `sellers` WHERE `id` = ?"
 	_, err := rp.db.Exec(query, id)
+	err = rp.validateSQLError(err)
+	if err != nil {
+		return err
+	}
 	return err
+}
+
+func (rp *SellersRepository) validateSQLError(err error) (e error) {
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			switch mysqlErr.Number {
+			case 1062:
+				e = er.ErrCIDSellerAlreadyExist
+			case 1064:
+				e = er.ErrInvalidSellerJSONFormat
+			case 1048:
+				e = er.ErrNullSellerAttribute
+			case 1451:
+				e = er.ErrNotSellerDelete
+			default:
+				e = er.ErrDefaultSellerSQL
+			}
+		}
+	}
+	return e
 }

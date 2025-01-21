@@ -1,24 +1,30 @@
 package custom_error
 
 import (
-	"errors"
-	"fmt"
+	"net/http"
 )
 
 type LocalityError struct {
-	Object     any
-	Err        error
-	StatusCode int
+	Message string
+	Code    int
 }
 
-func (l LocalityError) Error() string {
-	return fmt.Sprintf("error: %v, message: %v", l.Object, l.Err.Error())
+func NewLocalityErr(message string, statusCode int) *LocalityError {
+	return &LocalityError{
+		Message: message,
+		Code:    statusCode,
+	}
+}
+
+func (e *LocalityError) Error() string {
+	return e.Message
 }
 
 var (
-	ErrorLocalityNotFound          error = errors.New("locality Not found")
-	ErrorMissingLocalityID         error = errors.New("missing 'id' parameter in the request")
-	ErrorInvalidLocalityJSONFormat error = errors.New("invalid JSON format in the request body")
-	ErrorInvalidLocalityPathParam  error = errors.New("invalid value for request path parameter")
-	ErrorNullLocalityAttribute     error = errors.New("invalid request body: received empty or null value")
+	ErrLocalityNotFound          = NewLocalityErr("locality not found", http.StatusNotFound)
+	ErrMissingLocalityID         = NewLocalityErr("missing 'id' parameter in the request", http.StatusBadRequest)
+	ErrInvalidLocalityJSONFormat = NewLocalityErr("invalid JSON format in the request body", http.StatusBadRequest)
+	ErrInvalidLocalityPathParam  = NewLocalityErr("invalid value for request path parameter", http.StatusUnprocessableEntity)
+	ErrNullLocalityAttribute     = NewLocalityErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
+	ErrDefaultLocalitySQL        = NewLocalityErr("sql internal error", http.StatusInternalServerError)
 )
