@@ -9,10 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checar código do repositório
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
 
       - name: Configurar Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '1.23.3' 
           
@@ -28,10 +30,10 @@ jobs:
     needs: lint
     steps:
       - name: Checar código do repositório
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configurar Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '1.23.3'
 
