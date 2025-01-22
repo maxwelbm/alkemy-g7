@@ -8,7 +8,6 @@ import (
 	// "github.com/maxwelbm/alkemy-g7.git/internal/handler"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 type Db struct {
@@ -34,10 +33,6 @@ func (Db *Db) Close() error {
 }
 
 func GetDbConfig() (*mysql.Config, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, errors.New("error loading environment variables")
-	}
 
 	dbHost := os.Getenv("DB_HOST")
 

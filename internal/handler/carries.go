@@ -45,7 +45,7 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 				return
 			}
 
-			if strings.Contains(err.Error(), custom_error.ErrorLocalityNotFound.Error()) {
+			if strings.Contains(err.Error(), custom_error.ErrLocalityNotFound.Error()) {
 				response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
