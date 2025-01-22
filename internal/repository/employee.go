@@ -17,7 +17,6 @@ func CreateEmployeeRepository(db *sql.DB) *EmployeeRepository {
 }
 
 func (e *EmployeeRepository) Get() ([]model.Employee, error) {
-
 	rows, err := e.db.Query("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees")
 
 	if err != nil {
@@ -27,33 +26,39 @@ func (e *EmployeeRepository) Get() ([]model.Employee, error) {
 	defer rows.Close()
 
 	var employees []model.Employee
+
 	for rows.Next() {
 		var employee model.Employee
-		err := rows.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
+
+		err := rows.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &employee.WarehouseID)
 		if err != nil {
 			return nil, err
 		}
+
 		employees = append(employees, employee)
 	}
+
 	return employees, nil
 }
 
-func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
+func (e *EmployeeRepository) GetByID(id int) (model.Employee, error) {
 	var employee model.Employee
+
 	row := e.db.QueryRow("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?", id)
-	err := row.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
+
+	err := row.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &employee.WarehouseID)
 	if err == sql.ErrNoRows {
 		return model.Employee{}, custom_error.EmployeeErrNotFound
 	} else if err != nil {
 		return model.Employee{}, err
 	}
+
 	return employee, nil
 }
 
 func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, error) {
-
 	result, err := e.db.Exec("INSERT INTO employees (card_number_id, first_name, last_name, warehouse_id) VALUES (?, ?, ?, ?)",
-		employee.CardNumberId, employee.FirstName, employee.LastName, employee.WarehouseId)
+		employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID)
 
 	if err != nil {
 		return model.Employee{}, err
@@ -63,17 +68,21 @@ func (e *EmployeeRepository) Post(employee model.Employee) (model.Employee, erro
 	if err != nil {
 		return model.Employee{}, err
 	}
-	employee.Id = int(id)
+
+	employee.ID = int(id)
+
 	return employee, nil
 }
 
 func (e *EmployeeRepository) Update(id int, employee model.Employee) (model.Employee, error) {
 	_, err := e.db.Exec("UPDATE employees SET card_number_id = ?, first_name = ?, last_name = ?, warehouse_id = ? WHERE id = ?",
-		employee.CardNumberId, employee.FirstName, employee.LastName, employee.WarehouseId, id)
+		employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
 	if err != nil {
 		return model.Employee{}, err
 	}
-	employee.Id = id
+
+	employee.ID = id
+
 	return employee, nil
 }
 
@@ -82,10 +91,11 @@ func (e *EmployeeRepository) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (e *EmployeeRepository) GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error) {
+func (e *EmployeeRepository) GetInboundOrdersReportByEmployee(employeeID int) (model.InboundOrdersReportByEmployee, error) {
 	query := `
 		SELECT
 			e.id, e.card_number_id, e.first_name, e.last_name, e.warehouse_id, COUNT(i.id) as inbound_orders_count
@@ -97,16 +107,17 @@ func (e *EmployeeRepository) GetInboundOrdersReportByEmployee(employeeId int) (m
 		WHERE e.id = ?
 		GROUP BY e.id `
 
-	rows := e.db.QueryRow(query, employeeId)
+	rows := e.db.QueryRow(query, employeeID)
 
 	var inboundReport model.InboundOrdersReportByEmployee
 
-	err := rows.Scan(&inboundReport.Id, &inboundReport.CardNumberId, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseId, &inboundReport.InboundOrdersCount)
+	err := rows.Scan(&inboundReport.ID, &inboundReport.CardNumberID, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseID, &inboundReport.InboundOrdersCount)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = custom_error.EmployeeErrNotFoundInboundOrders
 		}
+
 		return model.InboundOrdersReportByEmployee{}, err
 	}
 
@@ -133,13 +144,16 @@ func (e *EmployeeRepository) GetInboundOrdersReports() ([]model.InboundOrdersRep
 	defer rows.Close()
 
 	var inboundReports []model.InboundOrdersReportByEmployee
+
 	for rows.Next() {
 		var inboundReport model.InboundOrdersReportByEmployee
-		err = rows.Scan(&inboundReport.Id, &inboundReport.CardNumberId, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseId, &inboundReport.InboundOrdersCount)
+
+		err = rows.Scan(&inboundReport.ID, &inboundReport.CardNumberID, &inboundReport.FirstName, &inboundReport.LastName, &inboundReport.WarehouseID, &inboundReport.InboundOrdersCount)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
+
 		inboundReports = append(inboundReports, inboundReport)
 	}
 
