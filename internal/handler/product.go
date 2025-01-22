@@ -45,7 +45,7 @@ func (ph *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("Success", product))
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }
 
 func (ph *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
@@ -83,13 +83,13 @@ func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("success", product))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", product))
 }
 
 func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
 	var productBody model.Product
@@ -105,5 +105,5 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", product))
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }
