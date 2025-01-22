@@ -160,6 +160,58 @@ func TestInsertEmployee(t *testing.T) {
 
 }
 
+func TestUpdateEmployee(t *testing.T) {
+	updateRequest := func(body string) *http.Request {
+		req := httptest.NewRequest("PATCH", "/api/v1/employees/1", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		return req
+	}
+	updateEmployee := func(id int, employee model.Employee) (model.Employee, error) {
+		return model.Employee{Id: id, CardNumberId: "1", FirstName: employee.FirstName, LastName: "Cena", WarehouseId: 1}, nil
+	}
+	employeeHd := EmployeeHandler{
+		sv: &StubMockService{FuncUpdateEmployee: updateEmployee},
+	}
+	r := chi.NewRouter()
+	r.Patch("/api/v1/employees/{id}", employeeHd.UpdateEmployee)
+
+	newEmployee := `
+	{
+		"first_name": "Miguel"
+	}
+	`
+	t.Run("should return 200 ok and the employee with the new data", func(t *testing.T) {
+		req := updateRequest(newEmployee)
+		res := httptest.NewRecorder()
+
+		r.ServeHTTP(res, req)
+
+		expected := `{"data":{"id":1,"card_number_id":"1","first_name":"Miguel","last_name":"Cena","warehouse_id":1}}`
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, res.Body.String(), expected)
+
+	})
+
+	t.Run("should return 404 not found when employee not found", func(t *testing.T) {
+		updateEmployee := func(id int, employee model.Employee) (model.Employee, error) {
+			return model.Employee{}, custom_error.EmployeeErrNotFound
+		}
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncUpdateEmployee: updateEmployee},
+		}
+		r.Patch("/api/v1/employees/{id}", employeeHd.UpdateEmployee)
+
+		req := updateRequest(newEmployee)
+		res := httptest.NewRecorder()
+
+		r.ServeHTTP(res, req)
+
+		expected := `{"message":"employee not found"}`
+		assert.Equal(t, http.StatusNotFound, res.Code)
+		assert.Equal(t, res.Body.String(), expected)
+	})
+}
+
 // StubMockService
 type StubMockService struct {
 	FuncGetEmployees                     func() ([]model.Employee, error)
