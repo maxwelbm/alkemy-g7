@@ -6,19 +6,19 @@ import (
 )
 
 type BuyerService struct {
-	rp interfaces.IBuyerRepo
+	Rp interfaces.IBuyerRepo
 }
 
 func NewBuyerService(rp interfaces.IBuyerRepo) *BuyerService {
-	return &BuyerService{rp: rp}
+	return &BuyerService{Rp: rp}
 }
 
 func (bs *BuyerService) GetAllBuyer() (buyers []model.Buyer, err error) {
-	return bs.rp.Get()
+	return bs.Rp.Get()
 }
 
 func (bs *BuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
-	return bs.rp.GetById(id)
+	return bs.Rp.GetById(id)
 }
 
 func (bs *BuyerService) DeleteBuyerByID(id int) (err error) {
@@ -28,12 +28,12 @@ func (bs *BuyerService) DeleteBuyerByID(id int) (err error) {
 		return
 	}
 
-	return bs.rp.Delete(id)
+	return bs.Rp.Delete(id)
 }
 
 func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, err error) {
 
-	id, err := bs.rp.Post(newBuyer)
+	id, err := bs.Rp.Post(newBuyer)
 
 	if err != nil {
 		return
@@ -62,7 +62,7 @@ func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.B
 		existingBuyer.LastName = newBuyer.LastName
 	}
 
-	err = bs.rp.Update(existingBuyer.Id, existingBuyer)
+	err = bs.Rp.Update(existingBuyer.Id, existingBuyer)
 	if err != nil {
 		return
 	}
@@ -75,13 +75,13 @@ func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.B
 
 func (bs *BuyerService) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
 
-	countBuyerPurchaseOrder, err = bs.rp.CountPurchaseOrderByBuyerId(id)
+	countBuyerPurchaseOrder, err = bs.Rp.CountPurchaseOrderByBuyerId(id)
 	return
 }
 
 func (bs *BuyerService) CountPurchaseOrderBuyer() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
 
-	countBuyerPurchaseOrder, err = bs.rp.CountPurchaseOrderBuyers()
+	countBuyerPurchaseOrder, err = bs.Rp.CountPurchaseOrderBuyers()
 	return
 
 }
