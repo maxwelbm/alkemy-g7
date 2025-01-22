@@ -212,6 +212,48 @@ func TestUpdateEmployee(t *testing.T) {
 	})
 }
 
+func TestDeleteEmployee(t *testing.T) {
+	deleteEmployee := func(id int) error {
+		return nil
+	}
+	employeeHd := EmployeeHandler{
+		sv: &StubMockService{FuncDeleteEmployee: deleteEmployee},
+	}
+	r := chi.NewRouter()
+	r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
+
+	t.Run("should return 204 no content when delete with success", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/api/v1/employees/2", nil)
+		res := httptest.NewRecorder()
+
+		r.ServeHTTP(res, req)
+
+		assert.Equal(t, http.StatusNoContent, res.Code)
+		assert.Equal(t, "", res.Body.String())
+
+	})
+
+	t.Run("should return 404 not found when employee id dont exist", func(t *testing.T) {
+		deleteEmployee := func(id int) error {
+			return custom_error.EmployeeErrNotFound
+		}
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncDeleteEmployee: deleteEmployee},
+		}
+		r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
+
+		req := httptest.NewRequest("DELETE", "/api/v1/employees/2", nil)
+		res := httptest.NewRecorder()
+
+		r.ServeHTTP(res, req)
+
+		expected := `{"message":"employee not found"}`
+		assert.Equal(t, http.StatusNotFound, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+
+	})
+}
+
 // StubMockService
 type StubMockService struct {
 	FuncGetEmployees                     func() ([]model.Employee, error)
