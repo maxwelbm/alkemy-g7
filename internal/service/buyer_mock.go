@@ -31,7 +31,11 @@ func (b *MockBuyerService) DeleteBuyerByID(id int) (err error) {
 
 // GetBuyerByID implements interfaces.IBuyerservice.
 func (b *MockBuyerService) GetBuyerByID(id int) (buyer model.Buyer, err error) {
-	panic("unimplemented")
+	args := b.Called(id)
+	buyer = args.Get(0).(model.Buyer)
+	err = args.Error(1)
+
+	return
 }
 
 // UpdateBuyer implements interfaces.IBuyerservice.
