@@ -9,24 +9,23 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 )
 
 type BuyerHandler struct {
-	svc interfaces.IBuyerservice
+	Svc interfaces.IBuyerservice
 }
 
-func NewBuyerHandler(svc *service.BuyerService) *BuyerHandler {
+func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 	return &BuyerHandler{svc}
 }
 
 func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Request) {
 
-	buyers, err := bh.svc.GetAllBuyer()
+	buyers, err := bh.Svc.GetAllBuyer()
 	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Unable to list Buyers", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to list Buyers", nil))
 		return
 	}
 
@@ -42,7 +41,7 @@ func (bh *BuyerHandler) HandlerGetBuyerById(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	buyer, err := bh.svc.GetBuyerByID(id)
+	buyer, err := bh.Svc.GetBuyerByID(id)
 
 	if err != nil {
 
@@ -67,7 +66,7 @@ func (bh *BuyerHandler) HandlerDeleteBuyerById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = bh.svc.DeleteBuyerByID(id)
+	err = bh.Svc.DeleteBuyerByID(id)
 
 	if err != nil {
 
@@ -104,7 +103,7 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	buyer, err := bh.svc.CreateBuyer(reqBody)
+	buyer, err := bh.Svc.CreateBuyer(reqBody)
 
 	if err != nil {
 		if err, ok := err.(*custom_error.BuyerError); ok {
@@ -148,7 +147,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	buyer, err := bh.svc.UpdateBuyer(id, reqBody)
+	buyer, err := bh.Svc.UpdateBuyer(id, reqBody)
 
 	if err != nil {
 
@@ -170,7 +169,7 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 	idStr := r.URL.Query().Get("id")
 
 	if idStr == "" {
-		count, err := bh.svc.CountPurchaseOrderBuyer()
+		count, err := bh.Svc.CountPurchaseOrderBuyer()
 		if err != nil {
 			if err, ok := err.(*custom_error.BuyerError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
@@ -191,7 +190,7 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 		return
 	}
 
-	count, err := bh.svc.CountPurchaseOrderByBuyerID(id)
+	count, err := bh.Svc.CountPurchaseOrderByBuyerID(id)
 	if err != nil {
 		if err, ok := err.(*custom_error.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
