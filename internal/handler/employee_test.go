@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -73,6 +75,89 @@ func TestGetEmployeeById(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, res.Code)
 		assert.Equal(t, expected, res.Body.String())
 	})
+}
+
+func TestInsertEmployee(t *testing.T) {
+	createRequest := func(body string) *http.Request {
+		req := httptest.NewRequest("POST", "/api/v1/employees", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		return req
+	}
+	insertEmployee := func(employee model.Employee) (model.Employee, error) {
+		employee.Id = 1
+		return employee, nil
+	}
+	employeeHd := EmployeeHandler{
+		sv: &StubMockService{FuncInsertEmployee: insertEmployee},
+	}
+	newEmployee := EmployeeJSON{
+		CardNumberId: "#123",
+		FirstName:    "Islam",
+		LastName:     "Makhachev",
+		WarehouseId:  1,
+	}
+	employeeJSON, err := json.Marshal(newEmployee)
+	if err != nil {
+		t.Fatalf("failed to marshal new employee: %v", err)
+	}
+
+	t.Run("should return 201 created and the new employee created", func(t *testing.T) {
+		req := createRequest(string(employeeJSON))
+		res := httptest.NewRecorder()
+
+		employeeHd.InsertEmployee(res, req)
+
+		expected := `{"data":{"id":1,"card_number_id":"#123","first_name":"Islam","last_name":"Makhachev","warehouse_id":1}}`
+
+		assert.Equal(t, http.StatusCreated, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 422 unprocessable entity when the input is missing fields", func(t *testing.T) {
+		newEmployee := `
+		{
+			"first_name": "islam"
+		}`
+
+		insertEmployee := func(employee model.Employee) (model.Employee, error) {
+			return model.Employee{}, custom_error.EmployeeErrInvalid
+		}
+
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncInsertEmployee: insertEmployee},
+		}
+
+		req := createRequest(newEmployee)
+		res := httptest.NewRecorder()
+
+		employeeHd.InsertEmployee(res, req)
+
+		expected := `{"message":"invalid employeee"}`
+
+		assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 409 conflict when cardnumberid already exists", func(t *testing.T) {
+		insertEmployee := func(employee model.Employee) (model.Employee, error) {
+			return model.Employee{}, custom_error.EmployeeErrDuplicatedCardNumber
+		}
+
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncInsertEmployee: insertEmployee},
+		}
+
+		req := createRequest(string(employeeJSON))
+		res := httptest.NewRecorder()
+
+		employeeHd.InsertEmployee(res, req)
+
+		expected := `{"message":"duplicated card number id"}`
+
+		assert.Equal(t, http.StatusConflict, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+	})
+
 }
 
 // StubMockService
