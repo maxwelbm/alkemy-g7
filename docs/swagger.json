@@ -324,6 +324,76 @@
                     }
                 }
             }
+        },
+        "/purchaseOrders": {
+            "post": {
+                "description": "This endpoint allows you to create a new purchase order by providing the necessary details in the request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrder"
+                ],
+                "summary": "Create a new purchase order",
+                "parameters": [
+                    {
+                        "description": "Purchase Order",
+                        "name": "purchaseOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PurchaseOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Purchase order created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.PurchaseOrderResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.PurchaseOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer or ProductRec not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Order number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "JSON syntax error Or Mandatory fields not filled in",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -385,6 +455,46 @@
                 "message": {
                     "type": "string",
                     "example": "Error message"
+                }
+            }
+        },
+        "model.PurchaseOrder": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "order_date": {
+                    "type": "string",
+                    "example": "2025-01-01T00:00:00Z"
+                },
+                "order_number": {
+                    "type": "string",
+                    "example": "ON001"
+                },
+                "product_record_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "tracking_code": {
+                    "type": "string",
+                    "example": "TC001"
+                }
+            }
+        },
+        "model.PurchaseOrderResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PurchaseOrder"
+                    }
                 }
             }
         }

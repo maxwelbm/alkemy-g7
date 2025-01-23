@@ -19,6 +19,19 @@ func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService) *PurchaseOrd
 	return &PurchaseOrderHandler{svc}
 }
 
+// HandlerCreatePurchaseOrder handles the creation of a new purchase order.
+// @Summary Create a new purchase order
+// @Description This endpoint allows you to create a new purchase order by providing the necessary details in the request body.
+// @Tags PurchaseOrder
+// @Accept json
+// @Produce json
+// @Param purchaseOrder body model.PurchaseOrder true "Purchase Order"
+// @Success 201 {object} model.PurchaseOrderResponseSwagger{data=model.PurchaseOrder} "Purchase order created successfully"
+// @Failure 404 {object} model.ErrorResponseSwagger "Buyer or ProductRec not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "Order number already exists"
+// @Failure 422 {object} model.ErrorResponseSwagger "JSON syntax error Or Mandatory fields not filled in"
+// @Failure 500 {object} model.ErrorResponseSwagger "Internal Server Error"
+// @Router /purchaseOrders [post]
 func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter, r *http.Request) {
 	var reqBody model.PurchaseOrder
 
