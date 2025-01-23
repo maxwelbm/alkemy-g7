@@ -7,12 +7,12 @@ import (
 )
 
 type PurchaseOrder struct {
-	Id              int       `json:"id"`
+	ID              int       `json:"id"`
 	OrderNumber     string    `json:"order_number"`
 	OrderDate       time.Time `json:"order_date"`
 	TrackingCode    string    `json:"tracking_code"`
-	BuyerId         int       `json:"buyer_id"`
-	ProductRecordId int       `json:"product_record_id"`
+	BuyerID         int       `json:"buyer_id"`
+	ProductRecordID int       `json:"product_record_id"`
 }
 
 func (p *PurchaseOrder) ValidateEmptyFields() error {
@@ -21,16 +21,20 @@ func (p *PurchaseOrder) ValidateEmptyFields() error {
 	if p.OrderNumber == "" {
 		fieldsEmpty = append(fieldsEmpty, "order_number")
 	}
+
 	if p.OrderDate.IsZero() {
 		fieldsEmpty = append(fieldsEmpty, "order_date")
 	}
+
 	if p.TrackingCode == "" {
 		fieldsEmpty = append(fieldsEmpty, "tracking_code")
 	}
-	if p.BuyerId == 0 {
+
+	if p.BuyerID == 0 {
 		fieldsEmpty = append(fieldsEmpty, "buyer_id")
 	}
-	if p.ProductRecordId == 0 {
+
+	if p.ProductRecordID == 0 {
 		fieldsEmpty = append(fieldsEmpty, "product_record_id")
 	}
 
@@ -39,5 +43,4 @@ func (p *PurchaseOrder) ValidateEmptyFields() error {
 	}
 
 	return nil
-
 }
