@@ -12,7 +12,7 @@ import (
 func setup() *service.WareHouseDefault {
 	mockRepo := new(repository.WareHouseMockRepo)
 
-	return service.NewWareHoureService(mockRepo)
+	return service.NewWareHouseService(mockRepo)
 }
 
 func TestGetAllWarehouse(t *testing.T) {
@@ -153,6 +153,53 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		err := svc.DeleteByIdWareHouse(1)
 
 		assert.NotNil(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestPostWareHouse(t *testing.T) {
+	t.Run("Post", func(t *testing.T) {
+		svc := setup()
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+		mockRepo.On("PostWareHouse", warehouse).Return(int64(1), nil)
+
+		mockRepo.On("GetByIdWareHouse", 1).Return(warehouse, nil)
+
+		w, err := svc.PostWareHouse(warehouse)
+
+		assert.Nil(t, err)
+		assert.Equal(t, warehouse, w)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("PostError", func(t *testing.T) {
+		svc := setup()
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+
+		mockRepo.On("PostWareHouse", warehouse).Return(int64(0), assert.AnError)
+
+		w, err := svc.PostWareHouse(warehouse)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, model.WareHouse{}, w)
 		mockRepo.AssertExpectations(t)
 	})
 }
