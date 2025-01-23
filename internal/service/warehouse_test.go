@@ -74,6 +74,7 @@ func TestGetByIdWareHouse(t *testing.T) {
 			MinimunTemperature: 1,
 			Address:            "test",
 		}
+
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
 		mockRepo.On("GetByIdWareHouse", 1).Return(expectWarehouse, nil)
 
@@ -93,6 +94,64 @@ func TestGetByIdWareHouse(t *testing.T) {
 		w, err := svc.GetByIdWareHouse(1)
 
 		assert.Empty(t, w)
+		assert.NotNil(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestDeleteByIdWareHouse(t *testing.T) {
+	t.Run("DeleteById", func(t *testing.T) {
+		svc := setup()
+
+		expectedWarehouse := model.WareHouse{
+			Id:                 1,
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo.On("GetByIdWareHouse", 1).Return(expectedWarehouse, nil)
+		mockRepo.On("DeleteByIdWareHouse", 1).Return(nil)
+
+		err := svc.DeleteByIdWareHouse(1)
+
+		assert.Nil(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("DeleteByIdError", func(t *testing.T) {
+		svc := setup()
+
+		expectedWarehouse := model.WareHouse{
+			Id:                 2,
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo.On("GetByIdWareHouse", 1).Return(expectedWarehouse, nil)
+		mockRepo.On("DeleteByIdWareHouse", 1).Return(assert.AnError)
+
+		err := svc.DeleteByIdWareHouse(1)
+
+		assert.NotNil(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("DeleteByIdNotFound", func(t *testing.T) {
+		svc := setup()
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
+
+		err := svc.DeleteByIdWareHouse(1)
+
 		assert.NotNil(t, err)
 		mockRepo.AssertExpectations(t)
 	})
