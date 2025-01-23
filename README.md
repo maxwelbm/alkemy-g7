@@ -60,9 +60,9 @@
   ```bash
    docker-compose up --build
    ```
-4. **Test um dos endpoints:**
+4. **Acesse Swagger para testar os endpoints:**
 ```bash
-   curl http://localhost:8080/api/v1/buyers
+   http://localhost:8080/swagger/index.html
    ```
 
 ## Contribuição
