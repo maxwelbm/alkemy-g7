@@ -12,19 +12,21 @@ type PurchaseOrderService struct {
 	svcProductRec svc.IProductRecService
 }
 
-// CreatePurchaseOrder implements interfaces.IPurchaseOrdersService.
 func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.PurchaseOrder) (purchaseOrder model.PurchaseOrder, err error) {
-	_, err = p.svcBuyer.GetBuyerByID(newPurchaseOrder.BuyerId)
+	_, err = p.svcBuyer.GetBuyerByID(newPurchaseOrder.BuyerID)
+
 	if err != nil {
 		return
 	}
 
-	_, err = p.svcProductRec.GetProductRecordById(newPurchaseOrder.ProductRecordId)
+	_, err = p.svcProductRec.GetProductRecordById(newPurchaseOrder.ProductRecordID)
+
 	if err != nil {
 		return
 	}
 
 	id, err := p.rp.Post(newPurchaseOrder)
+
 	if err != nil {
 		return
 	}
@@ -32,7 +34,6 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 	purchaseOrder, err = p.rp.GetById(int(id))
 
 	return
-
 }
 
 func (p *PurchaseOrderService) GetPurchaseOrderByID(id int) (purchaseOrder model.PurchaseOrder, err error) {

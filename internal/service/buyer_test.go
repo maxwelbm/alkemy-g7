@@ -22,8 +22,8 @@ func TestGetAllBuyer(t *testing.T) {
 	t.Run("return a list of all existing buyers successfully", func(t *testing.T) {
 		svc := setup()
 
-		expectedBuyers := []model.Buyer{{Id: 1, FirstName: "John", LastName: "Doe", CardNumberId: "1234"},
-			{Id: 2, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}}
+		expectedBuyers := []model.Buyer{{ID: 1, FirstName: "John", LastName: "Doe", CardNumberID: "1234"},
+			{ID: 2, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Get").Return(expectedBuyers, nil)
@@ -55,10 +55,10 @@ func TestGetBuyerByID(t *testing.T) {
 	t.Run("return buyer by id existing successfully", func(t *testing.T) {
 		svc := setup()
 
-		expectedBuyer := model.Buyer{Id: 2, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		expectedBuyer := model.Buyer{ID: 2, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 2).Return(expectedBuyer, nil)
+		mockRepo.On("GetByID", 2).Return(expectedBuyer, nil)
 
 		buyer, err := svc.GetBuyerByID(2)
 
@@ -72,7 +72,7 @@ func TestGetBuyerByID(t *testing.T) {
 		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 99).Return(model.Buyer{}, expectedError)
+		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
 
 		buyer, err := svc.GetBuyerByID(99)
 
@@ -86,7 +86,7 @@ func TestGetBuyerByID(t *testing.T) {
 		svc := setup()
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 2).Return(model.Buyer{}, errors.New("unmapped error"))
+		mockRepo.On("GetByID", 2).Return(model.Buyer{}, errors.New("unmapped error"))
 
 		buyer, err := svc.GetBuyerByID(2)
 
@@ -100,11 +100,11 @@ func TestCreateBuyer(t *testing.T) {
 	t.Run("Buyer created successfully", func(t *testing.T) {
 		svc := setup()
 
-		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Post", createdBuyer).Return(int64(1), nil)
 
-		mockRepo.On("GetById", 1).Return(createdBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(createdBuyer, nil)
 
 		buyer, err := svc.CreateBuyer(createdBuyer)
 
@@ -117,7 +117,7 @@ func TestCreateBuyer(t *testing.T) {
 		svc := setup()
 
 		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
-		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Post", createdBuyer).Return(int64(0), expectedError)
@@ -134,7 +134,7 @@ func TestCreateBuyer(t *testing.T) {
 	t.Run("return an error when creating buyer", func(t *testing.T) {
 		svc := setup()
 
-		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Post", createdBuyer).Return(int64(0), errors.New("unmapped Error"))
@@ -150,12 +150,12 @@ func TestCreateBuyer(t *testing.T) {
 	t.Run("Buyer Not Found", func(t *testing.T) {
 		svc := setup()
 
-		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Post", createdBuyer).Return(int64(1), nil)
 
 		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
-		mockRepo.On("GetById", 1).Return(model.Buyer{}, expectedError)
+		mockRepo.On("GetByID", 1).Return(model.Buyer{}, expectedError)
 
 		buyer, err := svc.CreateBuyer(createdBuyer)
 
@@ -170,10 +170,10 @@ func TestUpdateBuyer(t *testing.T) {
 	t.Run("buyer updated successfuly", func(t *testing.T) {
 		svc := setup()
 
-		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		updatedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(updatedBuyer, nil)
 
 		mockRepo.On("Update", 1, updatedBuyer).Return(nil)
 
@@ -187,11 +187,11 @@ func TestUpdateBuyer(t *testing.T) {
 	t.Run("Buyer Not Found", func(t *testing.T) {
 		svc := setup()
 
-		UpdateBuyer := model.Buyer{Id: 99, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		UpdateBuyer := model.Buyer{ID: 99, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 
 		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
-		mockRepo.On("GetById", 99).Return(model.Buyer{}, expectedError)
+		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
 
 		buyer, err := svc.UpdateBuyer(99, UpdateBuyer)
 
@@ -205,10 +205,10 @@ func TestUpdateBuyer(t *testing.T) {
 		svc := setup()
 
 		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
-		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		updatedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(updatedBuyer, nil)
 
 		mockRepo.On("Update", 1, updatedBuyer).Return(expectedError)
 
@@ -224,10 +224,10 @@ func TestUpdateBuyer(t *testing.T) {
 	t.Run("return an error when updating buyer", func(t *testing.T) {
 		svc := setup()
 
-		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		updatedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(updatedBuyer, nil)
 
 		mockRepo.On("Update", 1, updatedBuyer).Return(errors.New("unmapped error"))
 
@@ -245,9 +245,9 @@ func TestDeleteBuyerByID(t *testing.T) {
 	t.Run("Delete buyer successfuly", func(t *testing.T) {
 		svc := setup()
 
-		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		deletedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(deletedBuyer, nil)
 
 		mockRepo.On("Delete", 1).Return(nil)
 
@@ -263,7 +263,7 @@ func TestDeleteBuyerByID(t *testing.T) {
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 
 		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
-		mockRepo.On("GetById", 99).Return(model.Buyer{}, expectedError)
+		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
 
 		err := svc.DeleteBuyerByID(99)
 
@@ -275,9 +275,9 @@ func TestDeleteBuyerByID(t *testing.T) {
 	t.Run("There are dependencies with the buyer", func(t *testing.T) {
 		svc := setup()
 
-		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		deletedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(deletedBuyer, nil)
 
 		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrDependencies.Error(), "Buyer")
 		mockRepo.On("Delete", 1).Return(expectedError)
@@ -292,9 +292,9 @@ func TestDeleteBuyerByID(t *testing.T) {
 	t.Run("return an error when deleting buyer", func(t *testing.T) {
 		svc := setup()
 
-		deletedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		deletedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
-		mockRepo.On("GetById", 1).Return(deletedBuyer, nil)
+		mockRepo.On("GetByID", 1).Return(deletedBuyer, nil)
 
 		mockRepo.On("Delete", 1).Return(errors.New("unmapped Error"))
 
