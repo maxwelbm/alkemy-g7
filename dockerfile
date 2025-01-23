@@ -1,4 +1,3 @@
-
 FROM golang:1.23.3 AS builder
 
 
@@ -14,9 +13,14 @@ RUN go mod download
 COPY . .
 
 
-WORKDIR /app/cmd
-RUN go build -o app .
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
+RUN swag init -g cmd/main.go
+
+
+WORKDIR /app/cmd
+
+RUN go build -o app .
 
 FROM gcr.io/distroless/base
 

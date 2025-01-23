@@ -6,10 +6,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
+	_ "github.com/maxwelbm/alkemy-g7.git/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
 )
 
+// @title Meli Fresh API
+// @version 1.0.0
+// @description This REST API provides access to Mercado Livre's new line of perishable products, allowing users to efficiently manage, consult and purchase fresh products. With support for CRUD operations, this API was designed to facilitate inventory management, check product availability and ensure an agile and intuitive shopping experience. Aimed at developers who want to integrate e-commerce solutions, the API offers clear endpoints and comprehensive documentation for easy integration and use.
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	dbConfig, err := database.GetDbConfig()
 	if err != nil {
@@ -44,83 +52,87 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt := chi.NewRouter()
 
-	rt.Route("/api/v1/warehouses", func(r chi.Router) {
-		r.Get("/", warehouseHandler.GetAllWareHouse())
-		r.Get("/{id}", warehouseHandler.GetWareHouseById())
-		r.Post("/", warehouseHandler.PostWareHouse())
-		r.Patch("/{id}", warehouseHandler.UpdateWareHouse())
-		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
-	})
+	rt.Get("/swagger/*", httpSwagger.WrapHandler)
 
-	rt.Route("/api/v1/sections", func(r chi.Router) {
-		r.Get("/", sectionHandler.GetAll)
-		r.Get("/{id}", sectionHandler.GetById)
-		r.Post("/", sectionHandler.Post)
-		r.Patch("/{id}", sectionHandler.Update)
-		r.Delete("/{id}", sectionHandler.Delete)
-		r.Get("/reportProducts", sectionHandler.CountProductBatchesSections)
-	})
+	rt.Route("/api/v1", func(r chi.Router) {
+		r.Route("/warehouses", func(r chi.Router) {
+			r.Get("/", warehouseHandler.GetAllWareHouse())
+			r.Get("/{id}", warehouseHandler.GetWareHouseById())
+			r.Post("/", warehouseHandler.PostWareHouse())
+			r.Patch("/{id}", warehouseHandler.UpdateWareHouse())
+			r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
+		})
 
-	rt.Route("/api/v1/products", func(r chi.Router) {
-		r.Get("/", productHandler.GetAllProducts)
-		r.Get("/{id}", productHandler.GetProductById)
-		r.Get("/reportRecords", productRecHandler.GetProductRecReport)
-		r.Post("/", productHandler.CreateProduct)
-		r.Patch("/{id}", productHandler.UpdateProduct)
-		r.Delete("/{id}", productHandler.DeleteProductById)
-	})
+		r.Route("/sections", func(r chi.Router) {
+			r.Get("/", sectionHandler.GetAll)
+			r.Get("/{id}", sectionHandler.GetById)
+			r.Post("/", sectionHandler.Post)
+			r.Patch("/{id}", sectionHandler.Update)
+			r.Delete("/{id}", sectionHandler.Delete)
+			r.Get("/reportProducts", sectionHandler.CountProductBatchesSections)
+		})
 
-	rt.Route("/api/v1/productRecords", func(r chi.Router) {
-		r.Post("/", productRecHandler.CreateProductRecServ)
-	})
+		r.Route("/products", func(r chi.Router) {
+			r.Get("/", productHandler.GetAllProducts)
+			r.Get("/{id}", productHandler.GetProductById)
+			r.Get("/reportRecords", productRecHandler.GetProductRecReport)
+			r.Post("/", productHandler.CreateProduct)
+			r.Patch("/{id}", productHandler.UpdateProduct)
+			r.Delete("/{id}", productHandler.DeleteProductById)
+		})
 
-	rt.Route("/api/v1/buyers", func(r chi.Router) {
-		r.Get("/", buyerHandler.HandlerGetAllBuyers)
-		r.Get("/{id}", buyerHandler.HandlerGetBuyerById)
-		r.Post("/", buyerHandler.HandlerCreateBuyer)
-		r.Patch("/{id}", buyerHandler.HandlerUpdateBuyer)
-		r.Delete("/{id}", buyerHandler.HandlerDeleteBuyerById)
-		r.Get("/reportPurchaseOrders", buyerHandler.HandlerCountPurchaseOrderBuyer)
-	})
+		r.Route("/productRecords", func(r chi.Router) {
+			r.Post("/", productRecHandler.CreateProductRecServ)
+		})
 
-	rt.Route("/api/v1/sellers", func(r chi.Router) {
-		r.Get("/", sellersHandler.GetAllSellers)
-		r.Get("/{id}", sellersHandler.GetById)
-		r.Post("/", sellersHandler.CreateSellers)
-		r.Patch("/{id}", sellersHandler.UpdateSellers)
-		r.Delete("/{id}", sellersHandler.DeleteSellers)
-	})
+		r.Route("/buyers", func(r chi.Router) {
+			r.Get("/", buyerHandler.HandlerGetAllBuyers)
+			r.Get("/{id}", buyerHandler.HandlerGetBuyerById)
+			r.Post("/", buyerHandler.HandlerCreateBuyer)
+			r.Patch("/{id}", buyerHandler.HandlerUpdateBuyer)
+			r.Delete("/{id}", buyerHandler.HandlerDeleteBuyerById)
+			r.Get("/reportPurchaseOrders", buyerHandler.HandlerCountPurchaseOrderBuyer)
+		})
 
-	rt.Route("/api/v1/employees", func(r chi.Router) {
-		r.Get("/", employeeHd.GetEmployeesHandler)
-		r.Get("/{id}", employeeHd.GetEmployeeById)
-		r.Post("/", employeeHd.InsertEmployee)
-		r.Patch("/{id}", employeeHd.UpdateEmployee)
-		r.Delete("/{id}", employeeHd.DeleteEmployee)
-		r.Get("/reportInboundOrders", employeeHd.GetInboundOrdersReports)
-	})
+		r.Route("/sellers", func(r chi.Router) {
+			r.Get("/", sellersHandler.GetAllSellers)
+			r.Get("/{id}", sellersHandler.GetById)
+			r.Post("/", sellersHandler.CreateSellers)
+			r.Patch("/{id}", sellersHandler.UpdateSellers)
+			r.Delete("/{id}", sellersHandler.DeleteSellers)
+		})
 
-	rt.Route("/api/v1/localities", func(r chi.Router) {
-		r.Post("/", localitiesHandler.CreateLocality)
-		r.Get("/{id}", localitiesHandler.GetById)
-		r.Get("/reportCarriers", localitiesHandler.GetCarriers)
-		r.Get("/reportSellers", localitiesHandler.GetSellers)
-	})
+		r.Route("/employees", func(r chi.Router) {
+			r.Get("/", employeeHd.GetEmployeesHandler)
+			r.Get("/{id}", employeeHd.GetEmployeeById)
+			r.Post("/", employeeHd.InsertEmployee)
+			r.Patch("/{id}", employeeHd.UpdateEmployee)
+			r.Delete("/{id}", employeeHd.DeleteEmployee)
+			r.Get("/reportInboundOrders", employeeHd.GetInboundOrdersReports)
+		})
 
-	rt.Route("/api/v1/carries", func(r chi.Router) {
-		r.Post("/", carrierHandler.PostCarriers())
-	})
+		r.Route("/localities", func(r chi.Router) {
+			r.Post("/", localitiesHandler.CreateLocality)
+			r.Get("/{id}", localitiesHandler.GetById)
+			r.Get("/reportCarriers", localitiesHandler.GetCarriers)
+			r.Get("/reportSellers", localitiesHandler.GetSellers)
+		})
 
-	rt.Route("/api/v1/productBatches", func(r chi.Router) {
-		r.Post("/", productBatchesHandler.Post)
-	})
+		r.Route("/carries", func(r chi.Router) {
+			r.Post("/", carrierHandler.PostCarriers())
+		})
 
-	rt.Route("/api/v1/inboundOrders", func(r chi.Router) {
-		r.Post("/", inboundHandler.PostInboundOrder)
-	})
+		r.Route("/productBatches", func(r chi.Router) {
+			r.Post("/", productBatchesHandler.Post)
+		})
 
-	rt.Route("/api/v1/purchaseOrders", func(r chi.Router) {
-		r.Post("/", purchaseOrderHandler.HandlerCreatePurchaseOrder)
+		r.Route("/inboundOrders", func(r chi.Router) {
+			r.Post("/", inboundHandler.PostInboundOrder)
+		})
+
+		r.Route("/purchaseOrders", func(r chi.Router) {
+			r.Post("/", purchaseOrderHandler.HandlerCreatePurchaseOrder)
+		})
 	})
 
 	return rt
