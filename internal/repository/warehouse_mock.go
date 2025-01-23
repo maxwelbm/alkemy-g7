@@ -33,8 +33,13 @@ func (mock *WareHouseMockRepo) GetByIdWareHouse(id int) (w model.WareHouse, err 
 	return
 }
 
-func (w *WareHouseMockRepo) PostWareHouse(warehouse *model.WareHouse) (id int64, err error) {
-	panic("unimplemented")
+func (mock *WareHouseMockRepo) PostWareHouse(warehouse model.WareHouse) (id int64, err error) {
+	args := mock.Called(warehouse)
+
+	id = args.Get(0).(int64)
+	err = args.Error(1)
+
+	return
 }
 
 func (w *WareHouseMockRepo) UpdateWareHouse(id int, warehouse *model.WareHouse) (err error) {
