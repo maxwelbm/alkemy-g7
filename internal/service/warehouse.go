@@ -9,7 +9,7 @@ type WareHouseDefault struct {
 	Rp interfaces.IWarehouseRepo
 }
 
-func NewWareHoureService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
+func NewWareHouseService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
 	return &WareHouseDefault{Rp: rp}
 }
 
@@ -41,7 +41,7 @@ func (wp *WareHouseDefault) GetByIdWareHouse(id int) (w model.WareHouse, err err
 
 func (wp *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
 
-	id, err := wp.Rp.PostWareHouse(&warehouse)
+	id, err := wp.Rp.PostWareHouse(warehouse)
 
 	if err != nil {
 		return
