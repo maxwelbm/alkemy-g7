@@ -15,18 +15,18 @@ type PurchaseOrderRepository struct {
 
 // Post implements interfaces.IPurchaseOrdersRepo.
 func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id int64, err error) {
-
 	prepare, err := p.db.Prepare("INSERT INTO purchase_orders (order_number, order_date, tracking_code, buyer_id, product_record_id) VALUES(?,?,?,?,?)")
 	if err != nil {
 		return
 	}
 
-	result, err := prepare.Exec(&newPurchaseOrder.OrderNumber, &newPurchaseOrder.OrderDate, &newPurchaseOrder.TrackingCode, &newPurchaseOrder.BuyerId, &newPurchaseOrder.ProductRecordId)
+	result, err := prepare.Exec(&newPurchaseOrder.OrderNumber, &newPurchaseOrder.OrderDate, &newPurchaseOrder.TrackingCode, &newPurchaseOrder.BuyerID, &newPurchaseOrder.ProductRecordID)
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
 			err = custom_error.NewPurcahseOrderError(http.StatusConflict, custom_error.ErrConflict.Error(), "order_number")
 		}
+
 		return
 	}
 
@@ -36,15 +36,15 @@ func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id
 }
 
 func (p *PurchaseOrderRepository) GetById(id int) (purchaseOrder model.PurchaseOrder, err error) {
-
 	row := p.db.QueryRow("SELECT id, order_number, order_date, tracking_code, buyer_id, product_record_id FROM purchase_orders WHERE id = ?", id)
 
-	err = row.Scan(&purchaseOrder.Id, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate, &purchaseOrder.TrackingCode, &purchaseOrder.BuyerId, &purchaseOrder.ProductRecordId)
+	err = row.Scan(&purchaseOrder.ID, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate, &purchaseOrder.TrackingCode, &purchaseOrder.BuyerID, &purchaseOrder.ProductRecordID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = custom_error.NewPurcahseOrderError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Purchase Order")
 		}
+
 		return
 	}
 
