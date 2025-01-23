@@ -95,3 +95,73 @@ func TestGetBuyerByID(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
+func TestCreateBuyer(t *testing.T) {
+	t.Run("Buyer created successfully", func(t *testing.T) {
+		svc := setup()
+
+		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("Post", createdBuyer).Return(int64(1), nil)
+
+		mockRepo.On("GetById", 1).Return(createdBuyer, nil)
+
+		buyer, err := svc.CreateBuyer(createdBuyer)
+
+		assert.NoError(t, err)
+		assert.Equal(t, createdBuyer, buyer)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Return error card_number already exists", func(t *testing.T) {
+		svc := setup()
+
+		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
+		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("Post", createdBuyer).Return(int64(0), expectedError)
+
+		buyer, err := svc.CreateBuyer(createdBuyer)
+
+		assert.Equal(t, model.Buyer{}, buyer)
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+
+	})
+
+	t.Run("return an error when creating buyer", func(t *testing.T) {
+		svc := setup()
+
+		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("Post", createdBuyer).Return(int64(0), errors.New("unmapped Error"))
+
+		buyer, err := svc.CreateBuyer(createdBuyer)
+
+		assert.Equal(t, model.Buyer{}, buyer)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+
+	})
+
+	t.Run("Buyer Not Found", func(t *testing.T) {
+		svc := setup()
+
+		createdBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("Post", createdBuyer).Return(int64(1), nil)
+
+		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		mockRepo.On("GetById", 1).Return(model.Buyer{}, expectedError)
+
+		buyer, err := svc.CreateBuyer(createdBuyer)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		assert.Equal(t, model.Buyer{}, buyer)
+		mockRepo.AssertExpectations(t)
+	})
+}

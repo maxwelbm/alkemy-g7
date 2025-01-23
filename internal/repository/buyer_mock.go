@@ -47,7 +47,12 @@ func (m *MockBuyerRepo) GetById(id int) (buyer model.Buyer, err error) {
 
 // Post implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Post(newBuyer model.Buyer) (id int64, err error) {
-	panic("unimplemented")
+	args := m.Called(newBuyer)
+
+	id = args.Get(0).(int64)
+	err = args.Error(1)
+
+	return
 }
 
 // Update implements interfaces.IBuyerRepo.
