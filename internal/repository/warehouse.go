@@ -56,10 +56,10 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	return
 }
 
-func (r *WarehouseMysql) PostWareHouse(warehouse *model.WareHouse) (id int64, err error) {
+func (r *WarehouseMysql) PostWareHouse(warehouse model.WareHouse) (id int64, err error) {
 	result, err := r.db.Exec(
 		"INSERT INTO `warehouses` (`warehouse_code`, `address`, `telephone`, `minimum_capacity`, `minimum_temperature`) VALUES (?, ?, ?, ?, ?)",
-		(*warehouse).WareHouseCode, (*warehouse).Address, (*warehouse).Telephone, (*warehouse).MinimunCapacity, (*warehouse).MinimunTemperature,
+		warehouse.WareHouseCode, warehouse.Address, warehouse.Telephone, warehouse.MinimunCapacity, warehouse.MinimunTemperature,
 	)
 
 	if err != nil {
