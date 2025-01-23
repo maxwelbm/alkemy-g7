@@ -53,15 +53,15 @@
    git clone https://github.com/maxwelbm/alkemy-g7.git
    ```
 2. **Navegue até o diretório do projeto:**
-```bash
+   ```bash
    cd alkemy-g7
    ```
 3. **Crie e inicie os contêineres:**
-  ```bash
+   ```bash
    docker-compose up --build
    ```
 4. **Acesse Swagger para testar os endpoints:**
-```bash
+   ```bash
    http://localhost:8080/swagger/index.html
    ```
 
