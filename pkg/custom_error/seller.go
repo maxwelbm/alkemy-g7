@@ -25,5 +25,6 @@ var (
 	ErrInvalidSellerJSONFormat = NewSellerErr("invalid JSON format in the request body", http.StatusUnprocessableEntity)
 	ErrNullSellerAttribute     = NewSellerErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
 	ErrNotSellerDelete         = NewSellerErr("cannot delete seller, it is necessary to delete locality first.", http.StatusBadRequest)
-	ErrDefaultSellerSQL        = NewSellerErr("sql internal error", http.StatusInternalServerError)
+	ErrDefaultSQLSeller        = NewSellerErr("sql server error", http.StatusInternalServerError)
+	ErrInternalServerSeller        = NewSellerErr("internal server error", http.StatusInternalServerError)
 )

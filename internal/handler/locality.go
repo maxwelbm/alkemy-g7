@@ -21,14 +21,15 @@ type LocalitiesController struct {
 	service interfaces.ILocalityService
 }
 
-func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) {
+func (hd *LocalitiesController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	locality, err := hd.service.GetById(id)
+	locality, err := hd.service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -39,6 +40,7 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Request) {
 	var locality model.Locality
 	err := request.JSON(r, &locality)
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -52,7 +54,7 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 }
 
 func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
+	id := 0
 
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
@@ -67,9 +69,11 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
+
 			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+
 			id = idParam
 		}
 	}
@@ -83,7 +87,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 }
 
 func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
+	id := 0
 
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
@@ -98,9 +102,11 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
+
 			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+
 			id = idParam
 		}
 	}
@@ -120,8 +126,10 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 			return true
 		}
 
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidLocalityJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped locality handler error", nil))
+
 		return true
 	}
+
 	return false
 }

@@ -20,6 +20,7 @@ type LocalitiesRepository struct {
 func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJSONCarriers, err error) {
 	query := "SELECT l.id, l.locality_name, COUNT(c.locality_id) AS `carriers_count` FROM `carriers` c RIGHT JOIN `locality` l ON c.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
 	rows, err := rp.db.Query(query)
+	
 	if err != nil {
 		return
 	}
@@ -27,9 +28,11 @@ func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJS
 	for rows.Next() {
 		var c model.LocalitiesJSONCarriers
 		err = rows.Scan(&c.ID, &c.Locality, &c.Carriers)
+		
 		if err != nil {
 			return
 		}
+		
 		report = append(report, c)
 	}
 
@@ -37,11 +40,12 @@ func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJS
 	if err != nil {
 		return
 	}
+	
 	return
 }
 
-func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []model.LocalitiesJSONCarriers, err error) {
-	if _, err := rp.GetById(id); err != nil {
+func (rp *LocalitiesRepository) GetReportCarriersWithID(id int) (locality []model.LocalitiesJSONCarriers, err error) {
+	if _, err := rp.GetByID(id); err != nil {
 		return locality, err
 	}
 
@@ -50,18 +54,21 @@ func (rp *LocalitiesRepository) GetReportCarriersWithId(id int) (locality []mode
 
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
+	
 	if errors.Is(err, sql.ErrNoRows) {
 		e := er.ErrLocalityNotFound
 		return locality, e
 	}
 
 	locality = append(locality, c)
+	
 	return
 }
 
 func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSONSellers, err error) {
 	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id GROUP BY l.id, l.locality_name ORDER BY l.locality_name"
 	rows, err := rp.db.Query(query)
+	
 	if err != nil {
 		return
 	}
@@ -69,9 +76,11 @@ func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSO
 	for rows.Next() {
 		var l model.LocalitiesJSONSellers
 		err = rows.Scan(&l.ID, &l.Locality, &l.Sellers)
+		
 		if err != nil {
 			return
 		}
+		
 		report = append(report, l)
 	}
 
@@ -79,11 +88,12 @@ func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSO
 	if err != nil {
 		return
 	}
+	
 	return
 }
 
-func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model.LocalitiesJSONSellers, err error) {
-	if _, err := rp.GetById(id); err != nil {
+func (rp *LocalitiesRepository) GetReportSellersWithID(id int) (locality []model.LocalitiesJSONSellers, err error) {
+	if _, err := rp.GetByID(id); err != nil {
 		return locality, err
 	}
 
@@ -92,17 +102,20 @@ func (rp *LocalitiesRepository) GetReportSellersWithId(id int) (locality []model
 
 	var l model.LocalitiesJSONSellers
 	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
+	
 	if err != nil {
 		return
 	}
 
 	locality = append(locality, l)
+	
 	return
 }
 
 func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 	query := "SELECT `id`, `locality_name`, `province_name`, `country_name` FROM `locality`"
 	rows, err := rp.db.Query(query)
+	
 	if err != nil {
 		return
 	}
@@ -110,9 +123,11 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 	for rows.Next() {
 		var locality model.Locality
 		err = rows.Scan(&locality.ID, &locality.Locality, &locality.Province, &locality.Country)
+		
 		if err != nil {
 			return
 		}
+		
 		localities = append(localities, locality)
 	}
 
@@ -124,7 +139,7 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 	return
 }
 
-func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
+func (rp *LocalitiesRepository) GetByID(id int) (l model.Locality, err error) {
 	query := "SELECT `id`, `locality_name`, `province_name`, `country_name` FROM `locality` WHERE `id` = ?"
 	row := rp.db.QueryRow(query, id)
 
@@ -134,6 +149,7 @@ func (rp *LocalitiesRepository) GetById(id int) (l model.Locality, err error) {
 		e := er.ErrLocalityNotFound
 		return l, e
 	}
+	
 	return
 }
 
@@ -141,6 +157,7 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 	query := "INSERT INTO `locality` (`locality_name`, `province_name`, `country_name`) VALUES (?, ?, ?)"
 	result, err := rp.db.Exec(query, (*locality).Locality, (*locality).Province, (*locality).Country)
 	err = rp.validateSQLError(err)
+	
 	if err != nil {
 		return
 	}
@@ -149,7 +166,8 @@ func (rp *LocalitiesRepository) CreateLocality(locality *model.Locality) (l mode
 	if err != nil {
 		return
 	}
-	l, _ = rp.GetById(int(id))
+	
+	l, _ = rp.GetByID(int(id))
 
 	return
 }
@@ -164,9 +182,10 @@ func (rp *LocalitiesRepository) validateSQLError(err error) (e error) {
 			case 1048:
 				e = er.ErrNullLocalityAttribute
 			default:
-				e = er.ErrDefaultLocalitySQL
+				e = er.ErrDefaultSQLLocality
 			}
 		}
 	}
+	
 	return e
 }

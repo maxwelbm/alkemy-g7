@@ -85,7 +85,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/sellers", func(r chi.Router) {
 		r.Get("/", sellersHandler.GetAllSellers)
-		r.Get("/{id}", sellersHandler.GetById)
+		r.Get("/{id}", sellersHandler.GetByID)
 		r.Post("/", sellersHandler.CreateSellers)
 		r.Patch("/{id}", sellersHandler.UpdateSellers)
 		r.Delete("/{id}", sellersHandler.DeleteSellers)
@@ -102,7 +102,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/localities", func(r chi.Router) {
 		r.Post("/", localitiesHandler.CreateLocality)
-		r.Get("/{id}", localitiesHandler.GetById)
+		r.Get("/{id}", localitiesHandler.GetByID)
 		r.Get("/reportCarriers", localitiesHandler.GetCarriers)
 		r.Get("/reportSellers", localitiesHandler.GetSellers)
 	})

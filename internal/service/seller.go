@@ -20,8 +20,8 @@ func (s *SellersService) GetAll() (sellers []model.Seller, err error) {
 	return
 }
 
-func (s *SellersService) GetById(id int) (seller model.Seller, err error) {
-	seller, err = s.rp.GetById(id)
+func (s *SellersService) GetByID(id int) (seller model.Seller, err error) {
+	seller, err = s.rp.GetByID(id)
 	return
 }
 
@@ -30,29 +30,33 @@ func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, er
 		return sl, err
 	}
 
-	_, err = s.rpl.GetById(seller.Locality)
+	_, err = s.rpl.GetByID(seller.Locality)
 	if err != nil {
 		return
 	}
 
 	sl, err = s.rp.Post(seller)
+	
 	return
 }
 
 func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Seller, err error) {
 	if seller.Locality != 0 {
-		_, err := s.rpl.GetById(seller.Locality)
+		_, err := s.rpl.GetByID(seller.Locality)
 		if err != nil {
 			return sl, err
 		}
 	}
 
-	existSl, _ := s.GetById(id)
+	existSl, _ := s.GetByID(id)
 	err = seller.ValidateUpdateFields(seller, &existSl)
+	
 	if err != nil {
 		return sl, err
 	}
+	
 	sl, err = s.rp.Patch(id, seller)
+	
 	return sl, err
 }
 

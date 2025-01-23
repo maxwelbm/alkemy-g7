@@ -26,5 +26,6 @@ var (
 	ErrInvalidLocalityJSONFormat = NewLocalityErr("invalid JSON format in the request body", http.StatusBadRequest)
 	ErrInvalidLocalityPathParam  = NewLocalityErr("invalid value for request path parameter", http.StatusUnprocessableEntity)
 	ErrNullLocalityAttribute     = NewLocalityErr("invalid request body: received empty or null value", http.StatusUnprocessableEntity)
-	ErrDefaultLocalitySQL        = NewLocalityErr("sql internal error", http.StatusInternalServerError)
+	ErrDefaultSQLLocality       = NewLocalityErr("sql server error", http.StatusInternalServerError)
+	ErrInternalServerLocality      = NewSellerErr("internal server error", http.StatusInternalServerError)
 )

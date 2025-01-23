@@ -23,15 +23,15 @@ type SellersJSON struct {
 }
 
 func CreateHandlerSellers(service interfaces.ISellerService) *SellersController {
-	return &SellersController{service: service}
+	return &SellersController{Service: service}
 }
 
 type SellersController struct {
-	service interfaces.ISellerService
+	Service interfaces.ISellerService
 }
 
 func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
-	sellers, err := hd.service.GetAll()
+	sellers, err := hd.Service.GetAll()
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -47,17 +47,19 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 			Locality:    value.Locality,
 		})
 	}
+	
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
-func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
+func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
+	
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	seller, err := hd.service.GetById(id)
+	seller, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -68,38 +70,40 @@ func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
 	var seller model.Seller
 	err := request.JSON(r, &seller)
+	
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	createdseller, err := hd.service.CreateSeller(&seller)
+	createdseller, err := hd.Service.CreateSeller(&seller)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdseller))
-
 }
 
 func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
+	
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	_, err = hd.service.GetById(id)
+	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
 	var s model.Seller
 	err = request.JSON(r, &s)
+	
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	seller, err := hd.service.UpdateSeller(id, &s)
+	seller, err := hd.Service.UpdateSeller(id, &s)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -110,16 +114,17 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
+	
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	_, err = hd.service.GetById(id)
+	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
-	err = hd.service.DeleteSeller(id)
+	err = hd.Service.DeleteSeller(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -139,8 +144,10 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			return true
 		}
 
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped seller handler error", nil))
+		
 		return true
 	}
+	
 	return false
 }
