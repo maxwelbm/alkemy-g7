@@ -22,6 +22,7 @@
     - Mysql
     - Testify
     - Chi
+    -Swaggo
 
 ## Pré-requisitos
 
@@ -42,9 +43,9 @@
        ```
 
 **Docker Compose**: A ferramenta Docker Compose deve estar instalada para orquestrar múltiplos contêineres. Você pode verificar se o Docker Compose está instalado executando:
-   ```bash
-   docker-compose --version
-   ```
+       ```bash
+       docker-compose --version
+       ```
 
 ## Instalação
 
