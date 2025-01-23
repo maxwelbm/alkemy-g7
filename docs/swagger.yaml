@@ -1,0 +1,277 @@
+basePath: /api/v1
+definitions:
+  model.Buyer:
+    properties:
+      card_number_id:
+        example: CN001
+        type: string
+      first_name:
+        example: Jhon
+        type: string
+      id:
+        example: 1
+        type: integer
+      last_name:
+        example: Doe
+        type: string
+    type: object
+  model.BuyerPurchaseOrder:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      purchase_orders_count:
+        type: integer
+    type: object
+  model.BuyerResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Buyer'
+        type: array
+    type: object
+  model.ErrorResponseSwagger:
+    properties:
+      message:
+        example: Error message
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This REST API provides access to Mercado Livre's new line of perishable
+    products, allowing users to efficiently manage, consult and purchase fresh products.
+    With support for CRUD operations, this API was designed to facilitate inventory
+    management, check product availability and ensure an agile and intuitive shopping
+    experience. Aimed at developers who want to integrate e-commerce solutions, the
+    API offers clear endpoints and comprehensive documentation for easy integration
+    and use.
+  title: Meli Fresh API
+  version: 1.0.0
+paths:
+  /buyers:
+    get:
+      description: Fetch all registered buyers from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BuyerResponseSwagger'
+        "500":
+          description: Unable to list Buyers
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve all buyers
+      tags:
+      - Buyer
+    post:
+      description: |-
+        This endpoint allows for creating a new buyer. It validates the input and checks for unique constraints on the card number.
+        422 responses may include:
+        - JSON syntax error (malformed JSON).
+        - Mandatory fields not filled in.
+      parameters:
+      - description: Buyer information
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/model.Buyer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.BuyerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Buyer'
+              type: object
+        "400":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: Card number already exists
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create buyer
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new buyer
+      tags:
+      - Buyer
+  /buyers/{id}:
+    delete:
+      description: This endpoint allows for deleting a buyer based on the provided
+        buyer ID. It checks for the existence of the buyer and any dependencies that
+        might prevent deletion.
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Buyer successfully deleted
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Buyer not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: Buyer cannot be deleted due to existing dependencies
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to delete buyer
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Delete a buyer by ID
+      tags:
+      - Buyer
+    get:
+      description: This endpoint fetches the details of a specific buyer based on
+        the provided buyer ID. It returns the buyer's information, including their
+        name and any other relevant details. If the buyer ID does not exist, it returns
+        a 404 Not Found error with an appropriate message.
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.BuyerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Buyer'
+              type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Buyer Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for buyer
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve buyer
+      tags:
+      - Buyer
+    patch:
+      description: |-
+        This endpoint allows for updating the details of a specific buyer identified by the provided ID. It validates the input and checks for unique constraints on the card number.
+        This endpoint performs the following actions:
+        1. Validates the provided ID and ensures it corresponds to an existing buyer.
+        2. Validates the input JSON for correct structure and required fields.
+        3. Checks for unique constraints, such as unique card numbers.
+        Responses for errors may include:
+        - **422**: Unprocessable Entity, responses may include:
+        - JSON syntax error (malformed JSON).
+        - Mandatory fields not filled in.
+
+        - **404**: Buyer not found, indicating the specified buyer does not exist.
+        - **409**: Card number already exists, indicating a unique constraint violation.
+        - **500**: Internal server error for unexpected issues.
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Buyer information
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/model.Buyer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Buyer successfully updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.BuyerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Buyer'
+              type: object
+        "404":
+          description: Buyer not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: Card number already exists
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to update buyer
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Update an existing buyer
+      tags:
+      - Buyer
+  /buyers/reportPurchaseOrders:
+    get:
+      description: This endpoint retrieves the count of purchase orders for a buyer.
+        If an ID is not provided, it returns the total count of all purchase orders.
+      parameters:
+      - description: Buyer ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.BuyerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.BuyerPurchaseOrder'
+              type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to count buyer purchase orders
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Count purchase orders for a buyer
+      tags:
+      - Buyer
+swagger: "2.0"
