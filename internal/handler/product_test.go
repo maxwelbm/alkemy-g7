@@ -312,7 +312,6 @@ func TestUpdateProduct(t *testing.T) {
 }
 
 func TestDeleteProduct(t *testing.T) {
-    // Função para simular a deleção do produto
     deleteProduct := func(id int) error {
         if id != 1 {
             return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
@@ -320,12 +319,10 @@ func TestDeleteProduct(t *testing.T) {
         return nil
     }
 
-    // Configura o handler com um Stub do serviço
     productHd := ProductHandler{
         ProductService: &StubMockProductService{FuncDeleteProduct: deleteProduct},
     }
 
-    // Configuração do roteador com chi
     r := chi.NewRouter()
     r.Delete("/api/v1/products/{id}", productHd.DeleteProductById)
 
@@ -353,8 +350,7 @@ func TestDeleteProduct(t *testing.T) {
         t.Run(tc.name, func(t *testing.T) {
             req := httptest.NewRequest("DELETE", "/api/v1/products/"+tc.id, nil)
             res := httptest.NewRecorder()
-
-            // Simula a requisição ao roteador
+			
             r.ServeHTTP(res, req)
 
             assert.Equal(t, tc.expectedStatusCode, res.Code)
