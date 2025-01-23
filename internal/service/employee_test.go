@@ -65,6 +65,39 @@ func TestInsertEmployee(t *testing.T) {
 
 }
 
+func TestGetEmployees(t *testing.T) {
+	t.Run("should return all the employees", func(t *testing.T) {
+		employeeRepo.On("Get", mock.Anything).Return([]model.Employee{{CardNumberID: "#123", ID: 1, FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, {ID: 2, CardNumberID: "#234", FirstName: "Yami", LastName: "Sukehiro", WarehouseID: 2}}, nil).Once()
+
+		employee, err := employeeSv.GetEmployees()
+
+		assert.NotNil(t, employee)
+		assert.Len(t, employee, 2)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return the error in case of repository err", func(t *testing.T) {
+		employeeRepo.On("Get", mock.Anything).Return([]model.Employee{}, custom_error.EmployeeErrInvalid).Once()
+
+		employee, err := employeeSv.GetEmployees()
+
+		assert.Nil(t, employee)
+		assert.Error(t, err)
+	})
+}
+
+func TestGetEmployeeByID(t *testing.T) {
+	t.Run("should return the employee by id", func(t *testing.T) {
+		mockEmployee := model.Employee{ID: 1, CardNumberID: "#123", FirstName: "Jack", LastName: "Chan", WarehouseID: 2}
+		employeeRepo.On("GetByID", mock.Anything).Return(mockEmployee, nil).Once()
+
+		employee, err := employeeSv.GetEmployeeByID(1)
+
+		assert.ObjectsAreEqualValues(employee, mockEmployee)
+		assert.Nil(t, err)
+	})
+}
+
 // Mock
 type employeeRepositoryMock struct {
 	mock.Mock
