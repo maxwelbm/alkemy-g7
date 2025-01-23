@@ -34,7 +34,7 @@ func LoadDependencies(slqDb *sql.DB) (*handler.ProductHandler, *handler.Employee
 	buyerHandler := handler.NewBuyerHandler(buyerService)
 
 	warehousesRepository := repository.NewWareHouseRepository(slqDb)
-	warehousesService := service.NewWareHoureService(warehousesRepository)
+	warehousesService := service.NewWareHouseService(warehousesRepository)
 	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
 	sectionsRep := repository.CreateRepositorySections(slqDb)
