@@ -20,6 +20,13 @@ func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 	return &BuyerHandler{svc}
 }
 
+// @Summary Retrieve all buyers
+// @Description Fetch all registered buyers from the database
+// @Tags Buyer
+// @Produce json
+// @Success 200 {object} model.BuyerResponseSwagger
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to list Buyers"
+// @Router /buyers [get]
 func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Request) {
 	buyers, err := bh.Svc.GetAllBuyer()
 	if err != nil {
@@ -30,6 +37,16 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyers))
 }
 
+// @Summary Retrieve buyer
+// @Description This endpoint fetches the details of a specific buyer based on the provided buyer ID. It returns the buyer's information, including their name and any other relevant details. If the buyer ID does not exist, it returns a 404 Not Found error with an appropriate message.
+// @Tags Buyer
+// @Produce json
+// @Param id path int true "Buyer ID"
+// @Success 200 {object} model.BuyerResponseSwagger{data=model.Buyer}
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID"
+// @Failure 404 {object} model.ErrorResponseSwagger "Buyer Not Found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for buyer"
+// @Router /buyers/{id} [get]
 func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 
@@ -56,6 +73,17 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
+// @Summary Delete a buyer by ID
+// @Description This endpoint allows for deleting a buyer based on the provided buyer ID. It checks for the existence of the buyer and any dependencies that might prevent deletion.
+// @Tags Buyer
+// @Produce json
+// @Param id path int true "Buyer ID"
+// @Success 204 {object} nil "Buyer successfully deleted"
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID"
+// @Failure 404 {object} model.ErrorResponseSwagger "Buyer not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "Buyer cannot be deleted due to existing dependencies"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete buyer"
+// @Router /buyers/{id} [delete]
 func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
@@ -81,6 +109,19 @@ func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
+// @Summary Create a new buyer
+// @Description This endpoint allows for creating a new buyer. It validates the input and checks for unique constraints on the card number.
+// @Description 422 responses may include:
+// @Description - JSON syntax error (malformed JSON).
+// @Description - Mandatory fields not filled in.
+// @Tags Buyer
+// @Produce json
+// @Param buyer body model.Buyer true "Buyer information"
+// @Success 201 {object} model.BuyerResponseSwagger{data=model.Buyer}
+// @Failure 400 {object} model.ErrorResponseSwagger "Unprocessable Entity"
+// @Failure 409 {object} model.ErrorResponseSwagger "Card number already exists"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to create buyer"
+// @Router /buyers [post]
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
 	var reqBody model.Buyer
 
@@ -117,6 +158,31 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
 }
 
+// @Summary Update an existing buyer
+// @Description This endpoint allows for updating the details of a specific buyer identified by the provided ID. It validates the input and checks for unique constraints on the card number.
+// @Description This endpoint performs the following actions:
+// @Description 1. Validates the provided ID and ensures it corresponds to an existing buyer.
+// @Description 2. Validates the input JSON for correct structure and required fields.
+// @Description 3. Checks for unique constraints, such as unique card numbers.
+// @Description Responses for errors may include:
+// @Description - **422**: Unprocessable Entity, responses may include:
+// @Description   - JSON syntax error (malformed JSON).
+// @Description   - Mandatory fields not filled in.
+// @Description
+// @Description - **404**: Buyer not found, indicating the specified buyer does not exist.
+// @Description - **409**: Card number already exists, indicating a unique constraint violation.
+// @Description  - **500**: Internal server error for unexpected issues.
+// @Tags Buyer
+// @Produce json
+// @Param id path int true "Buyer ID"
+// @Param buyer body model.Buyer true "Buyer information"
+// @Success 200 {object} model.BuyerResponseSwagger{data=model.Buyer} "Buyer successfully updated"
+// @Example 200 { "data": {"id": 1, "name": "Updated Buyer", "card_number": "1234-5678-9012-3456"} }
+// @Failure 422 {object} model.ErrorResponseSwagger "Unprocessable Entity"
+// @Failure 404 {object} model.ErrorResponseSwagger "Buyer not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "Card number already exists"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to update buyer"
+// @Router /buyers/{id} [patch]
 func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
@@ -161,6 +227,15 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
+// @Summary Count purchase orders for a buyer
+// @Description This endpoint retrieves the count of purchase orders for a buyer. If an ID is not provided, it returns the total count of all purchase orders.
+// @Tags Buyer
+// @Produce json
+// @Param id query int false "Buyer ID"
+// @Success 200 {object} model.BuyerResponseSwagger{data=model.BuyerPurchaseOrder}
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to count buyer purchase orders"
+// @Router /buyers/reportPurchaseOrders [get]
 func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 
