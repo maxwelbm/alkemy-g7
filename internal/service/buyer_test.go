@@ -165,3 +165,78 @@ func TestCreateBuyer(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
+func TestUpdateBuyer(t *testing.T) {
+	t.Run("buyer updated successfuly", func(t *testing.T) {
+		svc := setup()
+
+		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+
+		mockRepo.On("Update", 1, updatedBuyer).Return(nil)
+
+		buyer, err := svc.UpdateBuyer(1, updatedBuyer)
+
+		assert.NoError(t, err)
+		assert.Equal(t, updatedBuyer, buyer)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Buyer Not Found", func(t *testing.T) {
+		svc := setup()
+
+		UpdateBuyer := model.Buyer{Id: 99, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+
+		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		mockRepo.On("GetById", 99).Return(model.Buyer{}, expectedError)
+
+		buyer, err := svc.UpdateBuyer(99, UpdateBuyer)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		assert.Equal(t, model.Buyer{}, buyer)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Return error card_number already exists", func(t *testing.T) {
+		svc := setup()
+
+		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
+		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+
+		mockRepo.On("Update", 1, updatedBuyer).Return(expectedError)
+
+		buyer, err := svc.UpdateBuyer(1, updatedBuyer)
+
+		assert.Equal(t, model.Buyer{}, buyer)
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+
+	})
+
+	t.Run("return an error when updating buyer", func(t *testing.T) {
+		svc := setup()
+
+		updatedBuyer := model.Buyer{Id: 1, FirstName: "Ac", LastName: "Milan", CardNumberId: "4321"}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("GetById", 1).Return(updatedBuyer, nil)
+
+		mockRepo.On("Update", 1, updatedBuyer).Return(errors.New("unmapped error"))
+
+		buyer, err := svc.UpdateBuyer(1, updatedBuyer)
+
+		assert.Equal(t, model.Buyer{}, buyer)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+
+	})
+
+}
