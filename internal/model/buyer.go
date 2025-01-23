@@ -6,10 +6,10 @@ import (
 )
 
 type Buyer struct {
-	ID           int    `json:"id"`
-	CardNumberID string `json:"card_number_id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
+	ID           int    `json:"id" example:"1"`
+	CardNumberID string `json:"card_number_id" example:"CN001"`
+	FirstName    string `json:"first_name" example:"Jhon"`
+	LastName     string `json:"last_name" example:"Doe"`
 }
 
 type BuyerPurchaseOrder struct {
