@@ -20,6 +20,7 @@ func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 	return &BuyerHandler{svc}
 }
 
+// HandlerGetAllBuyers retrieves all buyers.
 // @Summary Retrieve all buyers
 // @Description Fetch all registered buyers from the database
 // @Tags Buyer
@@ -37,6 +38,7 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyers))
 }
 
+// HandlerGetBuyerByID retrieves a buyer by their ID.
 // @Summary Retrieve buyer
 // @Description This endpoint fetches the details of a specific buyer based on the provided buyer ID. It returns the buyer's information, including their name and any other relevant details. If the buyer ID does not exist, it returns a 404 Not Found error with an appropriate message.
 // @Tags Buyer
@@ -73,6 +75,7 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
+// HandlerDeleteBuyerByID deletes a buyer by their ID.
 // @Summary Delete a buyer by ID
 // @Description This endpoint allows for deleting a buyer based on the provided buyer ID. It checks for the existence of the buyer and any dependencies that might prevent deletion.
 // @Tags Buyer
@@ -109,6 +112,7 @@ func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
+// HandlerCreateBuyer creates a new buyer.
 // @Summary Create a new buyer
 // @Description This endpoint allows for creating a new buyer. It validates the input and checks for unique constraints on the card number.
 // @Description 422 responses may include:
@@ -158,6 +162,7 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
 }
 
+// HandlerUpdateBuyer updates an existing buyer.
 // @Summary Update an existing buyer
 // @Description This endpoint allows for updating the details of a specific buyer identified by the provided ID. It validates the input and checks for unique constraints on the card number.
 // @Description This endpoint performs the following actions:
@@ -227,6 +232,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
+// HandlerCountPurchaseOrderBuyer counts the purchase orders for a buyer.
 // @Summary Count purchase orders for a buyer
 // @Description This endpoint retrieves the count of purchase orders for a buyer. If an ID is not provided, it returns the total count of all purchase orders.
 // @Tags Buyer

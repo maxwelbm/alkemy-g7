@@ -9,17 +9,14 @@ type MockBuyerRepo struct {
 	mock.Mock
 }
 
-// CountPurchaseOrderBuyers implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
 	panic("unimplemented")
 }
 
-// CountPurchaseOrderByBuyerId implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
 	panic("unimplemented")
 }
 
-// Delete implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Delete(id int) (err error) {
 	args := m.Called(id)
 
@@ -28,7 +25,6 @@ func (m *MockBuyerRepo) Delete(id int) (err error) {
 	return
 }
 
-// Get implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Get() (buyers []model.Buyer, err error) {
 	args := m.Called()
 
@@ -39,7 +35,6 @@ func (m *MockBuyerRepo) Get() (buyers []model.Buyer, err error) {
 	return
 }
 
-// GetById implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) GetByID(id int) (buyer model.Buyer, err error) {
 	args := m.Called(id)
 
@@ -49,7 +44,6 @@ func (m *MockBuyerRepo) GetByID(id int) (buyer model.Buyer, err error) {
 	return
 }
 
-// Post implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Post(newBuyer model.Buyer) (id int64, err error) {
 	args := m.Called(newBuyer)
 
@@ -59,7 +53,6 @@ func (m *MockBuyerRepo) Post(newBuyer model.Buyer) (id int64, err error) {
 	return
 }
 
-// Update implements interfaces.IBuyerRepo.
 func (m *MockBuyerRepo) Update(id int, newBuyer model.Buyer) (err error) {
 	args := m.Called(id, newBuyer)
 
