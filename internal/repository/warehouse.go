@@ -85,11 +85,11 @@ func (r *WarehouseMysql) PostWareHouse(warehouse model.WareHouse) (id int64, err
 	return
 }
 
-func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse *model.WareHouse) (err error) {
+func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
 
 	_, err = r.db.Exec(
 		"UPDATE warehouses w SET w.warehouse_code = ?, w.address = ?, w.telephone = ?, w.minimum_capacity = ?, w.minimum_temperature = ? WHERE w.id = ?",
-		(*warehouse).WareHouseCode, (*warehouse).Address, (*warehouse).Telephone, (*warehouse).MinimunCapacity, (*warehouse).MinimunTemperature, (*warehouse).Id,
+		warehouse.WareHouseCode, warehouse.Address, warehouse.Telephone, warehouse.MinimunCapacity, warehouse.MinimunTemperature, warehouse.Id,
 	)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
