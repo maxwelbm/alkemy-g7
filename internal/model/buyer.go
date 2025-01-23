@@ -45,3 +45,11 @@ func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 
 	return nil
 }
+
+type BuyerResponseSwagger struct {
+	Data []Buyer `json:"data"`
+}
+
+type ErrorResponseSwagger struct {
+	Message string `json:"message" example:"Error message"`
+}
