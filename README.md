@@ -58,7 +58,7 @@
    ```
 3. **Crie e inicie os contêineres:**
   ```bash
-   docker-compose up
+   docker-compose up --build
    ```
 4. **Test um dos endpoints:**
 ```bash
