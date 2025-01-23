@@ -69,7 +69,7 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 		}
 	}
 
-	existingEmployee, err := e.GetEmployeeByID(id)
+	existingEmployee, err := e.rp.GetByID(id)
 
 	if err != nil {
 		return model.Employee{}, err
@@ -95,7 +95,7 @@ func (e *EmployeeService) GetInboundOrdersReportByEmployee(employeeID int) (mode
 		return model.InboundOrdersReportByEmployee{}, custom_error.EmployeeErrInvalid
 	}
 
-	_, err := e.GetEmployeeByID(employeeID)
+	_, err := e.rp.GetByID(employeeID)
 
 	if err != nil {
 		return model.InboundOrdersReportByEmployee{}, err

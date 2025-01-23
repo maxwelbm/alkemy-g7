@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -95,6 +96,60 @@ func TestGetEmployeeByID(t *testing.T) {
 
 		assert.ObjectsAreEqualValues(employee, mockEmployee)
 		assert.Nil(t, err)
+	})
+}
+
+func TestUpdateEmployee(t *testing.T) {
+	validEntry := model.Employee{
+		WarehouseID:  2,
+		FirstName:    "Renato",
+		LastName:     "Moicano",
+		CardNumberID: "#456",
+	}
+
+	t.Run("should merge the entry data with the existing employee data and return the updated employee", func(t *testing.T) {
+		existingEmployeeMock := model.Employee{ID: 1, CardNumberID: "#123", FirstName: "Islam", LastName: "Makhachev", WarehouseID: 1}
+		employeeRepo.On("GetByID", mock.Anything).Return(existingEmployeeMock, nil).Once()
+		employeeRepo.On("Update", mock.Anything, mock.Anything).Return(model.Employee{ID: existingEmployeeMock.ID, CardNumberID: validEntry.CardNumberID, FirstName: validEntry.FirstName, LastName: validEntry.LastName, WarehouseID: validEntry.WarehouseID}, nil)
+
+		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
+
+		employee, err := employeeSv.UpdateEmployee(1, validEntry)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, employee)
+		assert.Equal(t, validEntry.WarehouseID, employee.WarehouseID)
+		assert.NotEqual(t, existingEmployeeMock.FirstName, employee.FirstName)
+		assert.NotEqual(t, existingEmployeeMock.LastName, employee.LastName)
+		assert.Equal(t, validEntry.CardNumberID, employee.CardNumberID)
+	})
+
+	t.Run("should return an error in case an empty employeee", func(t *testing.T) {
+		invalidEntry := model.Employee{}
+
+		employee, err := employeeSv.UpdateEmployee(1, invalidEntry)
+
+		assert.Error(t, err)
+		assert.Empty(t, employee)
+	})
+
+	t.Run("should return an error in case of new warehouseid dont exist", func(t *testing.T) {
+		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, errors.New("")).Once()
+
+		employee, err := employeeSv.UpdateEmployee(1, validEntry)
+
+		assert.Error(t, err)
+		assert.Empty(t, employee)
+	})
+
+	t.Run("should return an error in case of employeeid dont exist", func(t *testing.T) {
+		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, custom_error.EmployeeErrNotFound)
+
+		employee, err := employeeSv.UpdateEmployee(1, validEntry)
+
+		assert.Error(t, err)
+		assert.Empty(t, employee)
 	})
 }
 
