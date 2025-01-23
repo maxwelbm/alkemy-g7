@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() *handler.SectionController {
+func setupService() *handler.SectionController {
 	mockSectionService := new(service.MockSectionService)
 	hd := handler.CreateHandlerSections(mockSectionService)
 	return hd
@@ -20,7 +20,7 @@ func setup() *handler.SectionController {
 
 func TestHandlerGet(t *testing.T) {
 	t.Run("return a list of all existing sections successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setupService()
 
 		expectedSections := []model.Section{{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}, {ID: 2, SectionNumber: "S02", CurrentTemperature: 15.0, MinimumTemperature: 10.0, CurrentCapacity: 20, MinimumCapacity: 10, MaximumCapacity: 30, WarehouseID: 2, ProductTypeID: 2}}
 
@@ -65,7 +65,7 @@ func TestHandlerGet(t *testing.T) {
 	})
 
 	t.Run("return an error when fetching sections", func(t *testing.T) {
-		hd := setup()
+		hd := setupService()
 
 		mockService := hd.Sv.(*service.MockSectionService)
 		mockService.On("Get").Return([]model.Section{}, errors.New("unable to list sections"))
