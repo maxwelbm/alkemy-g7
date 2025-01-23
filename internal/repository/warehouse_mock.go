@@ -9,8 +9,10 @@ type WareHouseMockRepo struct {
 	mock.Mock
 }
 
-func (w *WareHouseMockRepo) DeleteByIdWareHouse(id int) error {
-	panic("unimplemented")
+func (mock *WareHouseMockRepo) DeleteByIdWareHouse(id int) error {
+	args := mock.Called(id)
+
+	return args.Error(0)
 }
 
 func (mock *WareHouseMockRepo) GetAllWareHouse() (w []model.WareHouse, err error) {
