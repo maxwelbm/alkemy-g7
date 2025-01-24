@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
 	"github.com/stretchr/testify/assert"
@@ -16,8 +17,8 @@ var employeeSv = CreateEmployeeService(employeeRepo, warehouseRepo)
 
 func TestInsertEmployee(t *testing.T) {
 	t.Run("should create the employee case everything is ok", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, nil)
-		employeeRepo.On("Post", mock.Anything).Return(model.Employee{ID: 10, CardNumberID: "#123", FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, nil)
+		warehouseRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, nil).Once()
+		employeeRepo.On("Post", mock.Anything).Return(model.Employee{ID: 10, CardNumberID: "#123", FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, nil).Once()
 
 		validEntry := model.Employee{
 			CardNumberID: "#123",
@@ -48,7 +49,6 @@ func TestInsertEmployee(t *testing.T) {
 
 	t.Run("should return an error in case of warehouseNotFound", func(t *testing.T) {
 		warehouseRepo.On("GetByIdWareHouse", 2).Return(model.WareHouse{}, custom_error.ErrNotFound).Once()
-		employeeRepo.On("Post", mock.Anything).Return(model.Employee{ID: 10, CardNumberID: "#123", FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, nil)
 
 		validEntry := model.Employee{
 			CardNumberID: "#123",
@@ -64,6 +64,23 @@ func TestInsertEmployee(t *testing.T) {
 		assert.Empty(t, employee)
 	})
 
+	t.Run("should return an error in case of database error", func(t *testing.T) {
+		warehouseRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, nil)
+		employeeRepo.On("Post", mock.Anything).Return(model.Employee{}, &mysql.MySQLError{Number: 1062})
+
+		validEntry := model.Employee{
+			CardNumberID: "#123",
+			FirstName:    "Bruce",
+			LastName:     "Wayne",
+			WarehouseID:  1,
+		}
+
+		employee, err := employeeSv.InsertEmployee(validEntry)
+
+		assert.Error(t, err)
+		assert.EqualValues(t, custom_error.EmployeeErrDuplicatedCardNumber, err)
+		assert.Empty(t, employee)
+	})
 }
 
 func TestGetEmployees(t *testing.T) {
