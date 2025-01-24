@@ -258,7 +258,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 			call:       true,
 		},
 		{
-			description:   "create seller with attribute locality id inexisting",
+			description:   "create seller with attribute locality id not found",
 			arg:           model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
 			returnService: model.Seller{},
 			body: []byte(`{           
@@ -404,6 +404,23 @@ func TestHandlerUpdateSeller(t *testing.T) {
 			response:   `{"message":"seller's CID already exists"}`,
 			statusCode: http.StatusConflict,
 			err:        customError.ErrCIDSellerAlreadyExist,
+			call:       false,
+		},
+		{
+			description:   "update seller with attribute locality id not found",
+			arg:           model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
+			returnService: model.Seller{},
+			id: 7,
+			body: []byte(`{           
+							"cid": 8,
+							"company_name": "Rupture Clivers",
+							"address": "1200 New Time Park",
+							"telephone": "7776657987",
+							"locality_id": 9999
+						}`),
+			response:   `{"message":"locality not found"}`,
+			statusCode: http.StatusNotFound,
+			err:        customError.ErrLocalityNotFound,
 			call:       false,
 		},
 		{
