@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 func NewWareHouseRepository(db *sql.DB) *WarehouseMysql {
@@ -48,7 +48,7 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	err = row.Scan(&w.Id, &w.WareHouseCode, &w.Address, &w.Telephone, &w.MinimunCapacity, &w.MinimunTemperature)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewWareHouseError(custom_error.ErrNotFound.Error(), "warehouse", http.StatusNotFound)
+			err = customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound)
 		}
 		return
 	}
@@ -56,10 +56,10 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 	return
 }
 
-func (r *WarehouseMysql) PostWareHouse(warehouse *model.WareHouse) (id int64, err error) {
+func (r *WarehouseMysql) PostWareHouse(warehouse model.WareHouse) (id int64, err error) {
 	result, err := r.db.Exec(
 		"INSERT INTO `warehouses` (`warehouse_code`, `address`, `telephone`, `minimum_capacity`, `minimum_temperature`) VALUES (?, ?, ?, ?, ?)",
-		(*warehouse).WareHouseCode, (*warehouse).Address, (*warehouse).Telephone, (*warehouse).MinimunCapacity, (*warehouse).MinimunTemperature,
+		warehouse.WareHouseCode, warehouse.Address, warehouse.Telephone, warehouse.MinimunCapacity, warehouse.MinimunTemperature,
 	)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (r *WarehouseMysql) PostWareHouse(warehouse *model.WareHouse) (id int64, er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = custom_error.NewWareHouseError(custom_error.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
+				err = customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
 			default:
 				// ...
 			}
@@ -96,7 +96,7 @@ func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse *model.WareHouse) (er
 		if errors.As(err, &mysqlErr) {
 			switch mysqlErr.Number {
 			case 1062:
-				err = custom_error.NewWareHouseError(custom_error.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
+				err = customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
 			default:
 				// ...
 			}

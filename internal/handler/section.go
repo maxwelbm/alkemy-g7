@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type SectionsJSON struct {
@@ -30,18 +30,18 @@ type SectionJSON struct {
 	ProductTypeID      int     `json:"product_type_id"`
 }
 
-func CreateHandlerSections(sv *service.SectionService) *SectionController {
+func CreateHandlerSections(sv interfaces.ISectionService) *SectionController {
 	return &SectionController{sv}
 }
 
 type SectionController struct {
-	sv *service.SectionService
+	Sv interfaces.ISectionService
 }
 
 func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
-	s, err := h.sv.Get()
+	s, err := h.Sv.Get()
 	if err != nil {
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to list sections", nil))
 		return
 	}
 
@@ -71,9 +71,9 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := h.sv.GetById(idInt)
+	s, err := h.Sv.GetById(idInt)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -110,7 +110,7 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Post(&section)
+	s, err := h.Sv.Post(&section)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -150,7 +150,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 		ProductTypeID:      reqBody.ProductTypeID,
 	}
 
-	s, err := h.sv.Update(idInt, &sec)
+	s, err := h.Sv.Update(idInt, &sec)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -167,7 +167,7 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.sv.Delete(idInt)
+	err = h.Sv.Delete(idInt)
 	if err != nil {
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
@@ -180,7 +180,7 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 	idStr := r.URL.Query().Get("id")
 
 	if idStr == "" {
-		count, err := h.sv.CountProductBatchesSections()
+		count, err := h.Sv.CountProductBatchesSections()
 		if err != nil {
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
 			return
@@ -195,9 +195,9 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 		return
 	}
 
-	count, err := h.sv.CountProductBatchesBySectionId(id)
+	count, err := h.Sv.CountProductBatchesBySectionId(id)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -208,10 +208,10 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 }
 
 func handleError(err error) int {
-	if errors.Is(err, custom_error.ErrNotFoundErrorSection) {
+	if errors.Is(err, customError.ErrNotFoundErrorSection) {
 		return http.StatusNotFound
 	}
-	if errors.Is(err, custom_error.ErrConflictSection) {
+	if errors.Is(err, customError.ErrConflictSection) {
 		return http.StatusConflict
 	}
 
