@@ -42,6 +42,10 @@ func (mock *WareHouseMockRepo) PostWareHouse(warehouse model.WareHouse) (id int6
 	return
 }
 
-func (w *WareHouseMockRepo) UpdateWareHouse(id int, warehouse *model.WareHouse) (err error) {
-	panic("unimplemented")
+func (mock *WareHouseMockRepo) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
+	args := mock.Called(id, warehouse)
+
+	err = args.Error(0)
+
+	return
 }
