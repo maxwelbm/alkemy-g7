@@ -206,7 +206,7 @@ func TestPostWareHouse(t *testing.T) {
 
 func TestUpdateWarehouse(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
-		svc := setup()
+		svc := setupWarehouse()
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
 
@@ -228,7 +228,7 @@ func TestUpdateWarehouse(t *testing.T) {
 	})
 
 	t.Run("UpdateError", func(t *testing.T) {
-		svc := setup()
+		svc := setupWarehouse()
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
 
