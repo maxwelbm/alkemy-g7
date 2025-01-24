@@ -227,6 +227,36 @@ func TestInsertEmployee(t *testing.T) {
 		assert.Equal(t, expected, res.Body.String())
 	})
 
+	t.Run("should return 400 bad request when invalid request body", func(t *testing.T) {
+		reqBody := `something`
+		req := createRequest(string(reqBody))
+		res := httptest.NewRecorder()
+
+		employeeHd.InsertEmployee(res, req)
+
+		expected := `{"message":"error parsing the request body"}`
+
+		assert.Equal(t, http.StatusBadRequest, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 500 internal error in case of unexpected error", func(t *testing.T) {
+		insertEmployee := func(employee model.Employee) (model.Employee, error) {
+			return model.Employee{}, errors.New("unexpected error")
+		}
+
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncInsertEmployee: insertEmployee},
+		}
+
+		req := createRequest(string(employeeJSON))
+		res := httptest.NewRecorder()
+
+		employeeHd.InsertEmployee(res, req)
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, res.Code, http.StatusInternalServerError)
+		assert.Equal(t, res.Body.String(), expected)
+	})
 }
 
 func TestUpdateEmployee(t *testing.T) {
