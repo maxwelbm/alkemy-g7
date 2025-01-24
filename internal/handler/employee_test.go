@@ -396,6 +396,37 @@ func TestDeleteEmployee(t *testing.T) {
 		assert.Equal(t, expected, res.Body.String())
 
 	})
+	t.Run("should return an error in case of invalid id type", func(t *testing.T) {
+		req := httptest.NewRequest("DELETE", "/api/v1/employees/something", nil)
+		res := httptest.NewRecorder()
+
+		r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
+
+		r.ServeHTTP(res, req)
+
+		expected := `{"message":"error parsing the id in path param"}`
+		assert.Equal(t, http.StatusBadRequest, res.Code)
+		assert.Equal(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 500 internal error in case of unexpected error", func(t *testing.T) {
+		deleteEmployee := func(id int) error {
+			return errors.New("unexpected error")
+		}
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncDeleteEmployee: deleteEmployee},
+		}
+
+		req := httptest.NewRequest("DELETE", "/api/v1/employees/1", nil)
+		res := httptest.NewRecorder()
+
+		r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
+		r.ServeHTTP(res, req)
+
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, res.Code, http.StatusInternalServerError)
+		assert.Equal(t, res.Body.String(), expected)
+	})
 }
 
 // StubMockService
