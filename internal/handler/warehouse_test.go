@@ -72,5 +72,4 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 		mockServiceWarehouse.AssertExpectations(t)
 
 	})
-
 }
