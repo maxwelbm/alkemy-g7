@@ -123,6 +123,14 @@ func TestHandlerGetByIDSeller(t *testing.T) {
             statusCode:    http.StatusNotFound,
             err:           customError.ErrSellerNotFound,
         },
+        {
+            description:   "get seller by id with internal server error",
+            returnService: model.Seller{},
+            id:            4,
+            response:      `{"message":"internal server error"}`,
+            statusCode:    http.StatusInternalServerError,
+            err:           customError.ErrDefaultSeller,
+        },
     }
     for _, test := range tests {
         t.Run(test.description, func(t *testing.T) {
