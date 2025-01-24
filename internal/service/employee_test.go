@@ -144,12 +144,31 @@ func TestUpdateEmployee(t *testing.T) {
 
 	t.Run("should return an error in case of employeeid dont exist", func(t *testing.T) {
 		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
-		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, custom_error.EmployeeErrNotFound)
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, custom_error.EmployeeErrNotFound).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
 
 		assert.Error(t, err)
 		assert.Empty(t, employee)
+	})
+}
+
+func TestDeleteEmployee(t *testing.T) {
+	t.Run("should return nil case success", func(t *testing.T) {
+		employeeRepo.On("GetByID", 1).Return(model.Employee{}, nil).Once()
+		employeeRepo.On("Delete", mock.Anything).Return(nil).Once()
+
+		err := employeeSv.DeleteEmployee(1)
+
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return an error case employee id in case of employee id dont exist", func(t *testing.T) {
+		employeeRepo.On("GetByID", 1).Return(model.Employee{}, custom_error.EmployeeErrNotFound)
+
+		err := employeeSv.DeleteEmployee(1)
+
+		assert.Error(t, err)
 	})
 }
 
