@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -30,6 +31,41 @@ func TestGetEmployeesHandler(t *testing.T) {
 		employeeHd.GetEmployeesHandler(res, req)
 		expected := `{"data":[{"id":1,"card_number_id":"1","first_name":"John","last_name":"Cena","warehouse_id":1},{"id":2,"card_number_id":"2","first_name":"Martha","last_name":"Piana","warehouse_id":2}]}`
 		assert.Equal(t, res.Code, http.StatusOK)
+		assert.Equal(t, res.Body.String(), expected)
+	})
+
+	findAll = func() ([]model.Employee, error) {
+		return []model.Employee{}, errors.New("something went wrong")
+	}
+
+	employeeHd = EmployeeHandler{
+		sv: &StubMockService{FuncGetEmployees: findAll},
+	}
+	t.Run("should return 500 internal error in case of unexpected error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/v1/employees", nil)
+		res := httptest.NewRecorder()
+
+		employeeHd.GetEmployeesHandler(res, req)
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, res.Code, http.StatusInternalServerError)
+		assert.Equal(t, res.Body.String(), expected)
+	})
+
+	findAll = func() ([]model.Employee, error) {
+		return []model.Employee{}, customError.EmployeeErrNotFound
+	}
+
+	employeeHd = EmployeeHandler{
+		sv: &StubMockService{FuncGetEmployees: findAll},
+	}
+
+	t.Run("should return error in case of expected error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/v1/employees", nil)
+		res := httptest.NewRecorder()
+
+		employeeHd.GetEmployeesHandler(res, req)
+		expected := `{"message":"employee not found"}`
+		assert.Equal(t, res.Code, http.StatusNotFound)
 		assert.Equal(t, res.Body.String(), expected)
 	})
 }
