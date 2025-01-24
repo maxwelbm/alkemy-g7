@@ -11,7 +11,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -121,7 +121,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			id:            999,
 			response:      `{"message":"seller not found"}`,
 			statusCode:    http.StatusNotFound,
-			err:           custom_error.ErrSellerNotFound,
+			err:           customError.ErrSellerNotFound,
 		},
 	}
 	for _, test := range tests {
