@@ -390,6 +390,23 @@ func TestHandlerUpdateSeller(t *testing.T) {
 			call:       false,
 		},
 		{
+			description:   "update seller with attribute cid already existing",
+			arg:           model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Perk", Telephone: "55566777787", Locality: 17},
+			id: 9,
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": 1,
+							"company_name": "Midgard Sellers",
+							"address": "3 New Time Park",
+							"telephone": "99989898778",
+							"locality_id": 17
+						}`),
+			response:   `{"message":"seller's CID already exists"}`,
+			statusCode: http.StatusConflict,
+			err:        customError.ErrCIDSellerAlreadyExist,
+			call:       false,
+		},
+		{
 			description:   "update seller with zero id",
 			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central Perk", Telephone: "55566777787", Locality: 30},
 			id:            0,
