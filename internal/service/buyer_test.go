@@ -8,7 +8,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -69,7 +69,7 @@ func TestGetBuyerByID(t *testing.T) {
 	t.Run("Return buyer not Found", func(t *testing.T) {
 		svc := setup()
 
-		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		expectedError := customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
@@ -116,7 +116,7 @@ func TestCreateBuyer(t *testing.T) {
 	t.Run("Return error card_number already exists", func(t *testing.T) {
 		svc := setup()
 
-		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
+		expectedError := customError.NewBuyerError(http.StatusConflict, customError.ErrConflict.Error(), "card_number_id")
 		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
@@ -154,7 +154,7 @@ func TestCreateBuyer(t *testing.T) {
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("Post", createdBuyer).Return(int64(1), nil)
 
-		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		expectedError := customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
 		mockRepo.On("GetByID", 1).Return(model.Buyer{}, expectedError)
 
 		buyer, err := svc.CreateBuyer(createdBuyer)
@@ -190,7 +190,7 @@ func TestUpdateBuyer(t *testing.T) {
 		UpdateBuyer := model.Buyer{ID: 99, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 
-		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		expectedError := customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
 		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
 
 		buyer, err := svc.UpdateBuyer(99, UpdateBuyer)
@@ -204,7 +204,7 @@ func TestUpdateBuyer(t *testing.T) {
 	t.Run("Return error card_number already exists", func(t *testing.T) {
 		svc := setup()
 
-		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrConflict.Error(), "card_number_id")
+		expectedError := customError.NewBuyerError(http.StatusConflict, customError.ErrConflict.Error(), "card_number_id")
 		updatedBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
@@ -262,7 +262,7 @@ func TestDeleteBuyerByID(t *testing.T) {
 
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 
-		expectedError := custom_error.NewBuyerError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Buyer")
+		expectedError := customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
 		mockRepo.On("GetByID", 99).Return(model.Buyer{}, expectedError)
 
 		err := svc.DeleteBuyerByID(99)
@@ -279,7 +279,7 @@ func TestDeleteBuyerByID(t *testing.T) {
 		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
 		mockRepo.On("GetByID", 1).Return(deletedBuyer, nil)
 
-		expectedError := custom_error.NewBuyerError(http.StatusConflict, custom_error.ErrDependencies.Error(), "Buyer")
+		expectedError := customError.NewBuyerError(http.StatusConflict, customError.ErrDependencies.Error(), "Buyer")
 		mockRepo.On("Delete", 1).Return(expectedError)
 
 		err := svc.DeleteBuyerByID(1)

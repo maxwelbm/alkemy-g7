@@ -10,7 +10,7 @@ import (
 	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type WarehouseHandler struct {
@@ -46,7 +46,7 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 		warehouse, err := h.srv.GetByIdWareHouse(id)
 
 		if err != nil {
-			if err, ok := err.(*custom_error.WareHouseError); ok {
+			if err, ok := err.(*customError.WareHouseError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
@@ -72,7 +72,7 @@ func (h *WarehouseHandler) DeleteByIdWareHouse() http.HandlerFunc {
 		err = h.srv.DeleteByIdWareHouse(id)
 
 		if err != nil {
-			if err, ok := err.(*custom_error.WareHouseError); ok {
+			if err, ok := err.(*customError.WareHouseError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
@@ -101,7 +101,7 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 		warehouse, err := h.srv.PostWareHouse(reqBody)
 
 		if err != nil {
-			if err, ok := err.(*custom_error.WareHouseError); ok {
+			if err, ok := err.(*customError.WareHouseError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
@@ -139,7 +139,7 @@ func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 		warehouse, err := h.srv.UpdateWareHouse(id, reqBody)
 
 		if err != nil {
-			if err, ok := err.(*custom_error.WareHouseError); ok {
+			if err, ok := err.(*customError.WareHouseError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}

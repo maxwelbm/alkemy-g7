@@ -9,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type BuyerHandler struct {
@@ -62,7 +62,7 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 	buyer, err := bh.Svc.GetBuyerByID(id)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.BuyerError); ok {
+		if err, ok := err.(*customError.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -99,7 +99,7 @@ func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Re
 	err = bh.Svc.DeleteBuyerByID(id)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.BuyerError); ok {
+		if err, ok := err.(*customError.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -149,7 +149,7 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.Svc.CreateBuyer(reqBody)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.BuyerError); ok {
+		if err, ok := err.(*customError.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -219,7 +219,7 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	buyer, err := bh.Svc.UpdateBuyer(id, reqBody)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.BuyerError); ok {
+		if err, ok := err.(*customError.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -248,7 +248,7 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 	if idStr == "" {
 		count, err := bh.Svc.CountPurchaseOrderBuyer()
 		if err != nil {
-			if err, ok := err.(*custom_error.BuyerError); ok {
+			if err, ok := err.(*customError.BuyerError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
@@ -271,7 +271,7 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 
 	count, err := bh.Svc.CountPurchaseOrderByBuyerID(id)
 	if err != nil {
-		if err, ok := err.(*custom_error.BuyerError); ok {
+		if err, ok := err.(*customError.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return

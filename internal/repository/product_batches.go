@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type ProductBatchesRepository struct {
@@ -23,7 +23,7 @@ func (r *ProductBatchesRepository) GetById(id int) (prodBatches model.ProductBat
 	err = row.Scan(&prodBatches.ID, &prodBatches.BatchNumber, &prodBatches.CurrentQuantity, &prodBatches.CurrentTemperature, &prodBatches.MinimumTemperature, &prodBatches.DueDate, &prodBatches.InitialQuantity, &prodBatches.ManufacturingDate, &prodBatches.ManufacturingHour, &prodBatches.ProductID, &prodBatches.SectionID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.HandleError("product batches", custom_error.ErrorNotFound, "")
+			err = customError.HandleError("product batches", customError.ErrorNotFound, "")
 		}
 		return
 	}
@@ -37,7 +37,7 @@ func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newP
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.HandleError("product batches:", custom_error.ErrorConflict, "")
+			err = customError.HandleError("product batches:", customError.ErrorConflict, "")
 		}
 		return
 	}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type PurchaseOrderRepository struct {
@@ -24,7 +24,7 @@ func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.NewPurcahseOrderError(http.StatusConflict, custom_error.ErrConflict.Error(), "order_number")
+			err = customError.NewPurcahseOrderError(http.StatusConflict, customError.ErrConflict.Error(), "order_number")
 		}
 
 		return
@@ -42,7 +42,7 @@ func (p *PurchaseOrderRepository) GetById(id int) (purchaseOrder model.PurchaseO
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.NewPurcahseOrderError(http.StatusNotFound, custom_error.ErrNotFound.Error(), "Purchase Order")
+			err = customError.NewPurcahseOrderError(http.StatusNotFound, customError.ErrNotFound.Error(), "Purchase Order")
 		}
 
 		return

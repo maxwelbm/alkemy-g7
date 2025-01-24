@@ -18,12 +18,12 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {
-	dbConfig, err := database.GetDbConfig()
+	dbConfig, err := database.GetDBConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	db, err := database.NewConnectionDb(dbConfig)
+	db, err := database.NewConnectionDB(dbConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +48,6 @@ func initRoutes(productHandler *handler.ProductHandler,
 	warehouseHandler *handler.WarehouseHandler, purchaseOrderHandler *handler.PurchaseOrderHandler,
 	inboundHandler *handler.InboundOrderHandler, productRecHandler *handler.ProductRecHandler,
 	productBatchesHandler *handler.ProductBatchesController, localitiesHandler *handler.LocalitiesController, carrierHandler *handler.CarrierHandler) *chi.Mux {
-
 	rt := chi.NewRouter()
 
 	rt.Get("/swagger/*", httpSwagger.WrapHandler)
