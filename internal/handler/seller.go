@@ -38,12 +38,21 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 			Locality:    value.Locality,
 		})
 	}
+
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
 func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
+
+	if id == 0 || err != nil {
+		err := er.ErrMissingSellerID
+		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
+		return
+	}
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -69,12 +78,19 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdseller))
-
 }
 
 func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
+
+	if id == 0 || err != nil {
+		err := er.ErrMissingSellerID
+		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
+		return
+	}
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -101,6 +117,14 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
+
+	if id == 0 || err != nil {
+		err := er.ErrMissingSellerID
+		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
+		return
+	}
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -131,7 +155,9 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped seller handler error", nil))
+
 		return true
 	}
+
 	return false
 }

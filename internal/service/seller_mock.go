@@ -34,7 +34,11 @@ func (s *SellerMockService) CreateSeller(seller *model.Seller) (sl model.Seller,
 }
 
 func (s *SellerMockService) UpdateSeller(id int, seller *model.Seller) (sl model.Seller, err error) {
-	panic("unimplemented")
+	args := s.Called(id, seller)
+	sl = args.Get(0).(model.Seller)
+	err = args.Error(1)
+
+	return
 }
 
 func (s *SellerMockService) DeleteSeller(id int) error {
