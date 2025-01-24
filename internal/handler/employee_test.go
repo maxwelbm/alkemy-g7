@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,7 +58,7 @@ func TestGetEmployeeById(t *testing.T) {
 
 	t.Run("should return a not found when employee id not exists", func(t *testing.T) {
 		getById := func(id int) (model.Employee, error) {
-			return model.Employee{}, custom_error.EmployeeErrNotFound
+			return model.Employee{}, customError.EmployeeErrNotFound
 		}
 		employeeHd := EmployeeHandler{
 			sv: &StubMockService{FuncGetEmployeeById: getById},
@@ -120,7 +120,7 @@ func TestInsertEmployee(t *testing.T) {
 		}`
 
 		insertEmployee := func(employee model.Employee) (model.Employee, error) {
-			return model.Employee{}, custom_error.EmployeeErrInvalid
+			return model.Employee{}, customError.EmployeeErrInvalid
 		}
 
 		employeeHd := EmployeeHandler{
@@ -140,7 +140,7 @@ func TestInsertEmployee(t *testing.T) {
 
 	t.Run("should return 409 conflict when cardnumberid already exists", func(t *testing.T) {
 		insertEmployee := func(employee model.Employee) (model.Employee, error) {
-			return model.Employee{}, custom_error.EmployeeErrDuplicatedCardNumber
+			return model.Employee{}, customError.EmployeeErrDuplicatedCardNumber
 		}
 
 		employeeHd := EmployeeHandler{
@@ -194,7 +194,7 @@ func TestUpdateEmployee(t *testing.T) {
 
 	t.Run("should return 404 not found when employee not found", func(t *testing.T) {
 		updateEmployee := func(id int, employee model.Employee) (model.Employee, error) {
-			return model.Employee{}, custom_error.EmployeeErrNotFound
+			return model.Employee{}, customError.EmployeeErrNotFound
 		}
 		employeeHd := EmployeeHandler{
 			sv: &StubMockService{FuncUpdateEmployee: updateEmployee},
@@ -235,7 +235,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 	t.Run("should return 404 not found when employee id dont exist", func(t *testing.T) {
 		deleteEmployee := func(id int) error {
-			return custom_error.EmployeeErrNotFound
+			return customError.EmployeeErrNotFound
 		}
 		employeeHd := EmployeeHandler{
 			sv: &StubMockService{FuncDeleteEmployee: deleteEmployee},

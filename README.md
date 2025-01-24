@@ -22,6 +22,7 @@
     - Mysql
     - Testify
     - Chi
+    -Swaggo
 
 ## Pré-requisitos
 
@@ -42,9 +43,9 @@
        ```
 
 **Docker Compose**: A ferramenta Docker Compose deve estar instalada para orquestrar múltiplos contêineres. Você pode verificar se o Docker Compose está instalado executando:
-   ```bash
-   docker-compose --version
-   ```
+       ```bash
+       docker-compose --version
+       ```
 
 ## Instalação
 
@@ -53,16 +54,16 @@
    git clone https://github.com/maxwelbm/alkemy-g7.git
    ```
 2. **Navegue até o diretório do projeto:**
-```bash
+   ```bash
    cd alkemy-g7
    ```
 3. **Crie e inicie os contêineres:**
-  ```bash
-   docker-compose up
+   ```bash
+   docker-compose up --build
    ```
-4. **Test um dos endpoints:**
-```bash
-   curl http://localhost:8080/api/v1/buyers
+4. **Acesse Swagger para testar os endpoints:**
+   ```bash
+   http://localhost:8080/swagger/index.html
    ```
 
 ## Contribuição
