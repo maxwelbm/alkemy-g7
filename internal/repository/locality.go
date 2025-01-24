@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 func CreateRepositoryLocalities(db *sql.DB) *LocalitiesRepository {

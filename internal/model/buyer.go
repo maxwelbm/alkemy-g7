@@ -6,15 +6,15 @@ import (
 )
 
 type Buyer struct {
-	Id           int    `json:"id"`
-	CardNumberId string `json:"card_number_id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
+	ID           int    `json:"id" example:"1"`
+	CardNumberID string `json:"card_number_id" example:"CN001"`
+	FirstName    string `json:"first_name" example:"Jhon"`
+	LastName     string `json:"last_name" example:"Doe"`
 }
 
 type BuyerPurchaseOrder struct {
-	Id                  int    `json:"id"`
-	CardNumberId        string `json:"card_number_id"`
+	ID                  int    `json:"id"`
+	CardNumberID        string `json:"card_number_id"`
 	FirstName           string `json:"first_name"`
 	LastName            string `json:"last_name"`
 	PurchaseOrdersCount int    `json:"purchase_orders_count"`
@@ -23,12 +23,14 @@ type BuyerPurchaseOrder struct {
 func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	var fieldsEmpty []string
 
-	if b.CardNumberId == "" {
+	if b.CardNumberID == "" {
 		fieldsEmpty = append(fieldsEmpty, "card_number_id")
 	}
+
 	if b.FirstName == "" {
 		fieldsEmpty = append(fieldsEmpty, "first_name")
 	}
+
 	if b.LastName == "" {
 		fieldsEmpty = append(fieldsEmpty, "last_name")
 	}
@@ -42,5 +44,12 @@ func (b *Buyer) ValidateEmptyFields(isPatch bool) error {
 	}
 
 	return nil
+}
 
+type BuyerResponseSwagger struct {
+	Data []Buyer `json:"data"`
+}
+
+type ErrorResponseSwagger struct {
+	Message string `json:"message" example:"Error message"`
 }

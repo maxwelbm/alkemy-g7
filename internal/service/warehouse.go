@@ -6,11 +6,11 @@ import (
 )
 
 type WareHouseDefault struct {
-	rp interfaces.IWarehouseRepo
+	Rp interfaces.IWarehouseRepo
 }
 
-func NewWareHoureService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
-	return &WareHouseDefault{rp: rp}
+func NewWareHouseService(rp interfaces.IWarehouseRepo) *WareHouseDefault {
+	return &WareHouseDefault{Rp: rp}
 }
 
 func (wp *WareHouseDefault) DeleteByIdWareHouse(id int) error {
@@ -20,7 +20,7 @@ func (wp *WareHouseDefault) DeleteByIdWareHouse(id int) error {
 		return err
 	}
 
-	err = wp.rp.DeleteByIdWareHouse(id)
+	err = wp.Rp.DeleteByIdWareHouse(id)
 
 	if err != nil {
 		return err
@@ -30,18 +30,18 @@ func (wp *WareHouseDefault) DeleteByIdWareHouse(id int) error {
 }
 
 func (wp *WareHouseDefault) GetAllWareHouse() (w []model.WareHouse, err error) {
-	w, err = wp.rp.GetAllWareHouse()
+	w, err = wp.Rp.GetAllWareHouse()
 	return
 }
 
 func (wp *WareHouseDefault) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
-	w, err = wp.rp.GetByIdWareHouse(id)
+	w, err = wp.Rp.GetByIdWareHouse(id)
 	return
 }
 
 func (wp *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
 
-	id, err := wp.rp.PostWareHouse(&warehouse)
+	id, err := wp.Rp.PostWareHouse(warehouse)
 
 	if err != nil {
 		return
@@ -79,7 +79,7 @@ func (wp *WareHouseDefault) UpdateWareHouse(id int, warehouse model.WareHouse) (
 		warehouseExisting.MinimunTemperature = warehouse.MinimunTemperature
 	}
 
-	err = wp.rp.UpdateWareHouse(id, &warehouseExisting)
+	err = wp.Rp.UpdateWareHouse(id, &warehouseExisting)
 
 	if err != nil {
 		return

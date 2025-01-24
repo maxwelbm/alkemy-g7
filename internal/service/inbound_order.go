@@ -5,7 +5,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	servicesInterfaces "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type InboundOrderService struct {
@@ -29,13 +29,13 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	isValid := inboundOrder.IsValid()
 
 	if !isValid {
-		return model.InboundOrder{}, custom_error.InboundErrInvalidEntry
+		return model.InboundOrder{}, customError.InboundErrInvalidEntry
 	}
 
 	_, err := i.employeeSv.GetEmployeeByID(inboundOrder.EmployeeID)
 
 	if err != nil {
-		return model.InboundOrder{}, custom_error.InboundErrInvalidEmployee
+		return model.InboundOrder{}, customError.InboundErrInvalidEmployee
 	}
 
 	//@todo
@@ -44,7 +44,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	_, err = i.warehouseSv.GetByIdWareHouse(inboundOrder.WareHouseID)
 
 	if err != nil {
-		return model.InboundOrder{}, custom_error.InboundErrInvalidWarehouse
+		return model.InboundOrder{}, customError.InboundErrInvalidWarehouse
 	}
 
 	entry, err := i.rp.Post(inboundOrder)
@@ -57,9 +57,9 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 
 		switch mysqlErr.Number {
 		case 1452:
-			return model.InboundOrder{}, custom_error.InboundErrInvalidProductBatch
+			return model.InboundOrder{}, customError.InboundErrInvalidProductBatch
 		case 1062:
-			return model.InboundOrder{}, custom_error.InboundErrDuplicatedOrderNumber
+			return model.InboundOrder{}, customError.InboundErrDuplicatedOrderNumber
 		default:
 			return model.InboundOrder{}, err
 		}
