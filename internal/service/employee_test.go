@@ -133,7 +133,7 @@ func TestUpdateEmployee(t *testing.T) {
 		assert.Empty(t, employee)
 	})
 
-	t.Run("should return an error in case of new warehouseid dont exist", func(t *testing.T) {
+	t.Run("should return an error in case of new warehouseid does not exist", func(t *testing.T) {
 		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, errors.New("")).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
@@ -142,7 +142,7 @@ func TestUpdateEmployee(t *testing.T) {
 		assert.Empty(t, employee)
 	})
 
-	t.Run("should return an error in case of employeeid dont exist", func(t *testing.T) {
+	t.Run("should return an error in case of employeeid does not exist", func(t *testing.T) {
 		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
 		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, custom_error.EmployeeErrNotFound).Once()
 
@@ -163,13 +163,66 @@ func TestDeleteEmployee(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("should return an error case employee id in case of employee id dont exist", func(t *testing.T) {
-		employeeRepo.On("GetByID", 1).Return(model.Employee{}, custom_error.EmployeeErrNotFound)
+	t.Run("should return an error case employee id in case of employee id does not exist", func(t *testing.T) {
+		employeeRepo.On("GetByID", 1).Return(model.Employee{}, custom_error.EmployeeErrNotFound).Once()
 
 		err := employeeSv.DeleteEmployee(1)
 
 		assert.Error(t, err)
 	})
+}
+
+func TestGetInboundOrdersReports(t *testing.T) {
+	t.Run("should return all inbound orders reports", func(t *testing.T) {
+		employeeRepo.On("GetInboundOrdersReports", mock.Anything).Return([]model.InboundOrdersReportByEmployee{
+			{ID: 1, CardNumberID: "123", FirstName: "Islam", LastName: "Makhachev", WarehouseID: 1, InboundOrdersCount: 3},
+			{ID: 2, CardNumberID: "456", FirstName: "Jon", LastName: "Jones", WarehouseID: 2, InboundOrdersCount: 0}}, nil)
+
+		inboundOrders, err := employeeSv.GetInboundOrdersReports()
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, inboundOrders)
+		assert.Len(t, inboundOrders, 2)
+	})
+}
+
+func TestGetInboundOrdersReportByEmployee(t *testing.T) {
+	t.Run("should return the inbound orders by employee", func(t *testing.T) {
+		mockData := model.InboundOrdersReportByEmployee{ID: 1, CardNumberID: "#123", FirstName: "Jon", LastName: "Jones", WarehouseID: 2, InboundOrdersCount: 30}
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, nil).Once()
+		employeeRepo.On("GetInboundOrdersReportByEmployee", mock.Anything).Return(mockData, nil).Once()
+		inboundOrders, err := employeeSv.GetInboundOrdersReportByEmployee(1)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, inboundOrders)
+		assert.EqualValues(t, inboundOrders, mockData)
+	})
+	t.Run("should return an error in case of negative employeeid", func(t *testing.T) {
+		inboundOrders, err := employeeSv.GetInboundOrdersReportByEmployee(-1)
+
+		assert.Error(t, err)
+		assert.Empty(t, inboundOrders)
+		assert.EqualValues(t, err, custom_error.EmployeeErrInvalid)
+	})
+	t.Run("should return an error in case of employee does not exist", func(t *testing.T) {
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, custom_error.EmployeeErrNotFound).Once()
+		inboundOrders, err := employeeSv.GetInboundOrdersReportByEmployee(1)
+
+		assert.Error(t, err)
+		assert.Empty(t, inboundOrders)
+		assert.EqualValues(t, err, custom_error.EmployeeErrNotFound)
+	})
+	t.Run("should return an error in case of repository method fails", func(t *testing.T) {
+		repoMockErr := errors.New("something went wrong")
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, nil).Once()
+		employeeRepo.On("GetInboundOrdersReportByEmployee", mock.Anything).Return(model.InboundOrdersReportByEmployee{}, repoMockErr).Once()
+		inboundOrders, err := employeeSv.GetInboundOrdersReportByEmployee(1)
+
+		assert.Error(t, err)
+		assert.Empty(t, inboundOrders)
+		assert.EqualValues(t, err, repoMockErr)
+	})
+
 }
 
 // Mock
