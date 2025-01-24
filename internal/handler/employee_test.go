@@ -64,6 +64,7 @@ func TestGetEmployeesHandler(t *testing.T) {
 		res := httptest.NewRecorder()
 
 		employeeHd.GetEmployeesHandler(res, req)
+
 		expected := `{"message":"employee not found"}`
 		assert.Equal(t, res.Code, http.StatusNotFound)
 		assert.Equal(t, res.Body.String(), expected)
@@ -110,6 +111,38 @@ func TestGetEmployeeById(t *testing.T) {
 		expected := `{"message":"employee not found"}`
 		assert.Equal(t, http.StatusNotFound, res.Code)
 		assert.Equal(t, expected, res.Body.String())
+	})
+
+	t.Run("should return an error in case of invalid id type", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/v1/employees/number", nil)
+		res := httptest.NewRecorder()
+
+		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+
+		r.ServeHTTP(res, req)
+
+		assert.Equal(t, http.StatusBadRequest, res.Code)
+		assert.Equal(t, "", res.Body.String())
+	})
+
+	t.Run("should return an error in case of unexpected error", func(t *testing.T) {
+		getById := func(id int) (model.Employee, error) {
+			return model.Employee{}, errors.New("unexpected error")
+		}
+		employeeHd := EmployeeHandler{
+			sv: &StubMockService{FuncGetEmployeeById: getById},
+		}
+
+		req := httptest.NewRequest("GET", "/api/v1/employees/1", nil)
+		res := httptest.NewRecorder()
+
+		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+
+		r.ServeHTTP(res, req)
+
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, res.Code, http.StatusInternalServerError)
+		assert.Equal(t, res.Body.String(), expected)
 	})
 }
 
@@ -269,7 +302,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 	})
 
-	t.Run("should return 404 not found when employee id dont exist", func(t *testing.T) {
+	t.Run("should return 404 not found when employee id does not exist", func(t *testing.T) {
 		deleteEmployee := func(id int) error {
 			return customError.EmployeeErrNotFound
 		}
