@@ -13,15 +13,6 @@ import (
 	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
-type SellersJSON struct {
-	ID          int    `json:"id"`
-	CID         int    `json:"cid"`
-	CompanyName string `json:"company_name"`
-	Address     string `json:"address"`
-	Telephone   string `json:"telephone"`
-	Locality    int    `json:"locality_id"`
-}
-
 func CreateHandlerSellers(service interfaces.ISellerService) *SellersController {
 	return &SellersController{Service: service}
 }
@@ -36,9 +27,9 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := make([]SellersJSON, 0)
+	data := make([]model.Seller, 0)
 	for _, value := range sellers {
-		data = append(data, SellersJSON{
+		data = append(data, model.Seller{
 			ID:          value.ID,
 			CID:         value.CID,
 			CompanyName: value.CompanyName,
