@@ -14,7 +14,12 @@ func (mock *WarehouseServiceMock) DeleteByIdWareHouse(id int) error {
 }
 
 func (mock *WarehouseServiceMock) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
-	panic("unimplemented")
+	args := mock.Called(id)
+
+	w = args.Get(0).(model.WareHouse)
+	err = args.Error(1)
+
+	return
 }
 
 func (mock *WarehouseServiceMock) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
