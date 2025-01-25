@@ -64,8 +64,9 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
+	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
+
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
 		return
