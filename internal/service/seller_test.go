@@ -13,10 +13,14 @@ import (
 )
 
 func setupSeller() *service.SellersService {
-	mocksl := new(repository.SellerMockRepository)
-	mocklc := new(repository.LocalityMockRepository)
+	mockSeller := new(repository.SellerMockRepository)
+	mockLocality := new(repository.LocalityMockRepository)
 
-	return service.CreateServiceSellers(mocksl, mocklc)
+	return service.CreateServiceSellers(mockSeller, mockLocality)
+}
+
+func setupLocality(mockLocality *repository.LocalityMockRepository) *service.LocalitiesService {
+	return service.CreateServiceLocalities(mockLocality)
 }
 
 func TestServiceGetAllSeller(t *testing.T) {
@@ -55,6 +59,7 @@ func TestServiceGetAllSeller(t *testing.T) {
 			switch test.existErr {
 			case true:
 				assert.Error(t, err)
+				assert.EqualError(t, test.err, err.Error())
 			case false:
 				assert.NoError(t, err)
 			}
@@ -77,7 +82,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 	}{
 		{
 			description: "get seller by id existing successfully",
-			seller:      model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Perk Avenue", Telephone: "999444555", Locality: 3},
+			seller:      model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central park Avenue", Telephone: "999444555", Locality: 3},
 			id:          3,
 			existErr:    false,
 			err:         nil,
@@ -120,6 +125,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 			switch test.existErr {
 			case true:
 				assert.Error(t, err)
+				assert.EqualError(t, test.err, err.Error())
 			case false:
 				assert.NoError(t, err)
 			}
@@ -206,10 +212,10 @@ func TestServiceCreateSeller(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
 			service := setupSeller()
-			mock := service.Rp.(*repository.SellerMockRepository)
-			mockl := service.Rpl.(*repository.LocalityMockRepository)
-			mock.On("Post", &test.arg).Return(test.seller, test.errSeller)
-			mockl.On("GetById", test.id).Return(test.locality, test.errLocality)
+			mockSeller := service.Rp.(*repository.SellerMockRepository)
+			mockLocality := service.Rpl.(*repository.LocalityMockRepository)
+			mockSeller.On("Post", &test.arg).Return(test.seller, test.errSeller)
+			mockLocality.On("GetById", test.id).Return(test.locality, test.errLocality)
 
 			seller, err := service.CreateSeller(&test.arg)
 
@@ -228,14 +234,175 @@ func TestServiceCreateSeller(t *testing.T) {
 				if strings.Contains(key, "callSeller") {
 					switch value {
 					case true:
-						mock.AssertExpectations(t)
+						mockSeller.AssertExpectations(t)
 					}
 				}
 
 				if strings.Contains(key, "callLocality") {
 					switch value {
 					case true:
-						mockl.AssertExpectations(t)
+						mockLocality.AssertExpectations(t)
+					}
+				}
+			}
+
+			if test.errLocality != nil {
+				assert.EqualError(t, test.errLocality, err.Error())
+			}
+
+			if test.errSeller != nil {
+				assert.EqualError(t, test.errSeller, err.Error())
+			}
+		})
+	}
+}
+
+func TestServiceUpdateSeller(t *testing.T) {
+	tests := []struct {
+		description string
+		arg         model.Seller
+		seller      model.Seller
+		sellerID    int
+		localityID  int
+		locality    model.Locality
+		validations map[string]bool
+		errSeller   error
+		errLocality error
+	}{
+		{
+			description: "update seller with success",
+			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
+			seller:      model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
+			sellerID:    5,
+			localityID:  10,
+			locality:    model.Locality{ID: 10, Locality: "Los Angeles", Province: "California", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   false,
+				"existErrLocality": false,
+				"callSeller":       true,
+				"callLocality":     true,
+			},
+			errSeller:   nil,
+			errLocality: nil,
+		},
+		{
+			description: "update seller with id not found",
+			arg:         model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central park", Telephone: "55566777787", Locality: 9},
+			seller:      model.Seller{},
+			sellerID:    999,
+			localityID:  9,
+			locality:    model.Locality{ID: 9, Locality: "Little Rock", Province: "Arkansas", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": false,
+				"callSeller":       false,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrSellerNotFound,
+			errLocality: nil,
+		},
+		{
+			description: "update seller with empty attributes values",
+			arg:         model.Seller{CID: 0, CompanyName: "", Address: "", Telephone: "", Locality: 9},
+			seller:      model.Seller{},
+			sellerID:    2,
+			localityID:  9,
+			locality:    model.Locality{ID: 9, Locality: "Little Rock", Province: "Arkansas", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": false,
+				"callSeller":       false,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrNullSellerAttribute,
+			errLocality: nil,
+		},
+		{
+			description: "update seller with attribute cid already existing",
+			arg:         model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 17},
+			seller:      model.Seller{},
+			sellerID:    9,
+			localityID:  17,
+			locality:    model.Locality{ID: 17, Locality: "Phoenix", Province: "Arizona", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": false,
+				"callSeller":       true,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrCIDSellerAlreadyExist,
+			errLocality: nil,
+		},
+		{
+			description: "update seller with attribute locality id not found",
+			arg:         model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
+			seller:      model.Seller{},
+			sellerID:    8,
+			localityID:  9999,
+			locality:    model.Locality{},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": true,
+				"callSeller":       false,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrLocalityNotFound,
+			errLocality: customError.ErrLocalityNotFound,
+		},
+		{
+			description: "update seller with zero id",
+			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 30},
+			seller:      model.Seller{},
+			sellerID:    0,
+			localityID:  30,
+			locality:    model.Locality{ID: 17, Locality: "Denver", Province: "Colorado", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": false,
+				"callSeller":       false,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrMissingSellerID,
+			errLocality: nil,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			serviceSeller := setupSeller()
+			mockSeller := serviceSeller.Rp.(*repository.SellerMockRepository)
+			mockLocality := serviceSeller.Rpl.(*repository.LocalityMockRepository)
+			serviceLocality := setupLocality(mockLocality)
+			mockSeller.On("Patch", test.sellerID, &test.arg).Return(test.seller, test.errSeller)
+			mockSeller.On("GetById", test.sellerID).Return(test.seller, test.errSeller)
+			mockLocality.On("GetById", test.localityID).Return(test.locality, test.errLocality)
+
+			seller, err := serviceSeller.UpdateSeller(test.sellerID, &test.arg)
+			locality, errl := serviceLocality.GetById(test.localityID)
+
+			assert.Equal(t, test.seller, seller)
+			assert.Equal(t, test.locality, locality)
+
+			for key, value := range test.validations {
+				if strings.Contains(key, "exist") {
+					switch value {
+					case true:
+						assert.Error(t, err)
+					case false:
+						assert.NoError(t, errl)
+					}
+				}
+
+				if strings.Contains(key, "callSeller") {
+					switch value {
+					case true:
+						mockSeller.AssertExpectations(t)
+					}
+				}
+
+				if strings.Contains(key, "callLocality") {
+					switch value {
+					case true:
+						mockLocality.AssertExpectations(t)
 					}
 				}
 			}
