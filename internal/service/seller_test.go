@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -77,7 +78,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 		{
 			description: "get seller by id existing successfully",
 			seller:      model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Perk Avenue", Telephone: "999444555", Locality: 3},
-			id: 3,
+			id:          3,
 			existErr:    false,
 			err:         nil,
 			call:        true,
@@ -85,7 +86,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 		{
 			description: "get seller by id not found",
 			seller:      model.Seller{},
-			id: 999,
+			id:          999,
 			existErr:    true,
 			err:         customError.ErrSellerNotFound,
 			call:        true,
@@ -93,7 +94,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 		{
 			description: "get seller by id with zero id",
 			seller:      model.Seller{},
-			id: 0,
+			id:          0,
 			existErr:    true,
 			err:         customError.ErrMissingSellerID,
 			call:        true,
@@ -101,7 +102,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 		{
 			description: "get seller by id with internal server error",
 			seller:      model.Seller{},
-			id: 4,
+			id:          4,
 			existErr:    true,
 			err:         customError.ErrDefaultSeller,
 			call:        true,
@@ -125,6 +126,126 @@ func TestServiceGetByIDSeller(t *testing.T) {
 
 			if test.call {
 				mock.AssertExpectations(t)
+			}
+		})
+	}
+}
+
+func TestServiceCreateSeller(t *testing.T) {
+	tests := []struct {
+		description string
+		arg         model.Seller
+		seller      model.Seller
+		id          int
+		locality    model.Locality
+		validations map[string]bool
+		errSeller   error
+		errLocality error
+	}{
+		{
+			description: "create seller with success",
+			arg:         model.Seller{CID: 5, CompanyName: "Enterprise Cypress", Address: "702 St Mark", Telephone: "33344455566", Locality: 5},
+			seller:      model.Seller{ID: 5, CID: 5, CompanyName: "Enterprise Cypress", Address: "702 St Mark", Telephone: "33344455566", Locality: 5},
+			id:          5,
+			locality:    model.Locality{ID: 5, Locality: "Brooklyn", Province: "New York", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   false,
+				"existErrLocality": false,
+				"callSeller":       true,
+				"callLocality":     true,
+			},
+			errSeller:   nil,
+			errLocality: nil,
+		},
+		{
+			description: "create seller with empty attributes values",
+			arg:         model.Seller{CID: 0, CompanyName: "", Address: "", Telephone: "", Locality: 0},
+			seller:      model.Seller{},
+			id:          0,
+			locality:    model.Locality{},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": true,
+				"callSeller":       false,
+				"callLocality":     false,
+			},
+			errSeller:   customError.ErrNullSellerAttribute,
+			errLocality: nil,
+		},
+		{
+			description: "create seller with attribute cid already existing",
+			arg:         model.Seller{CID: 1, CompanyName: "Midgard Sellers", Address: "3 New Time Park", Telephone: "99989898778", Locality: 7},
+			seller:      model.Seller{},
+			id:          7,
+			locality:    model.Locality{ID: 7, Locality: "Manhattan", Province: "New York", Country: "EUA"},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": true,
+				"callSeller":       true,
+				"callLocality":     true,
+			},
+			errSeller:   customError.ErrCIDSellerAlreadyExist,
+			errLocality: nil,
+		},
+		{
+			description: "create seller with attribute locality id not found",
+			arg:         model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
+			seller:      model.Seller{},
+			id:          9999,
+			locality:    model.Locality{},
+			validations: map[string]bool{
+				"existErrSeller":   true,
+				"existErrLocality": true,
+				"callSeller":       false,
+				"callLocality":     true,
+			},
+			errSeller:   customError.ErrLocalityNotFound,
+			errLocality: customError.ErrLocalityNotFound,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			service := setupSeller()
+			mock := service.Rp.(*repository.SellerMockRepository)
+			mockl := service.Rpl.(*repository.LocalityMockRepository)
+			mock.On("Post", &test.arg).Return(test.seller, test.errSeller)
+			mockl.On("GetById", test.id).Return(test.locality, test.errLocality)
+
+			seller, err := service.CreateSeller(&test.arg)
+
+			assert.Equal(t, test.seller, seller)
+
+			for key, value := range test.validations {
+				if strings.Contains(key, "exist") {
+					switch value {
+					case true:
+						assert.Error(t, err)
+					case false:
+						assert.NoError(t, err)
+					}
+				}
+
+				if strings.Contains(key, "callSeller") {
+					switch value {
+					case true:
+						mock.AssertExpectations(t)
+					}
+				}
+
+				if strings.Contains(key, "callLocality") {
+					switch value {
+					case true:
+						mockl.AssertExpectations(t)
+					}
+				}
+			}
+
+			if test.errLocality != nil {
+				assert.EqualError(t, test.errLocality, err.Error())
+			}
+
+			if test.errSeller != nil {
+				assert.EqualError(t, test.errSeller, err.Error())
 			}
 		})
 	}
