@@ -10,7 +10,9 @@ type WarehouseServiceMock struct {
 }
 
 func (mock *WarehouseServiceMock) DeleteByIdWareHouse(id int) error {
-	panic("unimplemented")
+	args := mock.Called(id)
+
+	return args.Error(0)
 }
 
 func (mock *WarehouseServiceMock) GetByIdWareHouse(id int) (w model.WareHouse, err error) {

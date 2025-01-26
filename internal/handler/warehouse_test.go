@@ -76,6 +76,25 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 		mockServiceWarehouse.AssertExpectations(t)
 
 	})
+
+	t.Run("GetAllWarehouse return error", func(t *testing.T) {
+		hd := setupWarehouse()
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses", nil)
+		response := httptest.NewRecorder()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		mockServiceWarehouse.On("GetAllWareHouse").Return([]model.WareHouse{}, errors.New("not found warehouses"))
+
+		handler := hd.GetAllWareHouse()
+		handler.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+
+		expectedJson := `{"message":"not found warehouses"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
 }
 
 func TestHandlerGetWarehouseById(t *testing.T) {
@@ -141,6 +160,22 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		mockServiceWarehouse.AssertExpectations(t)
 	})
 
+	t.Run("GetByIdWarehouse id invalid", func(t *testing.T) {
+		hd := setupWarehouse()
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/th", nil)
+
+		response := httptest.NewRecorder()
+		handler := hd.GetWareHouseById()
+		handler.ServeHTTP(response, request)
+
+		expectedJson := `{"message":"invalid id"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+
+	})
+
 	t.Run("GetByIdWarehouse when service fails returns internal server error", func(t *testing.T) {
 		hd := setupWarehouse()
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
@@ -161,5 +196,62 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.JSONEq(t, expectedJson, response.Body.String())
 		mockServiceWarehouse.AssertExpectations(t)
+	})
+}
+
+func TestHandlerDeleteByIdWarehouse(t *testing.T) {
+	t.Run("DeleteByIdWarehouse return sucess", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIdWareHouse())
+
+		mockServiceWarehouse.On("DeleteByIdWareHouse", 1).Return(nil)
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/"+strconv.Itoa(1), nil)
+
+		response := httptest.NewRecorder()
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("DeleteByIdWarehouse not found", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIdWareHouse())
+
+		mockServiceWarehouse.On("DeleteByIdWareHouse", 30).Return(customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/"+strconv.Itoa(30), nil)
+
+		response := httptest.NewRecorder()
+
+		r.ServeHTTP(response, request)
+
+		expectedJson := `{"message":"warehouse not found"}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("DeleteByIdWarehouse id invalid", func(t *testing.T) {
+		hd := setupWarehouse()
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/th", nil)
+
+		response := httptest.NewRecorder()
+		handler := hd.DeleteByIdWareHouse()
+		handler.ServeHTTP(response, request)
+
+		expectedJson := `{"message":"invalid id"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
 	})
 }
