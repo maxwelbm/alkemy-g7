@@ -26,9 +26,9 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 		query,
 		inboundOrder.OrderDate,
 		inboundOrder.OrderNumber,
-		inboundOrder.EmployeeId,
-		inboundOrder.ProductBatchId,
-		inboundOrder.WareHouseId,
+		inboundOrder.EmployeeID,
+		inboundOrder.ProductBatchID,
+		inboundOrder.WareHouseID,
 	)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 		return inboundOrder, err
 	}
 
-	inboundOrder.Id = int(id)
+	inboundOrder.ID = int(id)
 
 	return inboundOrder, nil
 }

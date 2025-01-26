@@ -5,16 +5,16 @@ import (
 )
 
 type InboundOrder struct {
-	Id             int
+	ID             int
 	OrderDate      time.Time
 	OrderNumber    string
-	EmployeeId     int
-	ProductBatchId int
-	WareHouseId    int
+	EmployeeID     int
+	ProductBatchID int
+	WareHouseID    int
 }
 
 func (i *InboundOrder) IsValid() bool {
-	if i.EmployeeId <= 0 || i.ProductBatchId <= 0 || i.WareHouseId <= 0 {
+	if i.EmployeeID <= 0 || i.ProductBatchID <= 0 || i.WareHouseID <= 0 {
 		return false
 	}
 

@@ -17,8 +17,8 @@ import (
 func TestGetEmployeesHandler(t *testing.T) {
 	findAll := func() ([]model.Employee, error) {
 		return []model.Employee{
-			{Id: 1, CardNumberId: "1", FirstName: "John", LastName: "Cena", WarehouseId: 1},
-			{Id: 2, CardNumberId: "2", FirstName: "Martha", LastName: "Piana", WarehouseId: 2}}, nil
+			{ID: 1, CardNumberID: "1", FirstName: "John", LastName: "Cena", WarehouseID: 1},
+			{ID: 2, CardNumberID: "2", FirstName: "Martha", LastName: "Piana", WarehouseID: 2}}, nil
 	}
 	employeeHd := EmployeeHandler{
 		sv: &StubMockService{FuncGetEmployees: findAll},
@@ -73,14 +73,14 @@ func TestGetEmployeesHandler(t *testing.T) {
 
 func TestGetEmployeeById(t *testing.T) {
 	getById := func(id int) (model.Employee, error) {
-		return model.Employee{Id: 1, CardNumberId: "1", FirstName: "John", LastName: "Cena", WarehouseId: 1}, nil
+		return model.Employee{ID: 1, CardNumberID: "1", FirstName: "John", LastName: "Cena", WarehouseID: 1}, nil
 	}
 	employeeHd := EmployeeHandler{
 		sv: &StubMockService{FuncGetEmployeeById: getById},
 	}
 
 	r := chi.NewRouter()
-	r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+	r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeByID)
 
 	t.Run("should return the employee requested and 200 ok", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/api/v1/employees/1", nil)
@@ -101,7 +101,7 @@ func TestGetEmployeeById(t *testing.T) {
 			sv: &StubMockService{FuncGetEmployeeById: getById},
 		}
 
-		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeByID)
 
 		req := httptest.NewRequest("GET", "/api/v1/employees/2", nil)
 		res := httptest.NewRecorder()
@@ -117,7 +117,7 @@ func TestGetEmployeeById(t *testing.T) {
 		req := httptest.NewRequest("GET", "/api/v1/employees/number", nil)
 		res := httptest.NewRecorder()
 
-		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeByID)
 
 		r.ServeHTTP(res, req)
 
@@ -136,7 +136,7 @@ func TestGetEmployeeById(t *testing.T) {
 		req := httptest.NewRequest("GET", "/api/v1/employees/1", nil)
 		res := httptest.NewRecorder()
 
-		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeById)
+		r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeByID)
 
 		r.ServeHTTP(res, req)
 
@@ -153,17 +153,17 @@ func TestInsertEmployee(t *testing.T) {
 		return req
 	}
 	insertEmployee := func(employee model.Employee) (model.Employee, error) {
-		employee.Id = 1
+		employee.ID = 1
 		return employee, nil
 	}
 	employeeHd := EmployeeHandler{
 		sv: &StubMockService{FuncInsertEmployee: insertEmployee},
 	}
 	newEmployee := EmployeeJSON{
-		CardNumberId: "#123",
+		CardNumberID: "#123",
 		FirstName:    "Islam",
 		LastName:     "Makhachev",
-		WarehouseId:  1,
+		WarehouseID:  1,
 	}
 	employeeJSON, err := json.Marshal(newEmployee)
 	if err != nil {
@@ -266,7 +266,7 @@ func TestUpdateEmployee(t *testing.T) {
 		return req
 	}
 	updateEmployee := func(id int, employee model.Employee) (model.Employee, error) {
-		return model.Employee{Id: id, CardNumberId: "1", FirstName: employee.FirstName, LastName: "Cena", WarehouseId: 1}, nil
+		return model.Employee{ID: id, CardNumberID: "1", FirstName: employee.FirstName, LastName: "Cena", WarehouseID: 1}, nil
 	}
 	employeeHd := EmployeeHandler{
 		sv: &StubMockService{FuncUpdateEmployee: updateEmployee},
@@ -411,7 +411,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 	t.Run("should return 500 internal error in case of unexpected error", func(t *testing.T) {
 		deleteEmployee := func(id int) error {
-			return errors.New("unexpected error")
+			return errors.New("unexpected")
 		}
 		employeeHd := EmployeeHandler{
 			sv: &StubMockService{FuncDeleteEmployee: deleteEmployee},
@@ -443,7 +443,7 @@ type StubMockService struct {
 func (s *StubMockService) GetEmployees() ([]model.Employee, error) {
 	return s.FuncGetEmployees()
 }
-func (s *StubMockService) GetEmployeeById(id int) (model.Employee, error) {
+func (s *StubMockService) GetEmployeeByID(id int) (model.Employee, error) {
 	return s.FuncGetEmployeeById(id)
 }
 func (s *StubMockService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
