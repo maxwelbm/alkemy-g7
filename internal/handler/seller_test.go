@@ -392,7 +392,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		{
 			description:   "update seller with attribute cid already existing",
 			arg:           model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Perk", Telephone: "55566777787", Locality: 17},
-			id: 9,
+			id:            9,
 			returnService: model.Seller{},
 			body: []byte(`{           
 							"cid": 1,
@@ -410,7 +410,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 			description:   "update seller with attribute locality id not found",
 			arg:           model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
 			returnService: model.Seller{},
-			id: 7,
+			id:            7,
 			body: []byte(`{           
 							"cid": 8,
 							"company_name": "Rupture Clivers",
@@ -448,6 +448,77 @@ func TestHandlerUpdateSeller(t *testing.T) {
 
 			request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(test.id), bytes.NewReader(test.body))
 			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			r.ServeHTTP(response, request)
+
+			assert.Equal(t, test.statusCode, response.Code)
+			assert.JSONEq(t, test.response, response.Body.String())
+			if test.call {
+				mock.AssertExpectations(t)
+			}
+		})
+	}
+}
+
+func TestHandlerDeleteSeller(t *testing.T) {
+	hd := setupSeller()
+	mock := hd.Service.(*service.SellerMockService)
+
+	r := chi.NewRouter()
+	r.Delete("/api/v1/sellers/{id}", hd.DeleteSellers)
+
+	tests := []struct {
+		description   string
+		id            int
+		returnService model.Seller
+		response      string
+		statusCode    int
+		err           error
+		call          bool
+	}{
+		{
+			description:   "delete seller by id with success",
+			id:            3,
+			returnService: model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Perk Avenue", Telephone: "999444555", Locality: 3},
+			response:      `{}`,
+			statusCode:    http.StatusNoContent,
+			err:           nil,
+			call:          true,
+		},
+		{
+			description:   "delete seller by id not found",
+			returnService: model.Seller{},
+			id:            999,
+			response:      `{"message":"seller not found"}`,
+			statusCode:    http.StatusNotFound,
+			err:           customError.ErrSellerNotFound,
+			call:          false,
+		},
+		{
+			description:   "delete seller by id with internal server error",
+			returnService: model.Seller{},
+			id:            4,
+			response:      `{"message":"internal server error"}`,
+			statusCode:    http.StatusInternalServerError,
+			err:           customError.ErrDefaultSeller,
+			call:          false,
+		},
+		{
+			description:   "delete seller by id with zero id",
+			returnService: model.Seller{},
+			id:            0,
+			response:      `{"message":"missing 'id' parameter in the request"}`,
+			statusCode:    http.StatusBadRequest,
+			err:           customError.ErrMissingSellerID,
+			call:          false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			mock.On("DeleteSeller", test.id).Return(test.err)
+			mock.On("GetById", test.id).Return(test.returnService, test.err)
+
+			request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(test.id), nil)
 			response := httptest.NewRecorder()
 			r.ServeHTTP(response, request)
 
