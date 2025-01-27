@@ -298,7 +298,7 @@ func (m *warehouseRepositoryMock) GetByIdWareHouse(id int) (w model.WareHouse, e
 func (m *warehouseRepositoryMock) PostWareHouse(warehouse model.WareHouse) (id int64, err error) {
 	return 0, nil
 }
-func (m *warehouseRepositoryMock) UpdateWareHouse(id int, warehouse *model.WareHouse) (err error) {
+func (m *warehouseRepositoryMock) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
 	return nil
 }
 func (w *warehouseRepositoryMock) DeleteByIdWareHouse(id int) error {
