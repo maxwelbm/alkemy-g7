@@ -7,38 +7,38 @@ import (
 )
 
 type PurchaseOrderService struct {
-	rp            interfaces.IPurchaseOrdersRepo
-	svcBuyer      svc.IBuyerservice
-	svcProductRec svc.IProductRecService
+	Rp            interfaces.IPurchaseOrdersRepo
+	SvcBuyer      svc.IBuyerservice
+	SvcProductRec svc.IProductRecService
 }
 
 func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.PurchaseOrder) (purchaseOrder model.PurchaseOrder, err error) {
-	_, err = p.svcBuyer.GetBuyerByID(newPurchaseOrder.BuyerID)
+	_, err = p.SvcBuyer.GetBuyerByID(newPurchaseOrder.BuyerID)
 
 	if err != nil {
 		return
 	}
 
-	_, err = p.svcProductRec.GetProductRecordById(newPurchaseOrder.ProductRecordID)
+	_, err = p.SvcProductRec.GetProductRecordById(newPurchaseOrder.ProductRecordID)
 
 	if err != nil {
 		return
 	}
 
-	id, err := p.rp.Post(newPurchaseOrder)
+	id, err := p.Rp.Post(newPurchaseOrder)
 
 	if err != nil {
 		return
 	}
 
-	purchaseOrder, err = p.rp.GetById(int(id))
+	purchaseOrder, err = p.Rp.GetById(int(id))
 
 	return
 }
 
 func (p *PurchaseOrderService) GetPurchaseOrderByID(id int) (purchaseOrder model.PurchaseOrder, err error) {
-	return p.rp.GetById(id)
+	return p.Rp.GetById(id)
 }
 func NewPurchaseOrderService(rp interfaces.IPurchaseOrdersRepo, svcBuyer svc.IBuyerservice, svcProductRec svc.IProductRecService) *PurchaseOrderService {
-	return &PurchaseOrderService{rp: rp, svcBuyer: svcBuyer, svcProductRec: svcProductRec}
+	return &PurchaseOrderService{Rp: rp, SvcBuyer: svcBuyer, SvcProductRec: svcProductRec}
 }
