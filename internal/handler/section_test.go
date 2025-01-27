@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -145,5 +146,97 @@ func TestHandlerGetSectionByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.JSONEq(t, expectedJSON, response.Body.String())
+	})
+}
+
+func TestHandlerCreateSection(t *testing.T) {
+	t.Run("given a valid section then create successfully", func(t *testing.T) {
+		hd := setupSectionService()
+
+		expectedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Post", &model.Section{SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}).Return(expectedSection, nil)
+
+		reqBody := []byte(`{
+			"section_number": "S01",
+			"current_temperature": 10.0,
+			"minimum_temperature": 5.0,
+			"current_capacity": 10,
+			"minimum_capacity": 5,
+			"maximum_capacity": 20,
+			"warehouse_id": 1,
+			"product_type_id": 1
+		}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/sections/", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		hd.Post(response, request)
+
+		expectedSectionJSON := `{"data":{
+			"id": 1,
+			"section_number": "S01",
+			"current_temperature": 10.0,
+			"minimum_temperature": 5.0,
+			"current_capacity": 10,
+			"minimum_capacity": 5,
+			"maximum_capacity": 20,
+			"warehouse_id": 1,
+			"product_type_id": 1
+		}
+		}`
+
+		assert.Equal(t, http.StatusCreated, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("given an invalid section field then return a error", func(t *testing.T) {
+		hd := setupSectionService()
+		reqBody := []byte(`{
+			"section_number": "",
+			"current_temperature": 0.0,
+			"minimum_temperature": 0.0
+		}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/sections/", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		hd.Post(response, request)
+
+		expectedSectionJSON := `{"message": "request body cannot be empty"}`
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+	})
+
+	t.Run("given a valid section that already exist then return error", func(t *testing.T) {
+		hd := setupSectionService()
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Post", &model.Section{SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}).Return(model.Section{}, custom_error.HandleError("section", custom_error.ErrorConflict, ""))
+
+		reqBody := []byte(`{
+			"section_number": "S01",
+			"current_temperature": 10.0,
+			"minimum_temperature": 5.0,
+			"current_capacity": 10,
+			"minimum_capacity": 5,
+			"maximum_capacity": 20,
+			"warehouse_id": 1,
+			"product_type_id": 1
+		}`)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/sections/", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		hd.Post(response, request)
+
+		expectedSectionJSON := `{"message": "section it already exists"}`
+
+		assert.Equal(t, http.StatusConflict, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+		mockService.AssertExpectations(t)
 	})
 }
