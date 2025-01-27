@@ -27,7 +27,7 @@ func (s *StubMockProductService) GetAllProducts() ([]model.Product, error) {
 	return nil, nil
 }
 
-func (s *StubMockProductService) GetProductById(id int) (model.Product, error) {
+func (s *StubMockProductService) GetProductByID(id int) (model.Product, error) {
 	if s.FuncGetProductById != nil {
 		return s.FuncGetProductById(id)
 	}

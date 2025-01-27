@@ -39,7 +39,7 @@ func (ph *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	product, err := ph.ProductService.GetProductById(id)
+	product, err := ph.ProductService.GetProductByID(id)
 	if err != nil {
 		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return

@@ -19,7 +19,7 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 		return
 	}
 
-	_, err = p.svcProductRec.GetProductRecordById(newPurchaseOrder.ProductRecordId)
+	_, err = p.svcProductRec.GetProductRecordByID(newPurchaseOrder.ProductRecordId)
 	if err != nil {
 		return
 	}
