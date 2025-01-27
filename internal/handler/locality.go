@@ -38,8 +38,8 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 
 func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Request) {
 	var locality model.Locality
-	err := request.JSON(r, &locality)
-	if ok := hd.handlerError(err, w); ok {
+	if err := request.JSON(r, &locality); err != nil {
+		response.JSON(w, er.ErrInvalidLocalityJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidLocalityJSONFormat.Error(), nil))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 			return true
 		}
 
-		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(er.ErrInvalidLocalityJSONFormat.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped locality handler error", nil))
 		return true
 	}
 	return false
