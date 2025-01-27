@@ -37,8 +37,7 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
-
-	_, err := e.wrSrv.GetByIDWareHouse(employee.WarehouseId)
+	_, err := e.wrSrv.GetByIDWareHouse(employee.WarehouseID)
 
 	if err != nil {
 		return model.Employee{}, customError.EmployeeErrInvalidWarehouseID
@@ -62,10 +61,8 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
-
 	if employee.WarehouseID != 0 {
-		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseID)
-
+		_, err := e.wrSrv.GetByIDWareHouse(employee.WarehouseID)
 
 		if err != nil {
 			return model.Employee{}, customError.EmployeeErrInvalidWarehouseID

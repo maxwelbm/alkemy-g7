@@ -290,7 +290,7 @@ func (m *warehouseRepositoryMock) GetAllWareHouse() (w []model.WareHouse, err er
 	return nil, nil
 }
 
-func (m *warehouseRepositoryMock) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
+func (m *warehouseRepositoryMock) GetByIDWareHouse(id int) (w model.WareHouse, err error) {
 	args := m.Called(id)
 	return args.Get(0).(model.WareHouse), args.Error(1)
 }
@@ -301,6 +301,6 @@ func (m *warehouseRepositoryMock) PostWareHouse(warehouse model.WareHouse) (id i
 func (m *warehouseRepositoryMock) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
 	return nil
 }
-func (w *warehouseRepositoryMock) DeleteByIdWareHouse(id int) error {
+func (w *warehouseRepositoryMock) DeleteByIDWareHouse(id int) error {
 	return nil
 }
