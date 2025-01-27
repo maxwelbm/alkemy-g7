@@ -59,7 +59,7 @@ func TestServiceGetAllSeller(t *testing.T) {
 			switch test.existErr {
 			case true:
 				assert.Error(t, err)
-				assert.EqualError(t, test.err, err.Error())
+				assert.ErrorIs(t, test.err, err)
 			case false:
 				assert.NoError(t, err)
 			}
@@ -125,7 +125,7 @@ func TestServiceSeller(t *testing.T) {
 			switch test.existErr {
 			case true:
 				assert.Error(t, err)
-				assert.EqualError(t, test.err, err.Error())
+				assert.ErrorIs(t, test.err, err)
 			case false:
 				assert.NoError(t, err)
 			}
@@ -247,11 +247,11 @@ func TestServiceCreateSeller(t *testing.T) {
 			}
 
 			if test.errLocality != nil {
-				assert.EqualError(t, test.errLocality, err.Error())
+				assert.ErrorIs(t, test.errLocality, err)
 			}
 
 			if test.errSeller != nil {
-				assert.EqualError(t, test.errSeller, err.Error())
+				assert.ErrorIs(t, test.errSeller, err)
 			}
 		})
 	}
@@ -408,11 +408,11 @@ func TestServiceUpdateSeller(t *testing.T) {
 			}
 
 			if test.errLocality != nil {
-				assert.EqualError(t, test.errLocality, err.Error())
+				assert.ErrorIs(t, test.errLocality, err)
 			}
 
 			if test.errSeller != nil {
-				assert.EqualError(t, test.errSeller, err.Error())
+				assert.ErrorIs(t, test.errSeller, err)
 			}
 		})
 	}
@@ -459,7 +459,7 @@ func TestServiceDeleteSeller(t *testing.T) {
 			switch test.existErr {
 			case true:
 				assert.Error(t, err)
-				assert.EqualError(t, test.err, err.Error())
+				assert.ErrorIs(t, test.err, err)
 			case false:
 				assert.NoError(t, err)
 			}
