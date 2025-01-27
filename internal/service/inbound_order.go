@@ -32,7 +32,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 		return model.InboundOrder{}, customError.InboundErrInvalidEntry
 	}
 
-	_, err := i.employeeSv.GetEmployeeById(inboundOrder.EmployeeId)
+	_, err := i.employeeSv.GetEmployeeByID(inboundOrder.EmployeeID)
 
 	if err != nil {
 		return model.InboundOrder{}, customError.InboundErrInvalidEmployee
@@ -42,6 +42,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	// productBatchExists := @todo
 
 	_, err = i.warehouseSv.GetByIDWareHouse(inboundOrder.WareHouseId)
+
 
 	if err != nil {
 		return model.InboundOrder{}, customError.InboundErrInvalidWarehouse

@@ -14,29 +14,29 @@ import (
 )
 
 type EmployeeJSON struct {
-	Id           int    `json:"id,omitempty"`
-	CardNumberId string `json:"card_number_id,omitempty"`
+	ID           int    `json:"id,omitempty"`
+	CardNumberID string `json:"card_number_id,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
-	WarehouseId  int    `json:"warehouse_id,omitempty"`
+	WarehouseID  int    `json:"warehouse_id,omitempty"`
 }
 
 func (e *EmployeeJSON) toEmployeeEntity() *model.Employee {
 	return &model.Employee{
-		Id:           e.Id,
-		CardNumberId: e.CardNumberId,
+		ID:           e.ID,
+		CardNumberID: e.CardNumberID,
 		FirstName:    e.FirstName,
 		LastName:     e.LastName,
-		WarehouseId:  e.WarehouseId,
+		WarehouseID:  e.WarehouseID,
 	}
 }
 
 func (e *EmployeeJSON) fromEmployeeEntity(employee model.Employee) {
-	e.Id = employee.Id
-	e.CardNumberId = employee.CardNumberId
+	e.ID = employee.ID
+	e.CardNumberID = employee.CardNumberID
 	e.FirstName = employee.FirstName
 	e.LastName = employee.LastName
-	e.WarehouseId = employee.WarehouseId
+	e.WarehouseID = employee.WarehouseID
 }
 
 type EmployeeHandler struct {
@@ -47,6 +47,15 @@ func CreateEmployeeHandler(service interfaces.IEmployeeService) *EmployeeHandler
 	return &EmployeeHandler{sv: service}
 }
 
+// GetEmployeesHandler retrieves all employees.
+// @Summary Retrieve all employees
+// @Description Fetch all registered employees from the database
+// @Tags Employee
+// @Produce json
+// @Success 200 {object} handler.EmployeeJSON
+// @Failure 404 {object} model.ErrorResponseSwagger "Employee not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve employee"
+// @Router /employees [get]
 func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := e.sv.GetEmployees()
 
@@ -55,7 +64,9 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
@@ -63,19 +74,29 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 
 	for _, employee := range data {
 		employeesJSON = append(employeesJSON, EmployeeJSON{
-			Id:           employee.Id,
-			CardNumberId: employee.CardNumberId,
+			ID:           employee.ID,
+			CardNumberID: employee.CardNumberID,
 			FirstName:    employee.FirstName,
 			LastName:     employee.LastName,
-			WarehouseId:  employee.WarehouseId,
+			WarehouseID:  employee.WarehouseID,
 		})
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeesJSON))
-
 }
 
-func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
+// GetEmployeeByID retrieves a single employee by ID.
+// @Summary Retrieve a single employee
+// @Description Fetch an employee by their ID
+// @Tags Employee
+// @Produce json
+// @Param id path int true "Employee ID"
+// @Success 200 {object} handler.EmployeeJSON
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID format"
+// @Failure 404 {object} model.ErrorResponseSwagger "Employee not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve employee"
+// @Router /employees/{id} [get]
+func (e *EmployeeHandler) GetEmployeeByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
@@ -83,14 +104,16 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	data, err := e.sv.GetEmployeeById(id)
+	data, err := e.sv.GetEmployeeByID(id)
 
 	if err != nil {
 		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
@@ -100,6 +123,17 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
+// InsertEmployee creates a new employee.
+// @Summary Create a new employee
+// @Description Add a new employee to the database
+// @Tags Employee
+// @Accept json
+// @Produce json
+// @Param employee body handler.EmployeeJSON true "Employee details"
+// @Success 201 {object} handler.EmployeeJSON
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid request body"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to create employee"
+// @Router /employees [post]
 func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request) {
 	var newEmployee EmployeeJSON
 	err := request.JSON(r, &newEmployee)
@@ -118,16 +152,32 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
 	var employeeJSON EmployeeJSON
+
 	employeeJSON.fromEmployeeEntity(data)
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", employeeJSON))
 }
 
+// UpdateEmployee updates an existing employee.
+// @Summary Update an employee
+// @Description Modify the details of an existing employee
+// @Tags Employee
+// @Accept json
+// @Produce json
+// @Param id path int true "Employee ID"
+// @Param employee body handler.EmployeeJSON true "Updated employee details"
+// @Success 200 {object} handler.EmployeeJSON
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid request or ID format"
+// @Failure 404 {object} model.ErrorResponseSwagger "Employee not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to update employee"
+// @Router /employees/{id} [put]
 func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
@@ -153,9 +203,10 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
+		} else {
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+			return
 		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
-		return
 	}
 
 	employeeJSON := EmployeeJSON{}
@@ -164,6 +215,16 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
+// DeleteEmployee deletes an employee by ID.
+// @Summary Delete an employee
+// @Description Remove an employee from the database by their ID
+// @Tags Employee
+// @Param id path int true "Employee ID"
+// @Success 204 "No content"
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID format"
+// @Failure 404 {object} model.ErrorResponseSwagger "Employee not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete employee"
+// @Router /employees/{id} [delete]
 func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
@@ -179,13 +240,26 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
+// GetInboundOrdersReports retrieves inbound order reports.
+// @Summary Retrieve inbound order reports
+// @Description Fetch inbound order reports, optionally filtering by employee ID
+// @Tags Employee
+// @Produce json
+// @Param id query int false "Employee ID (optional)"
+// @Success 200 {object} interface{} "Inbound order report(s)"
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID format"
+// @Failure 404 {object} model.ErrorResponseSwagger "Reports not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve reports"
+// @Router /employees/reports [get]
 func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
@@ -197,12 +271,17 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
+
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 			return
 		}
+
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
+
 		return
 	}
+
 	idInt, err := strconv.Atoi(id)
 
 	if err != nil {
@@ -217,10 +296,11 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
-
 }

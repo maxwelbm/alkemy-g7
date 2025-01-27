@@ -277,7 +277,7 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 			return
 		}
 
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
 
 		return
 	}

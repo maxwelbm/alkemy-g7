@@ -9,10 +9,10 @@ type Product struct {
 	ID                             int     `json:"id"`
 	ProductCode                    string  `json:"product_code"`
 	Description                    string  `json:"description"`
-	Width                          float64 `json:"largura"`
-	Height                         float64 `json:"altura"`
-	Length                         float64 `json:"comprimento"`
-	NetWeight                      float64 `json:"peso_liquido"`
+	Width                          float64 `json:"width"`
+	Height                         float64 `json:"height"`
+	Length                         float64 `json:"length"`
+	NetWeight                      float64 `json:"net_weight"`
 	ExpirationRate                 float64 `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
 	FreezingRate                   float64 `json:"freezing_rate"`
@@ -21,37 +21,55 @@ type Product struct {
 }
 
 func (p *Product) Validate() error {
-	var erros []string
-    
-	if p.ProductCode == "" {
-		erros = append(erros, "ProductCode não pode estar vazio")
-	}
-	if p.Description == "" {
-		erros = append(erros, "Description não pode estar vazia")
-	}
-	if p.Width <= 0 {
-		erros = append(erros, "Width deve ser maior que zero")
-	}
-	if p.Height <= 0 {
-		erros = append(erros, "Height deve ser maior que zero")
-	}
-	if p.Length <= 0 {
-		erros = append(erros, "Length deve ser maior que zero")
-	}
-	if p.NetWeight <= 0 {
-		erros = append(erros, "NetWeight deve ser maior que zero")
-	}
-	if p.ExpirationRate < 0 {
-		erros = append(erros, "ExpirationRate não pode ser negativo")
+	var errors []string
+
+	productCode := p.ProductCode
+	if productCode == "" {
+		errors = append(errors, "ProductCode is required")
 	}
 
-	if p.ProductTypeID <= 0 {
-		erros = append(erros, "ProductTypeID deve ser maior que zero")
+	description := p.Description
+	if description == "" {
+		errors = append(errors, "Description cannot be empty")
 	}
 
-	if len(erros) > 0 {
-		return fmt.Errorf("erros de validação: %s", strings.Join(erros, "; "))
+	width := p.Width
+	if width <= 0 {
+		errors = append(errors, "Width must be greater than zero")
+	}
+
+	height := p.Height
+	if height <= 0 {
+		errors = append(errors, "Height must be greater than zero")
+	}
+
+	length := p.Length
+	if length <= 0 {
+		errors = append(errors, "Length must be greater than zero")
+	}
+
+	netWeight := p.NetWeight
+	if netWeight <= 0 {
+		errors = append(errors, "NetWeight must be greater than zero")
+	}
+
+	expirationRate := p.ExpirationRate
+	if expirationRate < 0 {
+		errors = append(errors, "ExpirationRate cannot be negative")
+	}
+
+	productTypeID := p.ProductTypeID
+	if productTypeID <= 0 {
+		errors = append(errors, "ProductTypeID must be greater than zero")
+	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("validation errors: %s", strings.Join(errors, "; "))
 	}
 
 	return nil
+}
+
+type ProductResponseSwagger struct {
+	Data []Product `json:"data"`
 }

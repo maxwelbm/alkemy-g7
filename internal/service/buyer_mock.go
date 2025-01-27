@@ -11,12 +11,14 @@ type MockBuyerService struct {
 
 // CountPurchaseOrderBuyer implements interfaces.IBuyerservice.
 func (b *MockBuyerService) CountPurchaseOrderBuyer() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
-	panic("unimplemented")
+	args := b.Called()
+	return args.Get(0).([]model.BuyerPurchaseOrder), args.Error(1)
 }
 
 // CountPurchaseOrderByBuyerID implements interfaces.IBuyerservice.
 func (b *MockBuyerService) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
-	panic("unimplemented")
+	args := b.Called(id)
+	return args.Get(0).(model.BuyerPurchaseOrder), args.Error(1)
 }
 
 // CreateBuyer implements interfaces.IBuyerservice.
@@ -63,4 +65,8 @@ func (b *MockBuyerService) GetAllBuyer() (buyers []model.Buyer, err error) {
 	err = args.Error(1)
 
 	return
+}
+
+func NewMockBuyerService() *MockBuyerService {
+	return &MockBuyerService{}
 }

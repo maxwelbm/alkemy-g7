@@ -17,11 +17,15 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 
 func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
 	query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM products"
+
 	var products = make(map[int]model.Product)
+
 	rows, err := pr.DB.Query(query)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -30,9 +34,11 @@ func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
 			&product.Width, &product.Height, &product.Length, &product.NetWeight,
 			&product.ExpirationRate, &product.RecommendedFreezingTemperature,
 			&product.FreezingRate, &product.ProductTypeID, &product.SellerID)
+
 		if err != nil {
 			return nil, err
 		}
+
 		products[product.ID] = product
 	}
 
@@ -43,14 +49,18 @@ func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {
 	return products, nil
 }
 
-func (pr *ProductRepository) GetById(id int) (model.Product, error) {
+func (pr *ProductRepository) GetByID(id int) (model.Product, error) {
 	var product model.Product
+
 	row := pr.DB.QueryRow("SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM products WHERE id = ?", id)
+
 	err := row.Scan(&product.ID, &product.ProductCode, &product.Description, &product.Width, &product.Height, &product.Length, &product.NetWeight, &product.ExpirationRate, &product.RecommendedFreezingTemperature, &product.FreezingRate, &product.ProductTypeID, &product.SellerID)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return product, appErr.HandleError("product", appErr.ErrorNotFound, "")
 		}
+		
 		return product, err
 	}
 
@@ -68,6 +78,7 @@ func (pr *ProductRepository) Create(product model.Product) (model.Product, error
 	if err != nil {
 		return product, err
 	}
+
 	product.ID = int(id)
 
 	return product, nil
@@ -81,6 +92,7 @@ func (pr *ProductRepository) Update(id int, product model.Product) (model.Produc
 	}
 
 	product.ID = id
+
 	return product, nil
 }
 

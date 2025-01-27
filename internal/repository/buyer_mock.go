@@ -10,11 +10,13 @@ type MockBuyerRepo struct {
 }
 
 func (m *MockBuyerRepo) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
-	panic("unimplemented")
+	args := m.Called()
+	return args.Get(0).([]model.BuyerPurchaseOrder), args.Error(1)
 }
 
 func (m *MockBuyerRepo) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
-	panic("unimplemented")
+	args := m.Called(id)
+	return args.Get(0).(model.BuyerPurchaseOrder), args.Error(1)
 }
 
 func (m *MockBuyerRepo) Delete(id int) (err error) {
