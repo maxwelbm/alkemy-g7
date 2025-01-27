@@ -9,7 +9,7 @@ type PurchaseOrderRepositoryMock struct {
 	mock.Mock
 }
 
-func (p PurchaseOrderRepositoryMock) GetById(id int) (purchaseOrder model.PurchaseOrder, err error) {
+func (p PurchaseOrderRepositoryMock) GetByID(id int) (purchaseOrder model.PurchaseOrder, err error) {
 	args := p.Called(id)
 	purchaseOrder = args.Get(0).(model.PurchaseOrder)
 	err = args.Error(1)

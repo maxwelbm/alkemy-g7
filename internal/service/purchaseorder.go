@@ -18,7 +18,7 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 	if err != nil {
 		return
 	}
-
+  
 	_, err = p.SvcProductRec.GetProductRecordByID(newPurchaseOrder.ProductRecordID)
 
 	if err != nil {
@@ -31,13 +31,13 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 		return
 	}
 
-	purchaseOrder, err = p.Rp.GetById(int(id))
+	purchaseOrder, err = p.Rp.GetByID(int(id))
 
 	return
 }
 
 func (p *PurchaseOrderService) GetPurchaseOrderByID(id int) (purchaseOrder model.PurchaseOrder, err error) {
-	return p.Rp.GetById(id)
+	return p.Rp.GetByID(id)
 }
 func NewPurchaseOrderService(rp interfaces.IPurchaseOrdersRepo, svcBuyer svc.IBuyerservice, svcProductRec svc.IProductRecService) *PurchaseOrderService {
 	return &PurchaseOrderService{Rp: rp, SvcBuyer: svcBuyer, SvcProductRec: svcProductRec}

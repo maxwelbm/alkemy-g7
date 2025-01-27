@@ -35,7 +35,7 @@ func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id
 	return
 }
 
-func (p *PurchaseOrderRepository) GetById(id int) (purchaseOrder model.PurchaseOrder, err error) {
+func (p *PurchaseOrderRepository) GetByID(id int) (purchaseOrder model.PurchaseOrder, err error) {
 	row := p.db.QueryRow("SELECT id, order_number, order_date, tracking_code, buyer_id, product_record_id FROM purchase_orders WHERE id = ?", id)
 
 	err = row.Scan(&purchaseOrder.ID, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate, &purchaseOrder.TrackingCode, &purchaseOrder.BuyerID, &purchaseOrder.ProductRecordID)

@@ -43,17 +43,17 @@ func TestCreatePurchaseOrder(t *testing.T) {
 		}, nil)
 
 		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
-		mockProductRec.On("GetProductRecordById", createdOrder.ProductRecordID).Return(model.ProductRecords{
+		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{
 			ID:             1,
 			LastUpdateDate: parsedTime,
 			PurchasePrice:  1,
 			SalePrice:      1,
-			ProductId:      1,
+			ProductID:      1,
 		}, nil)
 
 		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
 		mockRepo.On("Post", createdOrder).Return(int64(1), nil)
-		mockRepo.On("GetById", createdOrder.ID).Return(createdOrder, nil)
+		mockRepo.On("GetByID", createdOrder.ID).Return(createdOrder, nil)
 
 		purchaser, err := Svc.CreatePurchaseOrder(createdOrder)
 		assert.NoError(t, err)
@@ -119,7 +119,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 		expectedError := customError.HandleError("product record", customError.ErrorNotFound, "")
 
 		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
-		mockProductRec.On("GetProductRecordById", createdOrder.ProductRecordID).Return(model.ProductRecords{}, expectedError)
+		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{}, expectedError)
 
 		purchaser, err := Svc.CreatePurchaseOrder(createdOrder)
 
@@ -154,12 +154,12 @@ func TestCreatePurchaseOrder(t *testing.T) {
 		}, nil)
 
 		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
-		mockProductRec.On("GetProductRecordById", createdOrder.ProductRecordID).Return(model.ProductRecords{
+		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{
 			ID:             1,
 			LastUpdateDate: parsedTime,
 			PurchasePrice:  1,
 			SalePrice:      1,
-			ProductId:      1,
+			ProductID:      1,
 		}, nil)
 
 		expectedError := customError.NewPurcahseOrderError(http.StatusConflict, customError.ErrConflict.Error(), "order_number")
@@ -195,7 +195,7 @@ func TestGetPurchaseOrderByID(t *testing.T) {
 		}
 
 		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
-		mockRepo.On("GetById", PurchaseSearch.ID).Return(PurchaseSearch, nil)
+		mockRepo.On("GetByID", PurchaseSearch.ID).Return(PurchaseSearch, nil)
 
 		purchaser, err := Svc.GetPurchaseOrderByID(PurchaseSearch.ID)
 
@@ -210,7 +210,7 @@ func TestGetPurchaseOrderByID(t *testing.T) {
 		exepctedError := customError.NewPurcahseOrderError(http.StatusNotFound, customError.ErrNotFound.Error(), "Purchase Order")
 
 		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
-		mockRepo.On("GetById", 99).Return(model.PurchaseOrder{}, exepctedError)
+		mockRepo.On("GetByID", 99).Return(model.PurchaseOrder{}, exepctedError)
 
 		purchaser, err := Svc.GetPurchaseOrderByID(99)
 

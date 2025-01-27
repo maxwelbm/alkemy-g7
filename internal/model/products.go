@@ -69,3 +69,7 @@ func (p *Product) Validate() error {
 
 	return nil
 }
+
+type ProductResponseSwagger struct {
+	Data []Product `json:"data"`
+}

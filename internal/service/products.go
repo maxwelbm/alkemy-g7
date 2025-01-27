@@ -78,12 +78,8 @@ func (ps *ProductService) CreateProduct(product model.Product) (model.Product, e
 
 func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Product, error) {
 	if product.SellerID != 0 {
-<<<<<<< HEAD
-		_, err := ps.SellerRepository.GetById(product.SellerID)
-
-=======
 		_, err := ps.SellerRepository.GetByID(product.SellerID)
->>>>>>> a428a3fbf8be03652dcec1e06561f0eb652dbf8c
+		
 		if err != nil {
 			return model.Product{}, err
 		}
