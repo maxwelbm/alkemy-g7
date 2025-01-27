@@ -17,7 +17,7 @@ func (s *SellerMockService) GetAll() (sellers []model.Seller, err error) {
 	return
 }
 
-func (s *SellerMockService) GetById(id int) (seller model.Seller, err error) {
+func (s *SellerMockService) GetByID(id int) (seller model.Seller, err error) {
 	args := s.Called(id)
 	seller = args.Get(0).(model.Seller)
 	err = args.Error(1)

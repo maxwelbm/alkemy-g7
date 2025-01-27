@@ -21,7 +21,7 @@ type LocalitiesController struct {
 	service interfaces.ILocalityService
 }
 
-func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) {
+func (hd *LocalitiesController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
@@ -36,7 +36,7 @@ func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	locality, err := hd.service.GetById(id)
+	locality, err := hd.service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}

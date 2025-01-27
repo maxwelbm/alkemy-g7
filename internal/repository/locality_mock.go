@@ -17,7 +17,7 @@ func (rp *LocalityMockRepository) GetCarriers(id int) (report []model.Localities
 	return
 }
 
-func (rp *LocalityMockRepository) GetReportCarriersWithId(id int) (locality []model.LocalitiesJSONCarriers, err error) {
+func (rp *LocalityMockRepository) GetReportCarriersWithID(id int) (locality []model.LocalitiesJSONCarriers, err error) {
 	args := rp.Called(id)
 	locality = args.Get(0).([]model.LocalitiesJSONCarriers)
 	err = args.Error(1)
@@ -33,7 +33,7 @@ func (rp *LocalityMockRepository) GetSellers(id int) (report []model.LocalitiesJ
 	return
 }
 
-func (rp *LocalityMockRepository) GetReportSellersWithId(id int) (locality []model.LocalitiesJSONSellers, err error) {
+func (rp *LocalityMockRepository) GetReportSellersWithID(id int) (locality []model.LocalitiesJSONSellers, err error) {
 	args := rp.Called(id)
 	locality = args.Get(0).([]model.LocalitiesJSONSellers)
 	err = args.Error(1)
@@ -49,7 +49,7 @@ func (rp *LocalityMockRepository) Get() (localities []model.Locality, err error)
 	return
 }
 
-func (rp *LocalityMockRepository) GetById(id int) (l model.Locality, err error) {
+func (rp *LocalityMockRepository) GetByID(id int) (l model.Locality, err error) {
 	args := rp.Called(id)
 	l = args.Get(0).(model.Locality)
 	err = args.Error(1)
