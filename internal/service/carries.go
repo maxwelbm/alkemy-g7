@@ -25,7 +25,7 @@ func (cp *CarrierDefault) GetById(id int) (carrier model.Carries, err error) {
 
 func (cp *CarrierDefault) PostCarrier(newCarrier model.Carries) (carrier model.Carries, err error) {
 
-	_, err = cp.svcLocality.GetById(newCarrier.LocalityId)
+	_, err = cp.svcLocality.GetByID(newCarrier.LocalityId)
 
 	if err != nil {
 		return
