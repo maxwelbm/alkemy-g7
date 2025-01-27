@@ -83,9 +83,6 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 // CreateSellers creates a new seller.
 // @Summary Create a new seller
 // @Description This endpoint allows for creating a new seller.
-// @Description 422 responses may include:
-// @Description - JSON syntax error (malformed JSON).
-// @Description - Mandatory fields not filled in.
 // @Tags Seller
 // @Produce json
 // @Param seller body model.Seller true "Seller information"
@@ -113,19 +110,6 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 // UpdateSellers updates an existing seller.
 // @Summary Update an existing seller
 // @Description This endpoint allows for updating the details of a specific seller identified by the provided ID.
-// @Description This endpoint performs the following actions:
-// @Description 1. Validates the provided ID and ensures it corresponds to an existing seller.
-// @Description 2. Validates the input JSON for correct structure and required fields.
-// @Description 3. Checks for unique constraints, such as unique cid numbers.
-// @Description Responses for errors may include:
-// @Description - **422**: Unprocessable Entity, responses may include:
-// @Description   - JSON syntax error (malformed JSON).
-// @Description   - Mandatory fields not filled in.
-// @Description
-// @Description - **404**: Seller not found, indicating the specified seller does not exist.
-// @Description - **409**: CID number already exists, indicating a unique constraint violation.
-// @Description - **404**: Locality not found, indicating the specified locality does not exist.
-// @Description - **500**: Internal server error for unexpected issues.
 // @Tags Seller
 // @Produce json
 // @Param id path int true "Seller ID"
