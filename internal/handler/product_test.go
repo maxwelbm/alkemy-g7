@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -98,7 +98,7 @@ func TestGetProductById(t *testing.T) {
 				SellerID:                       0,
 			}, nil
 		}
-		return model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, "")
+		return model.Product{}, customError.HandleError("product", customError.ErrorNotFound, "")
 	}
 
 	productHd := ProductHandler{
@@ -219,7 +219,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	updateProduct := func(id int, product model.Product) (model.Product, error) {
 		if id != 1 {
-			return model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, "")
+			return model.Product{}, customError.HandleError("product", customError.ErrorNotFound, "")
 		}
 		product.ID = 1
 		return product, nil
@@ -230,7 +230,7 @@ func TestUpdateProduct(t *testing.T) {
 	}
 
 	r := chi.NewRouter()
-	r.Patch("/api/v1/products/{id}", productHd.UpdateProduct) // Registrando o handler de atualização
+	r.Patch("/api/v1/products/{id}", productHd.UpdateProduct)
 
 	testCases := []struct {
 		name               string
@@ -313,7 +313,7 @@ func TestUpdateProduct(t *testing.T) {
 func TestDeleteProduct(t *testing.T) {
 	deleteProduct := func(id int) error {
 		if id != 1 {
-			return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
+			return customError.HandleError("product", customError.ErrorNotFound, "")
 		}
 		return nil
 	}
