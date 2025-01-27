@@ -21,6 +21,14 @@ func NewWareHouseHandler(srv interfaces.IWarehouseService) *WarehouseHandler {
 	return &WarehouseHandler{Srv: srv}
 }
 
+// GetAllWareHouse retrieves all warehouses.
+// @Summary Retrieve all warehouses
+// @Description Fetch all registered warehouses from the database
+// @Tags Warehouses
+// @Produce json
+// @Success 200 {object} model.WareHousesResponseSwagger
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search warehouse"
+// @Router /warehouses [get]
 func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		wareHouse, err := h.Srv.GetAllWareHouse()
@@ -59,6 +67,16 @@ func (h *WarehouseHandler) GetWareHouseByID() http.HandlerFunc {
 	}
 }
 
+// DeleteByIDWareHouse deletes a warehouse by its ID.
+// @Summary Delete a warehouse
+// @Description Delete a warehouse by its ID
+// @Tags Warehouses
+// @Produce json
+// @Param id path int true "Warehouse ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete warehouse"
+// @Router /warehouses/{id} [delete]
 func (h *WarehouseHandler) DeleteByIDWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
@@ -81,6 +99,18 @@ func (h *WarehouseHandler) DeleteByIDWareHouse() http.HandlerFunc {
 	}
 }
 
+// PostWareHouse creates a new warehouse.
+// @Summary Create a new warehouse
+// @Description Create a new warehouse
+// @Tags Warehouses
+// @Accept json
+// @Produce json
+// @Param warehouse body model.WareHouse true "Warehouse details"
+// @Success 201 {object} model.WareHousesResponseSwagger{data=model.WareHouse}
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid request body"
+// @Failure 422 {object} model.ErrorResponseSwagger "JSON syntax error Or Mandatory fields not filled in"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to post warehouse"
+// @Router /warehouses [post]
 func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody model.WareHouse
@@ -114,6 +144,19 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 	}
 }
 
+// UpdateWareHouse updates a warehouse by its ID.
+// @Summary Update a warehouse
+// @Description Update a warehouse by its ID
+// @Tags Warehouses
+// @Accept json
+// @Produce json
+// @Param id path int true "Warehouse ID"
+// @Param warehouse body model.WareHouse true "Updated warehouse details"
+// @Success 200 {object} model.WareHousesResponseSwagger{data=model.WareHouse}
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID or Invalid request body"
+// @Failure 422 {object} model.ErrorResponseSwagger "JSON syntax error Or Mandatory fields not filled in"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to update warehouse"
+// @Router /warehouses/{id} [put]
 func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody model.WareHouse

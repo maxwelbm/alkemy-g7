@@ -20,15 +20,19 @@ func (c *Carries) ValidateEmptyFields(isPatch bool) error {
 	if c.CID == "" {
 		fieldsEmpty = append(fieldsEmpty, "cid")
 	}
+
 	if c.CompanyName == "" {
 		fieldsEmpty = append(fieldsEmpty, "company_name")
 	}
+
 	if c.Address == "" {
 		fieldsEmpty = append(fieldsEmpty, "address")
 	}
+
 	if c.Telephone == "" {
 		fieldsEmpty = append(fieldsEmpty, "telephone")
 	}
+
 	if c.LocalityId == 0 {
 		fieldsEmpty = append(fieldsEmpty, "locality_id")
 	}
@@ -40,5 +44,10 @@ func (c *Carries) ValidateEmptyFields(isPatch bool) error {
 			return fmt.Errorf("the following fields are required: %v", strings.Join(fieldsEmpty, ", "))
 		}
 	}
+
 	return nil
+}
+
+type CarrierResponseSwagger struct {
+	Data []Carries `json:"data"`
 }
