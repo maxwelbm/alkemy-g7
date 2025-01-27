@@ -33,7 +33,11 @@ func (m *MockSectionRepository) Post(section *model.Section) (model.Section, err
 	return sec, err
 }
 func (m *MockSectionRepository) Update(id int, section *model.Section) (model.Section, error) {
-	panic("needs implementation...")
+	args := m.Called(id, section)
+	sec := args.Get(0).(model.Section)
+	err := args.Error(1)
+
+	return sec, err
 }
 
 func (m *MockSectionRepository) Delete(id int) error {
