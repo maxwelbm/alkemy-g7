@@ -30,7 +30,7 @@ func (p *productsRepositoryMock) GetAll() (map[int]model.Product, error) {
 	return args.Get(0).(map[int]model.Product), args.Error(1)
 }
 
-func (p *productsRepositoryMock) GetById(id int) (model.Product, error) {
+func (p *productsRepositoryMock) GetByID(id int) (model.Product, error) {
 	args := p.Called(id)
 	return args.Get(0).(model.Product), args.Error(1)
 }
@@ -162,7 +162,7 @@ func TestGetById(t *testing.T) {
 				mockRepo.On("GetById", tc.id).Return(expectedProduct, nil)
 			}
 
-			product, err := productService.ProductRepository.GetById(tc.id)
+			product, err := productService.ProductRepository.GetByID(tc.id)
 
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)
@@ -477,7 +477,7 @@ func TestUpdateProducts(t *testing.T) {
 			productID: 2,
 			inputProduct: model.Product{
 				ID:                             1,
-				ProductCode:                    "P001", 
+				ProductCode:                    "P001",
 				Description:                    "Product updated 1",
 				Width:                          10,
 				Height:                         20,

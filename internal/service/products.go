@@ -35,7 +35,7 @@ func (ps *ProductService) GetAllProducts() ([]model.Product, error) {
 }
 
 func (ps *ProductService) GetProductById(id int) (model.Product, error) {
-	product, err := ps.ProductRepository.GetById(id)
+	product, err := ps.ProductRepository.GetByID(id)
 	if err != nil {
 		return model.Product{}, err
 	}
@@ -81,7 +81,7 @@ func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Pr
 		return model.Product{}, custom_error.CustomError{Object: product.ProductCode, Err: custom_error.ErrConflict}
 	}
 
-	productInDb, err := ps.ProductRepository.GetById(id)
+	productInDb, err := ps.ProductRepository.GetByID(id)
 	if err != nil {
 		return model.Product{}, err
 	}
@@ -94,7 +94,7 @@ func (ps *ProductService) UpdateProduct(id int, product model.Product) (model.Pr
 }
 
 func (ps *ProductService) DeleteProduct(id int) error {
-	_, err := ps.ProductRepository.GetById(id)
+	_, err := ps.ProductRepository.GetByID(id)
 	if err != nil {
 		return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
 	}
