@@ -115,7 +115,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 			Address:            "test",
 		}
 
-		mockServiceWarehouse.On("GetByIdWareHouse", 1).Return(expectedWarehouse, nil)
+		mockServiceWarehouse.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(1), nil)
 
@@ -146,7 +146,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
-		mockServiceWarehouse.On("GetByIdWareHouse", 30).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
+		mockServiceWarehouse.On("GetByIDWareHouse", 30).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(30), nil)
 
@@ -184,7 +184,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
-		mockServiceWarehouse.On("GetByIdWareHouse", 2).Return(model.WareHouse{}, errors.New("error"))
+		mockServiceWarehouse.On("GetByIDWareHouse", 2).Return(model.WareHouse{}, errors.New("internal server error"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(2), nil)
 
@@ -208,7 +208,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		r := chi.NewRouter()
 		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
 
-		mockServiceWarehouse.On("DeleteByIdWareHouse", 1).Return(nil)
+		mockServiceWarehouse.On("DeleteByIDWareHouse", 1).Return(nil)
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/"+strconv.Itoa(1), nil)
 
@@ -226,7 +226,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		r := chi.NewRouter()
 		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
 
-		mockServiceWarehouse.On("DeleteByIdWareHouse", 30).Return(customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
+		mockServiceWarehouse.On("DeleteByIDWareHouse", 30).Return(customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/"+strconv.Itoa(30), nil)
 

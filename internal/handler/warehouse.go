@@ -51,6 +51,8 @@ func (h *WarehouseHandler) GetWareHouseByID() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to search warehouse", nil))
+
+			return
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", warehouse))
@@ -104,6 +106,8 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to post warehouse", nil))
+
+			return
 		}
 
 		response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", warehouse))
@@ -142,6 +146,8 @@ func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to update warehouse", nil))
+
+			return
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", warehouse))
