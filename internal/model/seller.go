@@ -1,7 +1,7 @@
 package model
 
 import (
-	er "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type Seller struct {

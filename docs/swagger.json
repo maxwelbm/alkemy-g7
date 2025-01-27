@@ -1,0 +1,502 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This REST API provides access to Mercado Livre's new line of perishable products, allowing users to efficiently manage, consult and purchase fresh products. With support for CRUD operations, this API was designed to facilitate inventory management, check product availability and ensure an agile and intuitive shopping experience. Aimed at developers who want to integrate e-commerce solutions, the API offers clear endpoints and comprehensive documentation for easy integration and use.",
+        "title": "Meli Fresh API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/buyers": {
+            "get": {
+                "description": "Fetch all registered buyers from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Retrieve all buyers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BuyerResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to list Buyers",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "This endpoint allows for creating a new buyer. It validates the input and checks for unique constraints on the card number.\n422 responses may include:\n- JSON syntax error (malformed JSON).\n- Mandatory fields not filled in.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Create a new buyer",
+                "parameters": [
+                    {
+                        "description": "Buyer information",
+                        "name": "buyer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Buyer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.BuyerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Buyer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Card number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create buyer",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyers/reportPurchaseOrders": {
+            "get": {
+                "description": "This endpoint retrieves the count of purchase orders for a buyer. If an ID is not provided, it returns the total count of all purchase orders.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Count purchase orders for a buyer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.BuyerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.BuyerPurchaseOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to count buyer purchase orders",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyers/{id}": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific buyer based on the provided buyer ID. It returns the buyer's information, including their name and any other relevant details. If the buyer ID does not exist, it returns a 404 Not Found error with an appropriate message.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Retrieve buyer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.BuyerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Buyer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for buyer",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "This endpoint allows for deleting a buyer based on the provided buyer ID. It checks for the existence of the buyer and any dependencies that might prevent deletion.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Delete a buyer by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Buyer successfully deleted"
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Buyer cannot be deleted due to existing dependencies",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to delete buyer",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "This endpoint allows for updating the details of a specific buyer identified by the provided ID. It validates the input and checks for unique constraints on the card number.\nThis endpoint performs the following actions:\n1. Validates the provided ID and ensures it corresponds to an existing buyer.\n2. Validates the input JSON for correct structure and required fields.\n3. Checks for unique constraints, such as unique card numbers.\nResponses for errors may include:\n- **422**: Unprocessable Entity, responses may include:\n- JSON syntax error (malformed JSON).\n- Mandatory fields not filled in.\n\n- **404**: Buyer not found, indicating the specified buyer does not exist.\n- **409**: Card number already exists, indicating a unique constraint violation.\n- **500**: Internal server error for unexpected issues.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer"
+                ],
+                "summary": "Update an existing buyer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Buyer information",
+                        "name": "buyer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Buyer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Buyer successfully updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.BuyerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Buyer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Card number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to update buyer",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchaseOrders": {
+            "post": {
+                "description": "This endpoint allows you to create a new purchase order by providing the necessary details in the request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrder"
+                ],
+                "summary": "Create a new purchase order",
+                "parameters": [
+                    {
+                        "description": "Purchase Order",
+                        "name": "purchaseOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PurchaseOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Purchase order created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.PurchaseOrderResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.PurchaseOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Buyer or ProductRec not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Order number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "JSON syntax error Or Mandatory fields not filled in",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Buyer": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string",
+                    "example": "CN001"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "Jhon"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                }
+            }
+        },
+        "model.BuyerPurchaseOrder": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "purchase_orders_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.BuyerResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Buyer"
+                    }
+                }
+            }
+        },
+        "model.ErrorResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Error message"
+                }
+            }
+        },
+        "model.PurchaseOrder": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "order_date": {
+                    "type": "string",
+                    "example": "2025-01-01T00:00:00Z"
+                },
+                "order_number": {
+                    "type": "string",
+                    "example": "ON001"
+                },
+                "product_record_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "tracking_code": {
+                    "type": "string",
+                    "example": "TC001"
+                }
+            }
+        },
+        "model.PurchaseOrderResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PurchaseOrder"
+                    }
+                }
+            }
+        }
+    }
+}

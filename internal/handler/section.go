@@ -10,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type SectionsJSON struct {
@@ -73,7 +73,7 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.GetById(idInt)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -112,7 +112,7 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Post(&section)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -156,7 +156,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Update(idInt, &sec)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -177,7 +177,7 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Sv.Delete(idInt)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -209,7 +209,7 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 
 	count, err := h.Sv.CountProductBatchesBySectionId(id)
 	if err != nil {
-		if err, ok := err.(*custom_error.GenericError); ok {
+		if err, ok := err.(*customError.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -220,10 +220,10 @@ func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r
 }
 
 func handleError(err error) int {
-	if errors.Is(err, custom_error.ErrNotFoundErrorSection) {
+	if errors.Is(err, customError.ErrNotFoundErrorSection) {
 		return http.StatusNotFound
 	}
-	if errors.Is(err, custom_error.ErrConflictSection) {
+	if errors.Is(err, customError.ErrConflictSection) {
 		return http.StatusConflict
 	}
 

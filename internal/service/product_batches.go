@@ -4,7 +4,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type ProductBatchesService struct {
@@ -24,7 +24,7 @@ func (s *ProductBatchesService) GetById(id int) (prodBatches model.ProductBatche
 
 func (s *ProductBatchesService) Post(prodBatches *model.ProductBatches) (newProdBatches model.ProductBatches, err error) {
 	if err = prodBatches.Validate(); err != nil {
-		return model.ProductBatches{}, custom_error.HandleError("product batches", custom_error.ErrorInvalid, err.Error())
+		return model.ProductBatches{}, customError.HandleError("product batches", customError.ErrorInvalid, err.Error())
 	}
 	_, err = s.svcProd.GetProductById(prodBatches.ProductID)
 	if err != nil {

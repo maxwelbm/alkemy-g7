@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type EmployeeRepository struct {
@@ -43,7 +43,7 @@ func (e *EmployeeRepository) GetById(id int) (model.Employee, error) {
 	row := e.db.QueryRow("SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?", id)
 	err := row.Scan(&employee.Id, &employee.CardNumberId, &employee.FirstName, &employee.LastName, &employee.WarehouseId)
 	if err == sql.ErrNoRows {
-		return model.Employee{}, custom_error.EmployeeErrNotFound
+		return model.Employee{}, customError.EmployeeErrNotFound
 	} else if err != nil {
 		return model.Employee{}, err
 	}
@@ -105,7 +105,7 @@ func (e *EmployeeRepository) GetInboundOrdersReportByEmployee(employeeId int) (m
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.EmployeeErrNotFoundInboundOrders
+			err = customError.EmployeeErrNotFoundInboundOrders
 		}
 		return model.InboundOrdersReportByEmployee{}, err
 	}

@@ -5,17 +5,14 @@ import (
 	"errors"
 	"os"
 
-	// "github.com/maxwelbm/alkemy-g7.git/internal/handler"
-
 	"github.com/go-sql-driver/mysql"
 )
 
-type Db struct {
+type DB struct {
 	Connection *sql.DB
 }
 
-func NewConnectionDb(db *mysql.Config) (*Db, error) {
-
+func NewConnectionDB(db *mysql.Config) (*DB, error) {
 	conn, err := sql.Open("mysql", db.FormatDSN())
 	if err != nil {
 		return nil, err
@@ -25,24 +22,21 @@ func NewConnectionDb(db *mysql.Config) (*Db, error) {
 		return nil, err
 	}
 
-	return &Db{Connection: conn}, nil
+	return &DB{Connection: conn}, nil
 }
 
-func (Db *Db) Close() error {
+func (Db *DB) Close() error {
 	return Db.Connection.Close()
 }
 
-func GetDbConfig() (*mysql.Config, error) {
-
+func GetDBConfig() (*mysql.Config, error) {
 	dbHost := os.Getenv("DB_HOST")
-
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 	dbNet := os.Getenv("DB_NET")
 
 	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbNet == "" {
-
 		return nil, errors.New("missing required environment configuration for the database")
 	}
 
@@ -54,5 +48,4 @@ func GetDbConfig() (*mysql.Config, error) {
 		ParseTime: true,
 		DBName:    dbName,
 	}, nil
-
 }

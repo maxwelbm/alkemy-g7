@@ -9,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type InboundOrderHandler struct {
@@ -46,7 +46,7 @@ func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Re
 	entry, err := h.sv.Post(newInboundOrder)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.InboundOrderErr); ok {
+		if err, ok := err.(*customError.InboundOrderErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
