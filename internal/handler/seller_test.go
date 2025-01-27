@@ -102,14 +102,14 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 	}{
 		{
 			description:   "get seller by id with success",
-			returnService: model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central park Avenue", Telephone: "999444555", Locality: 3},
+			returnService: model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3},
 			id:            3,
 			response: `{
                             "data": {
                                 "id": 3,
                                 "cid": 3,
                                 "company_name": "Enterprise Science",
-                                "address": "1200 Central park Avenue",
+                                "address": "1200 Central Park Avenue",
                                 "telephone": "999444555",
                                 "locality_id": 3
                             }
@@ -314,13 +314,13 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	}{
 		{
 			description:   "update seller with success",
-			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
+			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10},
 			id:            5,
-			returnService: model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
+			returnService: model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10},
 			body: []byte(`{           
 							"cid": 55,
 							"company_name": "Cypress Company",
-							"address": "900 Central park",
+							"address": "900 Central Park",
 							"telephone": "55566777787",
 							"locality_id": 10
 						}`),
@@ -329,7 +329,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
                             "id": 5,
                             "cid": 55,
                             "company_name": "Cypress Company",
-                            "address": "900 Central park",
+                            "address": "900 Central Park",
                             "telephone": "55566777787",
                             "locality_id": 10
                         }
@@ -340,13 +340,13 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		},
 		{
 			description:   "update seller with id not found",
-			arg:           model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central park", Telephone: "55566777787", Locality: 20},
+			arg:           model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central Park", Telephone: "55566777787", Locality: 20},
 			id:            999,
 			returnService: model.Seller{},
 			body: []byte(`{           
 							"cid": 65,
 							"company_name": "Cypress Company",
-							"address": "30 Central park",
+							"address": "30 Central Park",
 							"telephone": "55566777787",
 							"locality_id": 20
 						}`),
@@ -391,7 +391,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		},
 		{
 			description:   "update seller with attribute cid already existing",
-			arg:           model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 17},
+			arg:           model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Park", Telephone: "55566777787", Locality: 17},
 			id:            9,
 			returnService: model.Seller{},
 			body: []byte(`{           
@@ -425,13 +425,13 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		},
 		{
 			description:   "update seller with zero id",
-			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 30},
+			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central Park", Telephone: "55566777787", Locality: 30},
 			id:            0,
 			returnService: model.Seller{},
 			body: []byte(`{           
 							"cid": 55,
 							"company_name": "Cypress Company",
-							"address": "400 Central park",
+							"address": "400 Central Park",
 							"telephone": "55566777787",
 							"locality_id": 30
 						}`),
@@ -479,7 +479,7 @@ func TestHandlerDeleteSeller(t *testing.T) {
 		{
 			description:   "delete seller by id with success",
 			id:            3,
-			returnService: model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central park Avenue", Telephone: "999444555", Locality: 3},
+			returnService: model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3},
 			response:      `{}`,
 			statusCode:    http.StatusNoContent,
 			err:           nil,

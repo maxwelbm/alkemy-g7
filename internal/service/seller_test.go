@@ -82,7 +82,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 	}{
 		{
 			description: "get seller by id existing successfully",
-			seller:      model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central park Avenue", Telephone: "999444555", Locality: 3},
+			seller:      model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3},
 			id:          3,
 			existErr:    false,
 			err:         nil,
@@ -271,8 +271,8 @@ func TestServiceUpdateSeller(t *testing.T) {
 	}{
 		{
 			description: "update seller with success",
-			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
-			seller:      model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central park", Telephone: "55566777787", Locality: 10},
+			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10},
+			seller:      model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10},
 			sellerID:    5,
 			localityID:  10,
 			locality:    model.Locality{ID: 10, Locality: "Los Angeles", Province: "California", Country: "EUA"},
@@ -287,7 +287,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		},
 		{
 			description: "update seller with id not found",
-			arg:         model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central park", Telephone: "55566777787", Locality: 9},
+			arg:         model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central Park", Telephone: "55566777787", Locality: 9},
 			seller:      model.Seller{},
 			sellerID:    999,
 			localityID:  9,
@@ -319,7 +319,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		},
 		{
 			description: "update seller with attribute cid already existing",
-			arg:         model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 17},
+			arg:         model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Park", Telephone: "55566777787", Locality: 17},
 			seller:      model.Seller{},
 			sellerID:    9,
 			localityID:  17,
@@ -351,7 +351,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		},
 		{
 			description: "update seller with zero id",
-			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central park", Telephone: "55566777787", Locality: 30},
+			arg:         model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central Park", Telephone: "55566777787", Locality: 30},
 			seller:      model.Seller{},
 			sellerID:    0,
 			localityID:  30,
@@ -413,6 +413,59 @@ func TestServiceUpdateSeller(t *testing.T) {
 
 			if test.errSeller != nil {
 				assert.EqualError(t, test.errSeller, err.Error())
+			}
+		})
+	}
+}
+
+func TestServiceDeleteSeller(t *testing.T) {
+	tests := []struct {
+		description string
+		id          int
+		existErr    bool
+		err         error
+		call        bool
+	}{
+		{
+			description: "delete seller with success",
+			id:          3,
+			existErr:    false,
+			err:         nil,
+			call:        true,
+		},
+		{
+			description: "delete seller by id not found",
+			id:          999,
+			existErr:    true,
+			err:         customError.ErrSellerNotFound,
+			call:        true,
+		},
+		{
+			description: "delete seller by id with zero id",
+			id:          0,
+			existErr:    true,
+			err:         customError.ErrMissingSellerID,
+			call:        true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			service := setupSeller()
+			mock := service.Rp.(*repository.SellerMockRepository)
+			mock.On("Delete", test.id).Return(test.err)
+
+			err := service.DeleteSeller(test.id)
+
+			switch test.existErr {
+			case true:
+				assert.Error(t, err)
+				assert.EqualError(t, test.err, err.Error())
+			case false:
+				assert.NoError(t, err)
+			}
+
+			if test.call {
+				mock.AssertExpectations(t)
 			}
 		})
 	}
