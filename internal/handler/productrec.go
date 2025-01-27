@@ -9,7 +9,7 @@ import (
 	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductRecHandler struct {
@@ -40,12 +40,13 @@ func (prh *ProductRecHandler) CreateProductRecServ(w http.ResponseWriter, r *htt
 
 	product, err := prh.ProductRecServ.CreateProductRecords(productRecBody)
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
 
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(customError.ErrUnknow.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(customerror.ErrUnknow.Error(), nil))
+
 		return
 	}
 
@@ -79,12 +80,13 @@ func (prh *ProductRecHandler) GetProductRecReport(w http.ResponseWriter, r *http
 
 	product, err := prh.ProductRecServ.GetProductRecordReport(idProduct)
 	if err != nil {
-		if appErr, ok := err.(*customError.GenericError); ok {
+		if appErr, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
+
 		return
 	}
 

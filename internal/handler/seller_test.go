@@ -12,7 +12,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -124,7 +124,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			id:            999,
 			response:      `{"message":"seller not found"}`,
 			statusCode:    http.StatusNotFound,
-			err:           customError.ErrSellerNotFound,
+			err:           customerror.ErrSellerNotFound,
 			call:          true,
 		},
 		{
@@ -133,7 +133,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			id:            4,
 			response:      `{"message":"internal server error"}`,
 			statusCode:    http.StatusInternalServerError,
-			err:           customError.ErrDefaultSeller,
+			err:           customerror.ErrDefaultSeller,
 			call:          true,
 		},
 		{
@@ -142,7 +142,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			id:            0,
 			response:      `{"message":"missing 'id' parameter in the request"}`,
 			statusCode:    http.StatusBadRequest,
-			err:           customError.ErrMissingSellerID,
+			err:           customerror.ErrMissingSellerID,
 			call:          false,
 		},
 	}
@@ -212,7 +212,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"invalid JSON format in the request body"}`,
 			statusCode: http.StatusBadRequest,
-			err:        customError.ErrInvalidSellerJSONFormat,
+			err:        customerror.ErrInvalidSellerJSONFormat,
 			call:       false,
 		},
 		{
@@ -228,7 +228,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"invalid request body, received empty or null value"}`,
 			statusCode: http.StatusUnprocessableEntity,
-			err:        customError.ErrNullSellerAttribute,
+			err:        customerror.ErrNullSellerAttribute,
 			call:       false,
 		},
 		{
@@ -238,7 +238,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 			body:          []byte(`{}`),
 			response:      `{"message":"invalid request body, received empty or null value"}`,
 			statusCode:    http.StatusUnprocessableEntity,
-			err:           customError.ErrNullSellerAttribute,
+			err:           customerror.ErrNullSellerAttribute,
 			call:          false,
 		},
 		{
@@ -254,7 +254,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"seller's CID already exists"}`,
 			statusCode: http.StatusConflict,
-			err:        customError.ErrCIDSellerAlreadyExist,
+			err:        customerror.ErrCIDSellerAlreadyExist,
 			call:       true,
 		},
 		{
@@ -270,7 +270,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"locality not found"}`,
 			statusCode: http.StatusNotFound,
-			err:        customError.ErrLocalityNotFound,
+			err:        customerror.ErrLocalityNotFound,
 			call:       true,
 		},
 	}
@@ -352,7 +352,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"seller not found"}`,
 			statusCode: http.StatusNotFound,
-			err:        customError.ErrSellerNotFound,
+			err:        customerror.ErrSellerNotFound,
 			call:       false,
 		},
 		{
@@ -369,7 +369,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"invalid JSON format in the request body"}`,
 			statusCode: http.StatusBadRequest,
-			err:        customError.ErrInvalidSellerJSONFormat,
+			err:        customerror.ErrInvalidSellerJSONFormat,
 			call:       false,
 		},
 		{
@@ -386,7 +386,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"invalid request body, received empty or null value"}`,
 			statusCode: http.StatusUnprocessableEntity,
-			err:        customError.ErrNullSellerAttribute,
+			err:        customerror.ErrNullSellerAttribute,
 			call:       false,
 		},
 		{
@@ -403,7 +403,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"seller's CID already exists"}`,
 			statusCode: http.StatusConflict,
-			err:        customError.ErrCIDSellerAlreadyExist,
+			err:        customerror.ErrCIDSellerAlreadyExist,
 			call:       false,
 		},
 		{
@@ -420,7 +420,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"locality not found"}`,
 			statusCode: http.StatusNotFound,
-			err:        customError.ErrLocalityNotFound,
+			err:        customerror.ErrLocalityNotFound,
 			call:       false,
 		},
 		{
@@ -437,7 +437,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 						}`),
 			response:   `{"message":"missing 'id' parameter in the request"}`,
 			statusCode: http.StatusBadRequest,
-			err:        customError.ErrMissingSellerID,
+			err:        customerror.ErrMissingSellerID,
 			call:       false,
 		},
 	}
@@ -491,7 +491,7 @@ func TestHandlerDeleteSeller(t *testing.T) {
 			id:            999,
 			response:      `{"message":"seller not found"}`,
 			statusCode:    http.StatusNotFound,
-			err:           customError.ErrSellerNotFound,
+			err:           customerror.ErrSellerNotFound,
 			call:          false,
 		},
 		{
@@ -500,7 +500,7 @@ func TestHandlerDeleteSeller(t *testing.T) {
 			id:            4,
 			response:      `{"message":"internal server error"}`,
 			statusCode:    http.StatusInternalServerError,
-			err:           customError.ErrDefaultSeller,
+			err:           customerror.ErrDefaultSeller,
 			call:          false,
 		},
 		{
@@ -509,7 +509,7 @@ func TestHandlerDeleteSeller(t *testing.T) {
 			id:            0,
 			response:      `{"message":"missing 'id' parameter in the request"}`,
 			statusCode:    http.StatusBadRequest,
-			err:           customError.ErrMissingSellerID,
+			err:           customerror.ErrMissingSellerID,
 			call:          false,
 		},
 	}

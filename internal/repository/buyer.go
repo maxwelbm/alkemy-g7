@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type BuyerRepository struct {
@@ -17,7 +17,7 @@ func (r *BuyerRepository) Delete(id int) (err error) {
 	_, err = r.db.Exec("DELETE FROM buyers WHERE id = ?", id)
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1451 {
-			err = customError.NewBuyerError(http.StatusConflict, customError.ErrDependencies.Error(), "Buyer")
+			err = customerror.NewBuyerError(http.StatusConflict, customerror.ErrDependencies.Error(), "Buyer")
 		}
 
 		return
@@ -54,7 +54,7 @@ func (r *BuyerRepository) GetByID(id int) (buyer model.Buyer, err error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
+			err = customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer")
 		}
 
 		return
@@ -73,7 +73,7 @@ func (r *BuyerRepository) Post(newBuyer model.Buyer) (id int64, err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = customError.NewBuyerError(http.StatusConflict, customError.ErrConflict.Error(), "card_number_id")
+			err = customerror.NewBuyerError(http.StatusConflict, customerror.ErrConflict.Error(), "card_number_id")
 		}
 
 		return
@@ -94,7 +94,7 @@ func (r *BuyerRepository) Update(id int, newBuyer model.Buyer) (err error) {
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = customError.NewBuyerError(http.StatusNotFound, customError.ErrConflict.Error(), "card_number_id")
+			err = customerror.NewBuyerError(http.StatusNotFound, customerror.ErrConflict.Error(), "card_number_id")
 		}
 
 		return
@@ -109,7 +109,7 @@ func (r *BuyerRepository) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchas
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
+			err = customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer")
 		}
 
 		return

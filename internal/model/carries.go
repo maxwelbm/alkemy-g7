@@ -6,12 +6,12 @@ import (
 )
 
 type Carries struct {
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	CID         string `json:"cid"`
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
-	LocalityId  int    `json:"locality_id"`
+	LocalityID  int    `json:"locality_id"`
 }
 
 func (c *Carries) ValidateEmptyFields(isPatch bool) error {
@@ -33,7 +33,7 @@ func (c *Carries) ValidateEmptyFields(isPatch bool) error {
 		fieldsEmpty = append(fieldsEmpty, "telephone")
 	}
 
-	if c.LocalityId == 0 {
+	if c.LocalityID == 0 {
 		fieldsEmpty = append(fieldsEmpty, "locality_id")
 	}
 

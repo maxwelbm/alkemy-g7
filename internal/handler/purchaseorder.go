@@ -8,7 +8,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type PurchaseOrderHandler struct {
@@ -57,19 +57,19 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 	purchaseOrder, err := h.Svc.CreatePurchaseOrder(reqBody)
 
 	if err != nil {
-		if err, ok := err.(*customError.BuyerError); ok {
+		if err, ok := err.(*customerror.BuyerError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
-		if err, ok := err.(*customError.PurcahseOrderError); ok {
+		if err, ok := err.(*customerror.PurcahseOrderError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return

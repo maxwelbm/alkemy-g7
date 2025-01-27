@@ -8,7 +8,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -93,7 +93,7 @@ func TestServiceSeller(t *testing.T) {
 			seller:      model.Seller{},
 			id:          999,
 			existErr:    true,
-			err:         customError.ErrSellerNotFound,
+			err:         customerror.ErrSellerNotFound,
 			call:        true,
 		},
 		{
@@ -101,7 +101,7 @@ func TestServiceSeller(t *testing.T) {
 			seller:      model.Seller{},
 			id:          0,
 			existErr:    true,
-			err:         customError.ErrMissingSellerID,
+			err:         customerror.ErrMissingSellerID,
 			call:        true,
 		},
 		{
@@ -109,7 +109,7 @@ func TestServiceSeller(t *testing.T) {
 			seller:      model.Seller{},
 			id:          4,
 			existErr:    true,
-			err:         customError.ErrDefaultSeller,
+			err:         customerror.ErrDefaultSeller,
 			call:        true,
 		},
 	}
@@ -175,7 +175,7 @@ func TestServiceCreateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrNullSellerAttribute,
+			errSeller:   customerror.ErrNullSellerAttribute,
 			errLocality: nil,
 		},
 		{
@@ -190,7 +190,7 @@ func TestServiceCreateSeller(t *testing.T) {
 				"callSeller":       true,
 				"callLocality":     true,
 			},
-			errSeller:   customError.ErrCIDSellerAlreadyExist,
+			errSeller:   customerror.ErrCIDSellerAlreadyExist,
 			errLocality: nil,
 		},
 		{
@@ -205,8 +205,8 @@ func TestServiceCreateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     true,
 			},
-			errSeller:   customError.ErrLocalityNotFound,
-			errLocality: customError.ErrLocalityNotFound,
+			errSeller:   customerror.ErrLocalityNotFound,
+			errLocality: customerror.ErrLocalityNotFound,
 		},
 	}
 	for _, test := range tests {
@@ -298,7 +298,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrSellerNotFound,
+			errSeller:   customerror.ErrSellerNotFound,
 			errLocality: nil,
 		},
 		{
@@ -314,7 +314,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrNullSellerAttribute,
+			errSeller:   customerror.ErrNullSellerAttribute,
 			errLocality: nil,
 		},
 		{
@@ -330,7 +330,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 				"callSeller":       true,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrCIDSellerAlreadyExist,
+			errSeller:   customerror.ErrCIDSellerAlreadyExist,
 			errLocality: nil,
 		},
 		{
@@ -346,8 +346,8 @@ func TestServiceUpdateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrLocalityNotFound,
-			errLocality: customError.ErrLocalityNotFound,
+			errSeller:   customerror.ErrLocalityNotFound,
+			errLocality: customerror.ErrLocalityNotFound,
 		},
 		{
 			description: "update seller with zero id",
@@ -362,7 +362,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 				"callSeller":       false,
 				"callLocality":     false,
 			},
-			errSeller:   customError.ErrMissingSellerID,
+			errSeller:   customerror.ErrMissingSellerID,
 			errLocality: nil,
 		},
 	}
@@ -437,14 +437,14 @@ func TestServiceDeleteSeller(t *testing.T) {
 			description: "delete seller by id not found",
 			id:          999,
 			existErr:    true,
-			err:         customError.ErrSellerNotFound,
+			err:         customerror.ErrSellerNotFound,
 			call:        true,
 		},
 		{
 			description: "delete seller by id with zero id",
 			id:          0,
 			existErr:    true,
-			err:         customError.ErrMissingSellerID,
+			err:         customerror.ErrMissingSellerID,
 			call:        true,
 		},
 	}

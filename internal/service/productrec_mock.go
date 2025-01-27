@@ -9,17 +9,17 @@ type ProductrecMock struct {
 	mock.Mock
 }
 
-func (p ProductrecMock) CreateProductRecords(pr model.ProductRecords) (model.ProductRecords, error) {
+func (p *ProductrecMock) CreateProductRecords(pr model.ProductRecords) (model.ProductRecords, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p ProductrecMock) GetProductRecordByID(id int) (model.ProductRecords, error) {
+func (p *ProductrecMock) GetProductRecordByID(id int) (model.ProductRecords, error) {
 	args := p.Called(id)
 	return args.Get(0).(model.ProductRecords), args.Error(1)
 }
 
-func (p ProductrecMock) GetProductRecordReport(idProduct int) ([]model.ProductRecordsReport, error) {
+func (p *ProductrecMock) GetProductRecordReport(idProduct int) ([]model.ProductRecordsReport, error) {
 	//TODO implement me
 	panic("implement me")
 }

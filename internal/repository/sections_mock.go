@@ -17,7 +17,7 @@ func (m *MockSectionRepository) Get() ([]model.Section, error) {
 	return sections, err
 }
 
-func (m *MockSectionRepository) GetById(id int) (model.Section, error) {
+func (m *MockSectionRepository) GetByID(id int) (model.Section, error) {
 	args := m.Called(id)
 	section := args.Get(0).(model.Section)
 	err := args.Error(1)
@@ -47,14 +47,14 @@ func (m *MockSectionRepository) Delete(id int) error {
 	return err
 }
 
-func (sm *MockSectionRepository) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
-	args := sm.Called(id)
+func (m *MockSectionRepository) CountProductBatchesBySectionID(id int) (countProdBatches model.SectionProductBatches, err error) {
+	args := m.Called(id)
 	countProdBatches = args.Get(0).(model.SectionProductBatches)
 	err = args.Error(1)
 
 	return
 }
 
-func (sm *MockSectionRepository) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {
+func (m *MockSectionRepository) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {
 	panic("needs implementation...")
 }

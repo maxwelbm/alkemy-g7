@@ -1,11 +1,10 @@
-package customError
+package customerror
 
 import (
 	"fmt"
 	"net/http"
 )
 
-// Só coloquei esse nome para testar, caso mais alguém queira usar esse é a struct
 type GenericError struct {
 	Message string
 	Code    int

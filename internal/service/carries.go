@@ -18,14 +18,13 @@ func NewCarrierService(rp interfaces.ICarriersRepo, svcLocality svc.ILocalitySer
 	}
 }
 
-func (cp *CarrierDefault) GetById(id int) (carrier model.Carries, err error) {
-	carrier, err = cp.rp.GetById(id)
+func (cp *CarrierDefault) GetByID(id int) (carrier model.Carries, err error) {
+	carrier, err = cp.rp.GetByID(id)
 	return
 }
 
 func (cp *CarrierDefault) PostCarrier(newCarrier model.Carries) (carrier model.Carries, err error) {
-
-	_, err = cp.svcLocality.GetByID(newCarrier.LocalityId)
+	_, err = cp.svcLocality.GetByID(newCarrier.LocalityID)
 
 	if err != nil {
 		return
@@ -37,7 +36,7 @@ func (cp *CarrierDefault) PostCarrier(newCarrier model.Carries) (carrier model.C
 		return
 	}
 
-	carrier, err = cp.GetById(int(id))
+	carrier, err = cp.GetByID(int(id))
 
 	return
 }

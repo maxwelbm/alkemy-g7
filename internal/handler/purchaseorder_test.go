@@ -3,15 +3,16 @@ package handler_test
 import (
 	"bytes"
 	"errors"
-	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
-	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupPurchaseOrder() *handler.PurchaseOrderHandler {
@@ -91,7 +92,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 			TrackingCode:    "TC001",
 			BuyerID:         99,
 			ProductRecordID: 1,
-		}).Return(model.PurchaseOrder{}, customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer"))
+		}).Return(model.PurchaseOrder{}, customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer"))
 
 		body := []byte(`{
     "order_number": "ON001",
@@ -128,7 +129,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 			TrackingCode:    "TC001",
 			BuyerID:         99,
 			ProductRecordID: 1,
-		}).Return(model.PurchaseOrder{}, customError.HandleError("product record", customError.ErrorNotFound, ""))
+		}).Return(model.PurchaseOrder{}, customerror.HandleError("product record", customerror.ErrorNotFound, ""))
 
 		body := []byte(`{
     "order_number": "ON001",
@@ -165,7 +166,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 			TrackingCode:    "TC001",
 			BuyerID:         99,
 			ProductRecordID: 1,
-		}).Return(model.PurchaseOrder{}, customError.NewPurcahseOrderError(http.StatusConflict, customError.ErrConflict.Error(), "order_number"))
+		}).Return(model.PurchaseOrder{}, customerror.NewPurcahseOrderError(http.StatusConflict, customerror.ErrConflict.Error(), "order_number"))
 
 		body := []byte(`{
     "order_number": "ON001",

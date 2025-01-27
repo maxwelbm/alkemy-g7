@@ -6,7 +6,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,9 +39,9 @@ func TestSectionByID(t *testing.T) {
 		expectedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
-		mockRepo.On("GetById", 1).Return(expectedSection, nil)
+		mockRepo.On("GetByID", 1).Return(expectedSection, nil)
 
-		section, err := svc.GetById(1)
+		section, err := svc.GetByID(1)
 
 		assert.Equal(t, expectedSection, section)
 		assert.NoError(t, err)
@@ -51,12 +51,12 @@ func TestSectionByID(t *testing.T) {
 	t.Run("given an invalid id return an error", func(t *testing.T) {
 		svc := setupRepMock()
 
-		expectedError := customError.HandleError("section", customError.ErrorNotFound, "")
+		expectedError := customerror.HandleError("section", customerror.ErrorNotFound, "")
 
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
-		mockRepo.On("GetById", 50).Return(model.Section{}, expectedError)
+		mockRepo.On("GetByID", 50).Return(model.Section{}, expectedError)
 
-		section, err := svc.GetById(50)
+		section, err := svc.GetByID(50)
 
 		assert.Equal(t, model.Section{}, section)
 		assert.ErrorIs(t, err, expectedError)
@@ -83,7 +83,7 @@ func TestPostSection(t *testing.T) {
 	t.Run("given an invalid section return error", func(t *testing.T) {
 		svc := setupRepMock()
 
-		expectedErrSection := customError.HandleError("section", customError.ErrorConflict, "")
+		expectedErrSection := customerror.HandleError("section", customerror.ErrorConflict, "")
 		createdSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
@@ -105,7 +105,7 @@ func TestUpdateSection(t *testing.T) {
 		updatedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
-		mockRepo.On("GetById", 1).Return(updatedSection, nil)
+		mockRepo.On("GetByID", 1).Return(updatedSection, nil)
 
 		mockRepo.On("Update", 1, &updatedSection).Return(updatedSection, nil)
 
@@ -122,8 +122,8 @@ func TestUpdateSection(t *testing.T) {
 		updatedSection := model.Section{ID: 50, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
 
-		expectedError := customError.HandleError("section", customError.ErrorConflict, "")
-		mockRepo.On("GetById", 50).Return(model.Section{}, expectedError)
+		expectedError := customerror.HandleError("section", customerror.ErrorConflict, "")
+		mockRepo.On("GetByID", 50).Return(model.Section{}, expectedError)
 
 		section, err := svc.Update(50, &updatedSection)
 
@@ -141,9 +141,9 @@ func TestDeleteSection(t *testing.T) {
 		deletedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
 
-		mockRepo.On("GetById", 1).Return(deletedSection, nil)
+		mockRepo.On("GetByID", 1).Return(deletedSection, nil)
 
-		mockRepo.On("CountProductBatchesBySectionId", 1).Return(model.SectionProductBatches{}, nil)
+		mockRepo.On("CountProductBatchesBySectionID", 1).Return(model.SectionProductBatches{}, nil)
 
 		mockRepo.On("Delete", 1).Return(nil)
 
@@ -156,11 +156,11 @@ func TestDeleteSection(t *testing.T) {
 	t.Run("given an invalid section id then return error", func(t *testing.T) {
 		svc := setupRepMock()
 
-		expectedError := customError.HandleError("section", customError.ErrorNotFound, "")
+		expectedError := customerror.HandleError("section", customerror.ErrorNotFound, "")
 
 		mockRepo := svc.Rp.(*repository.MockSectionRepository)
 
-		mockRepo.On("GetById", 50).Return(model.Section{}, expectedError)
+		mockRepo.On("GetByID", 50).Return(model.Section{}, expectedError)
 
 		err := svc.Delete(50)
 

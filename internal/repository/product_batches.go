@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductBatchesRepository struct {
@@ -16,17 +16,19 @@ func CreateProductBatchesRepository(db *sql.DB) *ProductBatchesRepository {
 	return &ProductBatchesRepository{db: db}
 }
 
-func (r *ProductBatchesRepository) GetById(id int) (prodBatches model.ProductBatches, err error) {
-	getByIdQuery := "SELECT `id`, `batch_number`, `current_quantity`, `current_temperature`, `minimum_temperature`, `due_date`, `initial_quantity`, `manufacturing_date`, `manufacturing_hour`, `product_id`, `section_id` FROM `product_batches` WHERE `id` = ?"
-	row := r.db.QueryRow(getByIdQuery, id)
+func (r *ProductBatchesRepository) GetByID(id int) (prodBatches model.ProductBatches, err error) {
+	getByIDQuery := "SELECT `id`, `batch_number`, `current_quantity`, `current_temperature`, `minimum_temperature`, `due_date`, `initial_quantity`, `manufacturing_date`, `manufacturing_hour`, `product_id`, `section_id` FROM `product_batches` WHERE `id` = ?"
+	row := r.db.QueryRow(getByIDQuery, id)
 
 	err = row.Scan(&prodBatches.ID, &prodBatches.BatchNumber, &prodBatches.CurrentQuantity, &prodBatches.CurrentTemperature, &prodBatches.MinimumTemperature, &prodBatches.DueDate, &prodBatches.InitialQuantity, &prodBatches.ManufacturingDate, &prodBatches.ManufacturingHour, &prodBatches.ProductID, &prodBatches.SectionID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.HandleError("product batches", customError.ErrorNotFound, "")
+			err = customerror.HandleError("product batches", customerror.ErrorNotFound, "")
 		}
+
 		return
 	}
+
 	return
 }
 
@@ -37,8 +39,9 @@ func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newP
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = customError.HandleError("product batches:", customError.ErrorConflict, "")
+			err = customerror.HandleError("product batches:", customerror.ErrorConflict, "")
 		}
+		
 		return
 	}
 
@@ -49,7 +52,7 @@ func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newP
 
 	(*prodBatches).ID = int(id)
 
-	newProdBatches, _ = r.GetById(int(id))
+	newProdBatches, _ = r.GetByID(int(id))
 
 	return
 }

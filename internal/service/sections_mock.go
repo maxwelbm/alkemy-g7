@@ -17,7 +17,7 @@ func (sm *MockSectionService) Get() (sections []model.Section, err error) {
 	return
 }
 
-func (sm *MockSectionService) GetById(id int) (section model.Section, err error) {
+func (sm *MockSectionService) GetByID(id int) (section model.Section, err error) {
 	args := sm.Called(id)
 	section = args.Get(0).(model.Section)
 	err = args.Error(1)
@@ -48,7 +48,7 @@ func (sm *MockSectionService) Delete(id int) (err error) {
 	return
 }
 
-func (sm *MockSectionService) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
+func (sm *MockSectionService) CountProductBatchesBySectionID(id int) (countProdBatches model.SectionProductBatches, err error) {
 	panic("needs implementation...")
 }
 

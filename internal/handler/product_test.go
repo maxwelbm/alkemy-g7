@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -98,7 +98,7 @@ func TestGetProductById(t *testing.T) {
 				SellerID:                       0,
 			}, nil
 		}
-		return model.Product{}, customError.HandleError("product", customError.ErrorNotFound, "")
+		return model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, "")
 	}
 
 	productHd := ProductHandler{
@@ -219,7 +219,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	updateProduct := func(id int, product model.Product) (model.Product, error) {
 		if id != 1 {
-			return model.Product{}, customError.HandleError("product", customError.ErrorNotFound, "")
+			return model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, "")
 		}
 		product.ID = 1
 		return product, nil
@@ -313,7 +313,7 @@ func TestUpdateProduct(t *testing.T) {
 func TestDeleteProduct(t *testing.T) {
 	deleteProduct := func(id int) error {
 		if id != 1 {
-			return customError.HandleError("product", customError.ErrorNotFound, "")
+			return customerror.HandleError("product", customerror.ErrorNotFound, "")
 		}
 		return nil
 	}

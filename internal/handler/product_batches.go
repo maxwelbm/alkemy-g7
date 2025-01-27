@@ -9,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductBatchesJSON struct {
@@ -68,12 +68,15 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 	pb, err := h.sv.Post(&productBatches)
 
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create product batches", nil))
+
 		return
 	}
+
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", pb))
 }

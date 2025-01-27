@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
-
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -148,7 +147,7 @@ func TestGetByID(t *testing.T) {
 			name:            "should return not found error",
 			id:              2,
 			expectedProduct: model.Product{},
-			expectedError:   customError.HandleError("product", customError.ErrorNotFound, ""),
+			expectedError:   customerror.HandleError("product", customerror.ErrorNotFound, ""),
 		},
 	}
 
@@ -207,7 +206,7 @@ func TestDeleteById(t *testing.T) {
 		{
 			name:          "should return not found error",
 			id:            2,
-			expectedError: customError.HandleError("product", customError.ErrorNotFound, ""),
+			expectedError: customerror.HandleError("product", customerror.ErrorNotFound, ""),
 		},
 	}
 
@@ -324,7 +323,7 @@ func TestCreateProduct(t *testing.T) {
 			param:                           listOfProducts[1],
 			expectedReturnProductMockSucess: dataProduct,
 			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         customError.CustomError{Object: listOfProducts[1].ProductCode, Err: customError.ErrConflict},
+			expectedReturnMockError:         customerror.CustomError{Object: listOfProducts[1].ProductCode, Err: customerror.ErrConflict},
 		},
 	}
 	for _, tc := range testCases {
@@ -467,10 +466,10 @@ func TestUpdateProducts(t *testing.T) {
 			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
 				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
 				prm.On("GetAll").Return(make(map[int]model.Product), nil)
-				prm.On("GetByID", 2).Return(model.Product{}, customError.HandleError("product", customError.ErrorNotFound, ""))
+				prm.On("GetByID", 2).Return(model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, ""))
 			},
 			expectedProduct: model.Product{},
-			expectedError:   customError.HandleError("product", customError.ErrorNotFound, ""),
+			expectedError:   customerror.HandleError("product", customerror.ErrorNotFound, ""),
 		},
 		{
 			name:      "Should return conflict error, because cannot update product code if this code already exists",
@@ -510,7 +509,7 @@ func TestUpdateProducts(t *testing.T) {
 				prm.On("GetAll").Return(listOfProducts, nil)
 			},
 			expectedProduct: model.Product{},
-			expectedError:   customError.CustomError{Object: "P001", Err: customError.ErrConflict},
+			expectedError:   customerror.CustomError{Object: "P001", Err: customerror.ErrConflict},
 		},
 	}
 

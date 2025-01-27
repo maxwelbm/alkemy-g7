@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductRepository struct {
@@ -60,7 +60,7 @@ func (pr *ProductRepository) GetByID(id int) (model.Product, error) {
 		if err == sql.ErrNoRows {
 			return product, appErr.HandleError("product", appErr.ErrorNotFound, "")
 		}
-		
+
 		return product, err
 	}
 

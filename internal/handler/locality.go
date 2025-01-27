@@ -10,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 func CreateHandlerLocality(service interfaces.ILocalityService) *LocalitiesController {

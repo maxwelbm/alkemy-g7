@@ -10,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -91,12 +91,12 @@ func TestHandlerGetSectionByID(t *testing.T) {
 		expectedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
 
 		mockService := hd.Sv.(*service.MockSectionService)
-		mockService.On("GetById", expectedSection.ID).Return(expectedSection, nil)
+		mockService.On("GetByID", expectedSection.ID).Return(expectedSection, nil)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/sections/1", nil)
 		response := httptest.NewRecorder()
 
-		hd.GetById(response, request)
+		hd.GetByID(response, request)
 
 		expectedSectionJSON := `{"data":{
 			"id": 1,
@@ -120,12 +120,12 @@ func TestHandlerGetSectionByID(t *testing.T) {
 		hd := setupSectionService()
 
 		mockService := hd.Sv.(*service.MockSectionService)
-		mockService.On("GetById", 100).Return(model.Section{}, customError.HandleError("section", customError.ErrorNotFound, ""))
+		mockService.On("GetByID", 100).Return(model.Section{}, customerror.HandleError("section", customerror.ErrorNotFound, ""))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/sections/100", nil)
 		response := httptest.NewRecorder()
 
-		hd.GetById(response, request)
+		hd.GetByID(response, request)
 
 		expectedSectionJSON := `{"message": "section not found"}`
 
@@ -140,7 +140,7 @@ func TestHandlerGetSectionByID(t *testing.T) {
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/sections/aaa", nil)
 		response := httptest.NewRecorder()
 
-		hd.GetById(response, request)
+		hd.GetByID(response, request)
 
 		expectedJSON := `{"message": "invalid id param"}`
 
@@ -215,7 +215,7 @@ func TestHandlerCreateSection(t *testing.T) {
 		hd := setupSectionService()
 
 		mockService := hd.Sv.(*service.MockSectionService)
-		mockService.On("Post", &model.Section{SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}).Return(model.Section{}, customError.HandleError("section", customError.ErrorConflict, ""))
+		mockService.On("Post", &model.Section{SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}).Return(model.Section{}, customerror.HandleError("section", customerror.ErrorConflict, ""))
 
 		reqBody := []byte(`{
 			"section_number": "S01",
@@ -281,7 +281,7 @@ func TestHandlerUpdateSection(t *testing.T) {
 		hd := setupSectionService()
 
 		mockService := hd.Sv.(*service.MockSectionService)
-		mockService.On("Update", 50, &model.Section{ID: 50, CurrentTemperature: 5.0}).Return(model.Section{}, customError.HandleError("section", customError.ErrorNotFound, ""))
+		mockService.On("Update", 50, &model.Section{ID: 50, CurrentTemperature: 5.0}).Return(model.Section{}, customerror.HandleError("section", customerror.ErrorNotFound, ""))
 
 		reqBody := []byte(`{
 			"current_temperature": 5.0
@@ -320,7 +320,7 @@ func TestHandlerDeleteSection(t *testing.T) {
 		hd := setupSectionService()
 
 		mockService := hd.Sv.(*service.MockSectionService)
-		mockService.On("Delete", 50).Return(customError.HandleError("section", customError.ErrorNotFound, ""))
+		mockService.On("Delete", 50).Return(customerror.HandleError("section", customerror.ErrorNotFound, ""))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/sections/50", nil)
 		response := httptest.NewRecorder()

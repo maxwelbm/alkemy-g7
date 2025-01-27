@@ -1,4 +1,4 @@
-package customError
+package customerror
 
 import "fmt"
 

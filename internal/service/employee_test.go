@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -48,7 +48,7 @@ func TestInsertEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error in case of warehouseNotFound", func(t *testing.T) {
-		warehouseRepo.On("GetByIDWareHouse", 2).Return(model.WareHouse{}, customError.ErrNotFound).Once()
+		warehouseRepo.On("GetByIDWareHouse", 2).Return(model.WareHouse{}, customerror.ErrNotFound).Once()
 
 		validEntry := model.Employee{
 			CardNumberID: "#123",
@@ -78,7 +78,7 @@ func TestInsertEmployee(t *testing.T) {
 		employee, err := employeeSv.InsertEmployee(validEntry)
 
 		assert.Error(t, err)
-		assert.EqualValues(t, customError.EmployeeErrDuplicatedCardNumber, err)
+		assert.EqualValues(t, customerror.EmployeeErrDuplicatedCardNumber, err)
 		assert.Empty(t, employee)
 	})
 }
@@ -95,7 +95,7 @@ func TestGetEmployees(t *testing.T) {
 	})
 
 	t.Run("should return the error in case of repository err", func(t *testing.T) {
-		employeeRepo.On("Get", mock.Anything).Return([]model.Employee{}, customError.EmployeeErrInvalid).Once()
+		employeeRepo.On("Get", mock.Anything).Return([]model.Employee{}, customerror.EmployeeErrInvalid).Once()
 
 		employee, err := employeeSv.GetEmployees()
 
@@ -161,7 +161,7 @@ func TestUpdateEmployee(t *testing.T) {
 
 	t.Run("should return an error in case of employeeid does not exist", func(t *testing.T) {
 		warehouseRepo.On("GetByIDWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
-		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, customError.EmployeeErrNotFound).Once()
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, customerror.EmployeeErrNotFound).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
 
@@ -181,7 +181,7 @@ func TestDeleteEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error case employee id in case of employee id does not exist", func(t *testing.T) {
-		employeeRepo.On("GetByID", 1).Return(model.Employee{}, customError.EmployeeErrNotFound).Once()
+		employeeRepo.On("GetByID", 1).Return(model.Employee{}, customerror.EmployeeErrNotFound).Once()
 
 		err := employeeSv.DeleteEmployee(1)
 
@@ -219,15 +219,15 @@ func TestGetInboundOrdersReportByEmployee(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Empty(t, inboundOrders)
-		assert.EqualValues(t, err, customError.EmployeeErrInvalid)
+		assert.EqualValues(t, err, customerror.EmployeeErrInvalid)
 	})
 	t.Run("should return an error in case of employee does not exist", func(t *testing.T) {
-		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, customError.EmployeeErrNotFound).Once()
+		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, customerror.EmployeeErrNotFound).Once()
 		inboundOrders, err := employeeSv.GetInboundOrdersReportByEmployee(1)
 
 		assert.Error(t, err)
 		assert.Empty(t, inboundOrders)
-		assert.EqualValues(t, err, customError.EmployeeErrNotFound)
+		assert.EqualValues(t, err, customerror.EmployeeErrNotFound)
 	})
 	t.Run("should return an error in case of repository method fails", func(t *testing.T) {
 		repoMockErr := errors.New("something went wrong")

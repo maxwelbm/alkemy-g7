@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -10,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type SectionsJSON struct {
@@ -57,12 +56,12 @@ func (h *SectionController) GetAll(w http.ResponseWriter, r *http.Request) {
 			WarehouseID:        value.WarehouseID,
 			ProductTypeID:      value.ProductTypeID,
 		})
-
 	}
+
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
-func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
+func (h *SectionController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
 
@@ -71,13 +70,13 @@ func (h *SectionController) GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := h.Sv.GetById(idInt)
+	s, err := h.Sv.GetByID(idInt)
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
@@ -112,19 +111,21 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Post(&section)
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
+
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", s))
 }
 
 func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
+
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
 		return
@@ -132,6 +133,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 
 	var reqBody SectionJSON
 	err = json.NewDecoder(r.Body).Decode(&reqBody)
+
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid request body", nil))
 		return
@@ -156,11 +158,11 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Update(idInt, &sec)
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
@@ -170,6 +172,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
+
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
 		return
@@ -177,11 +180,11 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Sv.Delete(idInt)
 	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
+		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
@@ -189,43 +192,32 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Query().Get("id")
+	// idStr := r.URL.Query().Get("id")
 
-	if idStr == "" {
-		count, err := h.Sv.CountProductBatchesSections()
-		if err != nil {
-			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
-			return
-		}
-		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
-		return
-	}
+	// if idStr == "" {
+	// 	count, err := h.Sv.CountProductBatchesSections()
+	// 	if err != nil {
+	// 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
+	// 		return
+	// 	}
+	// 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
-		return
-	}
+	// id, err := strconv.Atoi(idStr)
+	// if err != nil {
+	// 	response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
+	// 	return
+	// }
 
-	count, err := h.Sv.CountProductBatchesBySectionId(id)
-	if err != nil {
-		if err, ok := err.(*customError.GenericError); ok {
-			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
-			return
-		}
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
-		return
-	}
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
-}
-
-func handleError(err error) int {
-	if errors.Is(err, customError.ErrNotFoundErrorSection) {
-		return http.StatusNotFound
-	}
-	if errors.Is(err, customError.ErrConflictSection) {
-		return http.StatusConflict
-	}
-
-	return http.StatusInternalServerError
+	// count, err := h.Sv.CountProductBatchesBySectionID(id)
+	// if err != nil {
+	// 	if err, ok := err.(*customerror.GenericError); ok {
+	// 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+	// 		return
+	// 	}
+	// 	response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
+	// 	return
+	// }
+	// response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 }

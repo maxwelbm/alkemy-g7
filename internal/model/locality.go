@@ -1,7 +1,7 @@
 package model
 
 import (
-	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type Locality struct {

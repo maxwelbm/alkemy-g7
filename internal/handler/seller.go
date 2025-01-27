@@ -10,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	er "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 func CreateHandlerSellers(service interfaces.ISellerService) *SellersController {
@@ -153,7 +153,7 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-		
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped seller handler error", nil))
 
 		return true

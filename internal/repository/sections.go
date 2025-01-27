@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type SectionRepository struct {
@@ -19,6 +19,7 @@ func CreateRepositorySections(db *sql.DB) *SectionRepository {
 func (r *SectionRepository) Get() (sections []model.Section, err error) {
 	queryGetAll := "SELECT `id`, `section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id` FROM `sections`"
 	rows, err := r.db.Query(queryGetAll)
+
 	if err != nil {
 		return
 	}
@@ -26,9 +27,11 @@ func (r *SectionRepository) Get() (sections []model.Section, err error) {
 	for rows.Next() {
 		var section model.Section
 		err = rows.Scan(&section.ID, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseID, &section.ProductTypeID)
+
 		if err != nil {
 			return
 		}
+
 		sections = append(sections, section)
 	}
 
@@ -40,18 +43,20 @@ func (r *SectionRepository) Get() (sections []model.Section, err error) {
 	return
 }
 
-func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
-	queryGetById := "SELECT id, section_number, current_temperature, minimum_temperature, current_capacity, minimum_capacity, maximum_capacity, warehouse_id, product_type_id FROM sections WHERE id = ?"
-	row := r.db.QueryRow(queryGetById, id)
+func (r *SectionRepository) GetByID(id int) (section model.Section, err error) {
+	queryGetByID := "SELECT id, section_number, current_temperature, minimum_temperature, current_capacity, minimum_capacity, maximum_capacity, warehouse_id, product_type_id FROM sections WHERE id = ?"
+	row := r.db.QueryRow(queryGetByID, id)
 
 	err = row.Scan(&section.ID, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseID, &section.ProductTypeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			err = customerror.HandleError("section", customerror.ErrorNotFound, "")
 			return
 		}
+
 		return
 	}
+
 	return
 }
 
@@ -61,8 +66,9 @@ func (r *SectionRepository) Post(section *model.Section) (s model.Section, err e
 	result, err := r.db.Exec(queryPost, (*section).SectionNumber, (*section).CurrentTemperature, (*section).MinimumTemperature, (*section).CurrentCapacity, (*section).MinimumCapacity, (*section).MaximumCapacity, (*section).WarehouseID, (*section).ProductTypeID)
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = customError.HandleError("section", customError.ErrorConflict, "")
+			err = customerror.HandleError("section", customerror.ErrorConflict, "")
 		}
+
 		return
 	}
 
@@ -73,7 +79,7 @@ func (r *SectionRepository) Post(section *model.Section) (s model.Section, err e
 
 	(*section).ID = int(id)
 
-	s, _ = r.GetById(int(id))
+	s, _ = r.GetByID(int(id))
 
 	return
 }
@@ -84,17 +90,19 @@ func (r *SectionRepository) Update(id int, section *model.Section) (newSec model
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			err = customerror.HandleError("section", customerror.ErrorNotFound, "")
 			return
 		}
+
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = customError.HandleError("section", customError.ErrorConflict, "")
+			err = customerror.HandleError("section", customerror.ErrorConflict, "")
 			return
 		}
+
 		return
 	}
 
-	newSec, _ = r.GetById(id)
+	newSec, _ = r.GetByID(id)
 
 	return
 }
@@ -102,17 +110,20 @@ func (r *SectionRepository) Update(id int, section *model.Section) (newSec model
 func (r *SectionRepository) Delete(id int) (err error) {
 	queryDelete := "DELETE FROM `sections` WHERE `id` = ?"
 	_, err = r.db.Exec(queryDelete, id)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			err = customerror.HandleError("section", customerror.ErrorNotFound, "")
 			return
 		}
+
 		return
 	}
+
 	return
 }
 
-func (r *SectionRepository) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
+func (r *SectionRepository) CountProductBatchesBySectionID(id int) (countProdBatches model.SectionProductBatches, err error) {
 	query := "SELECT s.id, s.section_number, COUNT(pb.section_id) as products_count FROM sections s INNER JOIN product_batches pb ON pb.section_id = s.id WHERE s.id = ? GROUP BY s.id"
 
 	row := r.db.QueryRow(query, id)
@@ -121,10 +132,12 @@ func (r *SectionRepository) CountProductBatchesBySectionId(id int) (countProdBat
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			err = customerror.HandleError("section", customerror.ErrorNotFound, "")
 		}
+
 		return
 	}
+
 	return
 }
 
@@ -142,10 +155,13 @@ func (r *SectionRepository) CountProductBatchesSections() (countProductBatches [
 	for rows.Next() {
 		var sectionProductBatches model.SectionProductBatches
 		err = rows.Scan(&sectionProductBatches.ID, &sectionProductBatches.SectionNumber, &sectionProductBatches.ProductsCount)
+
 		if err != nil {
 			return
 		}
+
 		countProductBatches = append(countProductBatches, sectionProductBatches)
 	}
+
 	return
 }

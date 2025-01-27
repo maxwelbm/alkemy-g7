@@ -12,7 +12,8 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,14 +28,14 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 		hd := setupWarehouse()
 
 		expectedWarehouse := []model.WareHouse{{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,
 			MinimunTemperature: 1,
 			Address:            "test",
 		}, {
-			Id:                 2,
+			ID:                 2,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,
@@ -107,7 +108,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
 		expectedWarehouse := model.WareHouse{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,
@@ -115,9 +116,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 			Address:            "test",
 		}
 
-
 		mockServiceWarehouse.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
-
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(1), nil)
 
@@ -148,7 +147,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
-		mockServiceWarehouse.On("GetByIDWareHouse", 30).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
+		mockServiceWarehouse.On("GetByIDWareHouse", 30).Return(model.WareHouse{}, customerror.NewWareHouseError(customerror.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(30), nil)
 
@@ -171,7 +170,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		handler := hd.GetWareHouseByID()
-    
+
 		handler.ServeHTTP(response, request)
 
 		expectedJson := `{"message":"invalid id"}`
@@ -230,7 +229,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		r := chi.NewRouter()
 		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
 
-		mockServiceWarehouse.On("DeleteByIDWareHouse", 30).Return(customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
+		mockServiceWarehouse.On("DeleteByIDWareHouse", 30).Return(customerror.NewWareHouseError(customerror.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/"+strconv.Itoa(30), nil)
 
@@ -280,7 +279,7 @@ func TestHandlerPostWarehouse(t *testing.T) {
 		}
 
 		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "warehouse_code",
 			Address:            "address",
 			Telephone:          "telephone",
@@ -383,7 +382,7 @@ func TestHandlerPostWarehouse(t *testing.T) {
 			MinimunTemperature: 1,
 		}
 
-		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict))
+		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{}, customerror.NewWareHouseError(customerror.ErrConflict.Error(), "warehouse_code", http.StatusConflict))
 
 		reqBody := []byte(`{
 			"warehouse_code": "warehouse_code",
@@ -451,7 +450,7 @@ func TestHandlerUpdateWarehouse(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		warehouse := model.WareHouse{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "warehouse_code",
 			Address:            "Update Address",
 			Telephone:          "telephone",

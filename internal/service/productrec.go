@@ -6,7 +6,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	repo "github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	serv "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductRecService struct {
@@ -33,7 +33,7 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 	pr.LastUpdateDate = time.Now()
 
 	productRecord, err := prs.ProductRecRepository.Create(pr)
-	
+
 	if err != nil {
 		return model.ProductRecords{}, err
 	}

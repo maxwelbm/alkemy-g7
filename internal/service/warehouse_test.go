@@ -22,7 +22,7 @@ func TestGetAllWarehouse(t *testing.T) {
 
 		expectWarehouse := []model.WareHouse{
 			{
-				Id:                 1,
+				ID:                 1,
 				WareHouseCode:      "test",
 				Telephone:          "test",
 				MinimunCapacity:    1,
@@ -30,7 +30,7 @@ func TestGetAllWarehouse(t *testing.T) {
 				Address:            "test",
 			},
 			{
-				Id:                 2,
+				ID:                 2,
 				WareHouseCode:      "test",
 				Telephone:          "test",
 				MinimunCapacity:    1,
@@ -67,7 +67,7 @@ func TestGetByIdWareHouse(t *testing.T) {
 		svc := setupWarehouse()
 
 		expectWarehouse := model.WareHouse{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,
@@ -104,7 +104,7 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		svc := setupWarehouse()
 
 		expectedWarehouse := model.WareHouse{
-			Id:                 1,
+			ID:                 1,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,
@@ -126,7 +126,7 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		svc := setupWarehouse()
 
 		expectedWarehouse := model.WareHouse{
-			Id:                 2,
+			ID:                 2,
 			WareHouseCode:      "test",
 			Telephone:          "test",
 			MinimunCapacity:    1,

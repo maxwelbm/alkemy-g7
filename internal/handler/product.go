@@ -10,7 +10,7 @@ import (
 	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductHandler struct {
@@ -91,13 +91,13 @@ func (ph *ProductHandler) DeleteProductByID(w http.ResponseWriter, r *http.Reque
 	err = ph.ProductService.DeleteProduct(id)
 
 	if err != nil {
-		if appErr, ok := err.(*customError.GenericError); ok {
+		if appErr, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
-		
+
 		return
 	}
 

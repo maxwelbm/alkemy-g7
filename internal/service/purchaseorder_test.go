@@ -1,14 +1,15 @@
 package service_test
 
 import (
-	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupPurchaseOrderService() *service.PurchaseOrderService {
@@ -79,7 +80,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			BuyerID:         99,
 			ProductRecordID: 1,
 		}
-		expectedError := customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer")
+		expectedError := customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer")
 
 		mockBuyerService := Svc.SvcBuyer.(*service.MockBuyerService)
 		mockBuyerService.On("GetBuyerByID", createdOrder.BuyerID).Return(model.Buyer{}, expectedError)
@@ -116,7 +117,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			LastName:     "Doe",
 		}, nil)
 
-		expectedError := customError.HandleError("product record", customError.ErrorNotFound, "")
+		expectedError := customerror.HandleError("product record", customerror.ErrorNotFound, "")
 
 		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
 		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{}, expectedError)
@@ -162,7 +163,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			ProductID:      1,
 		}, nil)
 
-		expectedError := customError.NewPurcahseOrderError(http.StatusConflict, customError.ErrConflict.Error(), "order_number")
+		expectedError := customerror.NewPurcahseOrderError(http.StatusConflict, customerror.ErrConflict.Error(), "order_number")
 
 		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
 		mockRepo.On("Post", createdOrder).Return(int64(0), expectedError)
@@ -207,7 +208,7 @@ func TestGetPurchaseOrderByID(t *testing.T) {
 	t.Run("Purchase order not found", func(t *testing.T) {
 		Svc := setupPurchaseOrderService()
 
-		exepctedError := customError.NewPurcahseOrderError(http.StatusNotFound, customError.ErrNotFound.Error(), "Purchase Order")
+		exepctedError := customerror.NewPurcahseOrderError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Purchase Order")
 
 		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
 		mockRepo.On("GetByID", 99).Return(model.PurchaseOrder{}, exepctedError)

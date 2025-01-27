@@ -6,7 +6,7 @@ import (
 )
 
 type WareHouse struct {
-	Id                 int    `json:"id"`
+	ID                 int    `json:"id"`
 	Address            string `json:"address"`
 	Telephone          string `json:"telephone"`
 	WareHouseCode      string `json:"warehouse_code"`
