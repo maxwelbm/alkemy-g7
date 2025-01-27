@@ -42,7 +42,7 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
-func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
+func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
@@ -57,7 +57,7 @@ func (hd *SellersController) GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seller, err := hd.Service.GetById(id)
+	seller, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -95,7 +95,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_, err = hd.Service.GetById(id)
+	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -129,7 +129,7 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_, err = hd.Service.GetById(id)
+	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -153,7 +153,7 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-
+		
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped seller handler error", nil))
 
 		return true

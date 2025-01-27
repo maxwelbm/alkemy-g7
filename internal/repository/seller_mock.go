@@ -17,7 +17,7 @@ func (rp *SellerMockRepository) Get() (sellers []model.Seller, err error) {
 	return
 }
 
-func (rp *SellerMockRepository) GetById(id int) (sl model.Seller, err error) {
+func (rp *SellerMockRepository) GetByID(id int) (sl model.Seller, err error) {
 	args := rp.Called(id)
 	sl = args.Get(0).(model.Seller)
 	err = args.Error(1)

@@ -89,7 +89,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 	mock := hd.Service.(*service.SellerMockService)
 
 	r := chi.NewRouter()
-	r.Get("/api/v1/sellers/{id}", hd.GetById)
+	r.Get("/api/v1/sellers/{id}", hd.GetByID)
 
 	tests := []struct {
 		description   string

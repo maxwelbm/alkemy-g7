@@ -71,7 +71,7 @@ func TestServiceGetAllSeller(t *testing.T) {
 	}
 }
 
-func TestServiceGetByIDSeller(t *testing.T) {
+func TestServiceSeller(t *testing.T) {
 	tests := []struct {
 		description string
 		seller      model.Seller
@@ -117,9 +117,9 @@ func TestServiceGetByIDSeller(t *testing.T) {
 		t.Run(test.description, func(t *testing.T) {
 			service := setupSeller()
 			mock := service.Rp.(*repository.SellerMockRepository)
-			mock.On("GetById", test.id).Return(test.seller, test.err)
+			mock.On("GetByID", test.id).Return(test.seller, test.err)
 
-			seller, err := service.GetById(test.id)
+			seller, err := service.GetByID(test.id)
 
 			assert.Equal(t, test.seller, seller)
 			switch test.existErr {
@@ -215,7 +215,7 @@ func TestServiceCreateSeller(t *testing.T) {
 			mockSeller := service.Rp.(*repository.SellerMockRepository)
 			mockLocality := service.Rpl.(*repository.LocalityMockRepository)
 			mockSeller.On("Post", &test.arg).Return(test.seller, test.errSeller)
-			mockLocality.On("GetById", test.id).Return(test.locality, test.errLocality)
+			mockLocality.On("GetByID", test.id).Return(test.locality, test.errLocality)
 
 			seller, err := service.CreateSeller(&test.arg)
 
@@ -373,11 +373,11 @@ func TestServiceUpdateSeller(t *testing.T) {
 			mockLocality := serviceSeller.Rpl.(*repository.LocalityMockRepository)
 			serviceLocality := setupLocality(mockLocality)
 			mockSeller.On("Patch", test.sellerID, &test.arg).Return(test.seller, test.errSeller)
-			mockSeller.On("GetById", test.sellerID).Return(test.seller, test.errSeller)
-			mockLocality.On("GetById", test.localityID).Return(test.locality, test.errLocality)
+			mockSeller.On("GetByID", test.sellerID).Return(test.seller, test.errSeller)
+			mockLocality.On("GetByID", test.localityID).Return(test.locality, test.errLocality)
 
 			seller, err := serviceSeller.UpdateSeller(test.sellerID, &test.arg)
-			locality, errl := serviceLocality.GetById(test.localityID)
+			locality, errl := serviceLocality.GetByID(test.localityID)
 
 			assert.Equal(t, test.seller, seller)
 			assert.Equal(t, test.locality, locality)

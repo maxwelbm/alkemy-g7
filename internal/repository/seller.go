@@ -21,6 +21,7 @@ type SellersRepository struct {
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers`"
 	rows, err := rp.db.Query(query)
+	
 	if err != nil {
 		return
 	}
@@ -28,9 +29,11 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	for rows.Next() {
 		var seller model.Seller
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Locality)
+		
 		if err != nil {
 			return
 		}
+		
 		sellers = append(sellers, seller)
 	}
 
@@ -42,7 +45,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	return
 }
 
-func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
+func (rp *SellersRepository) GetByID(id int) (sl model.Seller, err error) {
 	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers` WHERE `id` = ?"
 	row := rp.db.QueryRow(query, id)
 
@@ -52,6 +55,7 @@ func (rp *SellersRepository) GetById(id int) (sl model.Seller, err error) {
 		err = er.ErrSellerNotFound
 		return
 	}
+	
 	return
 }
 
@@ -59,6 +63,7 @@ func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err er
 	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
 	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
 	err = rp.validateSQLError(err)
+	
 	if err != nil {
 		return
 	}
@@ -67,7 +72,8 @@ func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err er
 	if err != nil {
 		return
 	}
-	sl, _ = rp.GetById(int(id))
+	
+	sl, _ = rp.GetByID(int(id))
 
 	return
 }
@@ -82,46 +88,56 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 		updates = append(updates, "`cid` = ?")
 		args = append(args, (*seller).CID)
 	}
+	
 	if seller.CompanyName != "" {
 		updates = append(updates, "`company_name` = ?")
 		args = append(args, (*seller).CompanyName)
 	}
+	
 	if seller.Address != "" {
 		updates = append(updates, "`address` = ?")
 		args = append(args, (*seller).Address)
 	}
+	
 	if seller.Telephone != "" {
 		updates = append(updates, "`telephone` = ?")
 		args = append(args, (*seller).Telephone)
 	}
+	
 	if seller.Locality != 0 {
 		updates = append(updates, "`locality_id` = ?")
 		args = append(args, (*seller).Locality)
 	}
 
-	lenght := len(updates)
-	if lenght > 0 {
+	length := len(updates)
+	
+	if length > 0 {
 		query = query + " " + strings.Join(updates, ", ") + " WHERE `id` = ?"
+		
 		args = append(args, id)
 	}
 
 	_, err = rp.db.Exec(query, args...)
 	err = rp.validateSQLError(err)
+	
 	if err != nil {
-		return
+		return sl, err
 	}
-	sl, _ = rp.GetById(int(id))
-
-	return
+	
+	sl, _ = rp.GetByID(id)
+	
+	return sl, err
 }
 
 func (rp *SellersRepository) Delete(id int) error {
 	query := "DELETE FROM `sellers` WHERE `id` = ?"
 	_, err := rp.db.Exec(query, id)
 	err = rp.validateSQLError(err)
+	
 	if err != nil {
 		return err
 	}
+	
 	return err
 }
 
@@ -143,5 +159,6 @@ func (rp *SellersRepository) validateSQLError(err error) (e error) {
 			}
 		}
 	}
+	
 	return e
 }
