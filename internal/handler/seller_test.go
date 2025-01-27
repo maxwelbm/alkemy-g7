@@ -35,7 +35,7 @@ func TestHandlerGetAllSeller(t *testing.T) {
 		err           error
 	}{
 		{
-			description: "get all sellers with success",
+			description: "get a list of all existing sellers successfully",
 			returnService: []model.Seller{{ID: 1, CID: 1, CompanyName: "Enterprise Liberty", Address: "456 Elm St", Telephone: "4443335454", Locality: 1},
 				{ID: 2, CID: 2, CompanyName: "Libre Mercado", Address: "123 Montain St Avenue", Telephone: "5554545999", Locality: 2}},
 			response: `{
