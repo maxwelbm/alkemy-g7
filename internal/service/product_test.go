@@ -47,7 +47,7 @@ type sellerRepositoryMock struct {
 func (s *sellerRepositoryMock) Get() ([]model.Seller, error) {
 	panic("1")
 }
-func (s *sellerRepositoryMock) GetById(id int) (model.Seller, error) {
+func (s *sellerRepositoryMock) GetByID(id int) (model.Seller, error) {
 	args := s.Called(id)
 	return args.Get(0).(model.Seller), args.Error(1)
 }
@@ -114,7 +114,7 @@ func TestGetAllProducts(t *testing.T) {
 	})
 }
 
-func TestGetById(t *testing.T) {
+func TestGetByID(t *testing.T) {
 	productService := loadDependencies()
 
 	expectedProduct := model.Product{
@@ -157,9 +157,9 @@ func TestGetById(t *testing.T) {
 			mockRepo := productService.ProductRepository.(*productsRepositoryMock)
 
 			if tc.expectedError != nil {
-				mockRepo.On("GetById", tc.id).Return(model.Product{}, tc.expectedError)
+				mockRepo.On("GetByID", tc.id).Return(model.Product{}, tc.expectedError)
 			} else {
-				mockRepo.On("GetById", tc.id).Return(expectedProduct, nil)
+				mockRepo.On("GetByID", tc.id).Return(expectedProduct, nil)
 			}
 
 			product, err := productService.ProductRepository.GetByID(tc.id)
@@ -216,9 +216,9 @@ func TestDeleteById(t *testing.T) {
 			mockRepo := productService.ProductRepository.(*productsRepositoryMock)
 
 			if tc.expectedError != nil {
-				mockRepo.On("GetById", tc.id).Return(model.Product{}, tc.expectedError)
+				mockRepo.On("GetByID", tc.id).Return(model.Product{}, tc.expectedError)
 			} else {
-				mockRepo.On("GetById", tc.id).Return(data, nil)
+				mockRepo.On("GetByID", tc.id).Return(data, nil)
 				mockRepo.On("Delete", tc.id).Return(nil)
 			}
 
@@ -334,11 +334,11 @@ func TestCreateProduct(t *testing.T) {
 
 			if tc.expectedReturnMockError != nil {
 				if tc.idTestCase == 3 {
-					sellerRepoMock.On("GetById", tc.expectedReturnProductMockSucess.SellerID).
+					sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
 						Return(model.Seller{}, errors.New("seller not found"))
 				}
 				if tc.idTestCase == 4 {
-					sellerRepoMock.On("GetById", tc.expectedReturnProductMockSucess.SellerID).
+					sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
 						Return(tc.expectedReturnSellerMockSucess, nil)
 
 					productRepoMock.On("GetAll").Return(listOfProducts, nil)
@@ -346,7 +346,7 @@ func TestCreateProduct(t *testing.T) {
 				}
 
 			} else {
-				sellerRepoMock.On("GetById", tc.expectedReturnProductMockSucess.SellerID).
+				sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
 					Return(tc.expectedReturnSellerMockSucess, nil)
 				productRepoMock.On("GetAll").Return(listOfProducts, nil)
 				productRepoMock.On("Create", tc.param).Return(tc.expectedReturnProductMockSucess, nil)
@@ -412,9 +412,9 @@ func TestUpdateProducts(t *testing.T) {
 					},
 				}
 
-				srm.On("GetById", 1).Return(model.Seller{ID: 1}, nil)
+				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
 				prm.On("GetAll").Return(listOfProducts, nil)
-				prm.On("GetById", 1).Return(listOfProducts[1], nil)
+				prm.On("GetByID", 1).Return(listOfProducts[1], nil)
 				prm.On("Update", 1, mock.Anything).Return(model.Product{
 					ID:                             1,
 					ProductCode:                    "P002",
@@ -453,7 +453,7 @@ func TestUpdateProducts(t *testing.T) {
 				SellerID: 1,
 			},
 			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetById", 1).Return(model.Seller{}, errors.New("seller not found"))
+				srm.On("GetByID", 1).Return(model.Seller{}, errors.New("seller not found"))
 			},
 			expectedProduct: model.Product{},
 			expectedError:   errors.New("seller not found"),
@@ -465,9 +465,9 @@ func TestUpdateProducts(t *testing.T) {
 				SellerID: 1,
 			},
 			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetById", 1).Return(model.Seller{ID: 1}, nil)
+				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
 				prm.On("GetAll").Return(make(map[int]model.Product), nil)
-				prm.On("GetById", 2).Return(model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, ""))
+				prm.On("GetByID", 2).Return(model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, ""))
 			},
 			expectedProduct: model.Product{},
 			expectedError:   custom_error.HandleError("product", custom_error.ErrorNotFound, ""),
@@ -490,7 +490,7 @@ func TestUpdateProducts(t *testing.T) {
 				SellerID:                       1,
 			},
 			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetById", 1).Return(model.Seller{ID: 1}, nil)
+				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
 				listOfProducts := map[int]model.Product{
 					1: {
 						ID:                             1,
