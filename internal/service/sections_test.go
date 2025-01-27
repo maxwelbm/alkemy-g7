@@ -63,3 +63,37 @@ func TestSectionByID(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
+func TestPostSection(t *testing.T) {
+	t.Run("given a valid section create it successfully", func(t *testing.T) {
+		svc := setupRepMock()
+
+		createdSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
+
+		mockRepo := svc.Rp.(*repository.MockSectionRepository)
+		mockRepo.On("Post", &model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}).Return(createdSection, nil)
+
+		section, err := svc.Post(&createdSection)
+
+		assert.NoError(t, err)
+		assert.Equal(t, createdSection, section)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("given an invalid section return error", func(t *testing.T) {
+		svc := setupRepMock()
+
+		expectedErrSection := customError.HandleError("section", customError.ErrorConflict, "")
+		createdSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
+
+		mockRepo := svc.Rp.(*repository.MockSectionRepository)
+		mockRepo.On("Post", &createdSection).Return(model.Section{}, expectedErrSection)
+
+		section, err := svc.Post(&createdSection)
+
+		assert.Equal(t, model.Section{}, section)
+		assert.ErrorIs(t, err, expectedErrSection)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+}
