@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -253,5 +254,187 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+}
+
+func TestHandlerPostWarehouse(t *testing.T) {
+	t.Run("PostWarehouse create sucess", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Post("/api/v1/warehouses", hd.PostWareHouse())
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "warehouse_code",
+			Address:            "address",
+			Telephone:          "telephone",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+		}
+
+		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{
+			Id:                 1,
+			WareHouseCode:      "warehouse_code",
+			Address:            "address",
+			Telephone:          "telephone",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+		}, nil)
+
+		reqBody := []byte(`{
+			"warehouse_code": "warehouse_code",
+			"address": "address",
+			"telephone": "telephone",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1}`,
+		)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/warehouses", bytes.NewReader(reqBody))
+
+		response := httptest.NewRecorder()
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusCreated, response.Code)
+
+		expectedJson := `{
+		"data": {
+			"id": 1,
+			"warehouse_code": "warehouse_code",
+			"telephone": "telephone",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1,
+			"address": "address"
+		}
+	}`
+
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("PostWarehouse required fields not found", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Post("/api/v1/warehouses", hd.PostWareHouse())
+
+		reqBody := []byte(`{
+			}`,
+		)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/warehouses", bytes.NewReader(reqBody))
+
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"Field(s) address, telephone, warehouse_code, minimun_capacity, minimun_temperature cannot be empty or invalid"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("PostWarehouse invalid request body", func(t *testing.T) {
+		hd := setupWarehouse()
+
+		r := chi.NewRouter()
+		r.Post("/api/v1/warehouses", hd.PostWareHouse())
+
+		reqBody := []byte(`{
+			"warehouse_code": "warehouse_code",
+			"address": "",
+			"telephone": "",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1`,
+		)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/warehouses", bytes.NewReader(reqBody))
+
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"invalid request body"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("PostWarehouse warehouse_code conflit", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Post("/api/v1/warehouses", hd.PostWareHouse())
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "warehouse_code",
+			Address:            "address",
+			Telephone:          "telephone",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+		}
+
+		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict))
+
+		reqBody := []byte(`{
+			"warehouse_code": "warehouse_code",
+			"address": "address",
+			"telephone": "telephone",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1}`,
+		)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/warehouses", bytes.NewReader(reqBody))
+
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"warehouse_code it already exists"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusConflict, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("PostWarehouse when service fails returns internal server error", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		r := chi.NewRouter()
+		r.Post("/api/v1/warehouses", hd.PostWareHouse())
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "warehouse_code",
+			Address:            "address",
+			Telephone:          "telephone",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+		}
+
+		mockServiceWarehouse.On("PostWareHouse", warehouse).Return(model.WareHouse{}, errors.New("internal server error"))
+
+		reqBody := []byte(`{
+			"warehouse_code": "warehouse_code",
+			"address": "address",
+			"telephone": "telephone",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1}`,
+		)
+
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/warehouses", bytes.NewReader(reqBody))
+
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"unable to post warehouse"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
 	})
 }
