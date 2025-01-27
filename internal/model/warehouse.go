@@ -49,3 +49,7 @@ func (w *WareHouse) ValidateEmptyFields(isPatch bool) error {
 
 	return nil
 }
+
+type WareHousesResponseSwagger struct {
+	Data []WareHouse `json:"data"`
+}
