@@ -79,7 +79,7 @@ func (wp *WareHouseDefault) UpdateWareHouse(id int, warehouse model.WareHouse) (
 		warehouseExisting.MinimunTemperature = warehouse.MinimunTemperature
 	}
 
-	err = wp.Rp.UpdateWareHouse(id, &warehouseExisting)
+	err = wp.Rp.UpdateWareHouse(id, warehouseExisting)
 
 	if err != nil {
 		return

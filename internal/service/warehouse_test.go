@@ -203,3 +203,49 @@ func TestPostWareHouse(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
+func TestUpdateWarehouse(t *testing.T) {
+	t.Run("Update", func(t *testing.T) {
+		svc := setupWarehouse()
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+		mockRepo.On("GetByIdWareHouse", 1).Return(warehouse, nil)
+		mockRepo.On("UpdateWareHouse", 1, warehouse).Return(nil)
+
+		w, err := svc.UpdateWareHouse(1, warehouse)
+
+		assert.Nil(t, err)
+		assert.Equal(t, warehouse, w)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("UpdateError", func(t *testing.T) {
+		svc := setupWarehouse()
+
+		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+
+		warehouse := model.WareHouse{
+			WareHouseCode:      "test",
+			Telephone:          "test",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+			Address:            "test",
+		}
+		mockRepo.On("GetByIdWareHouse", 3).Return(model.WareHouse{}, nil)
+		mockRepo.On("UpdateWareHouse", 3, warehouse).Return(assert.AnError)
+
+		w, err := svc.UpdateWareHouse(3, warehouse)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, model.WareHouse{}, w)
+		mockRepo.AssertExpectations(t)
+	})
+}

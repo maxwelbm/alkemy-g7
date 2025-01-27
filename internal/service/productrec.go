@@ -26,13 +26,14 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 		return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorInvalid, err.Error())
 	}
 
-	if _, err := prs.ProductSv.GetProductById(pr.ProductId); err != nil {
+	if _, err := prs.ProductSv.GetProductByID(pr.ProductID); err != nil {
 		return model.ProductRecords{}, err
 	}
 
 	pr.LastUpdateDate = time.Now()
 
 	productRecord, err := prs.ProductRecRepository.Create(pr)
+	
 	if err != nil {
 		return model.ProductRecords{}, err
 	}
@@ -40,8 +41,8 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 	return productRecord, nil
 }
 
-func (prs *ProductRecService) GetProductRecordById(id int) (model.ProductRecords, error) {
-	productRecord, err := prs.ProductRecRepository.GetById(id)
+func (prs *ProductRecService) GetProductRecordByID(id int) (model.ProductRecords, error) {
+	productRecord, err := prs.ProductRecRepository.GetByID(id)
 	if err != nil {
 		return model.ProductRecords{}, err
 	}
@@ -51,7 +52,9 @@ func (prs *ProductRecService) GetProductRecordById(id int) (model.ProductRecords
 
 func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.ProductRecordsReport, error) {
 	allReports, err := prs.ProductRecRepository.GetAllReport()
+
 	var filteredReports []model.ProductRecordsReport
+
 	if err != nil {
 		return nil, err
 	}
@@ -60,12 +63,12 @@ func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.Pro
 		return allReports, nil
 	}
 
-	if _, err := prs.ProductSv.GetProductById(idProduct); err != nil {
+	if _, err := prs.ProductSv.GetProductByID(idProduct); err != nil {
 		return filteredReports, err
 	}
 
 	for _, report := range allReports {
-		if report.ProductId == idProduct {
+		if report.ProductID == idProduct {
 			filteredReports = append(filteredReports, report)
 		}
 	}

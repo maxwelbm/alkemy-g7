@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -61,14 +60,8 @@ func (r *SectionRepository) Post(section *model.Section) (s model.Section, err e
 
 	result, err := r.db.Exec(queryPost, (*section).SectionNumber, (*section).CurrentTemperature, (*section).MinimumTemperature, (*section).CurrentCapacity, (*section).MinimumCapacity, (*section).MaximumCapacity, (*section).WarehouseID, (*section).ProductTypeID)
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = customError.ErrConflictSection
-			default:
-			}
-			return
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = customError.HandleError("section", customError.ErrorConflict, "")
 		}
 		return
 	}
@@ -90,13 +83,12 @@ func (r *SectionRepository) Update(id int, section *model.Section) (newSec model
 	_, err = r.db.Exec(queryUpdate, (*section).SectionNumber, (*section).CurrentTemperature, (*section).MinimumTemperature, (*section).CurrentCapacity, (*section).MinimumCapacity, (*section).MaximumCapacity, (*section).WarehouseID, (*section).ProductTypeID, id)
 
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = customError.ErrConflictSection
-			default:
-			}
+		if err == sql.ErrNoRows {
+			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			return
+		}
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = customError.HandleError("section", customError.ErrorConflict, "")
 			return
 		}
 		return
@@ -111,6 +103,10 @@ func (r *SectionRepository) Delete(id int) (err error) {
 	queryDelete := "DELETE FROM `sections` WHERE `id` = ?"
 	_, err = r.db.Exec(queryDelete, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = customError.HandleError("section", customError.ErrorNotFound, "")
+			return
+		}
 		return
 	}
 	return

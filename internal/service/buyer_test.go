@@ -303,5 +303,50 @@ func TestDeleteBuyerByID(t *testing.T) {
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
 	})
+}
 
+func TestCountPurchaseOrderBuyer(t *testing.T) {
+	t.Run("Count purchase by buyers successfuly", func(t *testing.T) {
+		svc := setup()
+
+		countPurchases := []model.BuyerPurchaseOrder{model.BuyerPurchaseOrder{
+			ID:                  1,
+			CardNumberID:        "cn001",
+			FirstName:           "Jhon",
+			LastName:            "DOe",
+			PurchaseOrdersCount: 12,
+		}}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("CountPurchaseOrderBuyers").Return(countPurchases, nil)
+
+		count, err := svc.CountPurchaseOrderBuyer()
+
+		assert.NoError(t, err)
+		assert.Equal(t, count, countPurchases)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestCountPurchaseOrderByBuyerID(t *testing.T) {
+	t.Run("Count purchase by buyer successfuly", func(t *testing.T) {
+		svc := setup()
+
+		countPurchase := model.BuyerPurchaseOrder{
+			ID:                  1,
+			CardNumberID:        "cn001",
+			FirstName:           "Jhon",
+			LastName:            "DOe",
+			PurchaseOrdersCount: 12,
+		}
+
+		mockRepo := svc.Rp.(*repository.MockBuyerRepo)
+		mockRepo.On("CountPurchaseOrderByBuyerID", countPurchase.ID).Return(countPurchase, nil)
+
+		count, err := svc.CountPurchaseOrderByBuyerID(countPurchase.ID)
+
+		assert.NoError(t, err)
+		assert.Equal(t, count, countPurchase)
+		mockRepo.AssertExpectations(t)
+	})
 }
