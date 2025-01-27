@@ -31,6 +31,17 @@ func NewInboundHandler(sv interfaces.IInboundOrderService) *InboundOrderHandler 
 	}
 }
 
+// PostInboundOrder create a new inbound order.
+// @Summary      Create Inbound Order
+// @Description  Creates a new inbound order based on the provided request body.
+// @Tags         InboundOrders
+// @Accept       json
+// @Produce      json
+// @Param        requestBody  body      InboundOrderJSON  true  "Inbound Order Data"
+// @Success      201          {object} responses.ResponseBody
+// @Failure      400          {object} responses.ResponseBody
+// @Failure      500          {object} responses.ResponseBody
+// @Router       /inbound-orders [post]
 func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Request) {
 	var reqBody InboundOrderJSON
 
