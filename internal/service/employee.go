@@ -28,8 +28,8 @@ func (e *EmployeeService) GetEmployees() ([]model.Employee, error) {
 	return data, nil
 }
 
-func (e *EmployeeService) GetEmployeeById(id int) (model.Employee, error) {
-	return e.rp.GetById(id)
+func (e *EmployeeService) GetEmployeeByID(id int) (model.Employee, error) {
+	return e.rp.GetByID(id)
 }
 
 func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employee, error) {
@@ -37,7 +37,7 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
-	_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
+	_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseID)
 
 	if err != nil {
 		return model.Employee{}, customError.EmployeeErrInvalidWarehouseID
@@ -49,6 +49,7 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 		if err.(*mysql.MySQLError).Number == 1062 {
 			err = customError.EmployeeErrDuplicatedCardNumber
 		}
+
 		return model.Employee{}, err
 	}
 
@@ -60,15 +61,15 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
-	if employee.WarehouseId != 0 {
-		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
+	if employee.WarehouseID != 0 {
+		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseID)
 
 		if err != nil {
 			return model.Employee{}, customError.EmployeeErrInvalidWarehouseID
 		}
 	}
 
-	existingEmployee, err := e.GetEmployeeById(id)
+	existingEmployee, err := e.rp.GetByID(id)
 
 	if err != nil {
 		return model.Employee{}, err
@@ -80,7 +81,7 @@ func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model
 }
 
 func (e *EmployeeService) DeleteEmployee(id int) error {
-	_, err := e.rp.GetById(id)
+	_, err := e.rp.GetByID(id)
 
 	if err != nil {
 		return err
@@ -89,18 +90,18 @@ func (e *EmployeeService) DeleteEmployee(id int) error {
 	return e.rp.Delete(id)
 }
 
-func (e *EmployeeService) GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error) {
-	if employeeId <= 0 {
+func (e *EmployeeService) GetInboundOrdersReportByEmployee(employeeID int) (model.InboundOrdersReportByEmployee, error) {
+	if employeeID <= 0 {
 		return model.InboundOrdersReportByEmployee{}, customError.EmployeeErrInvalid
 	}
 
-	_, err := e.GetEmployeeById(employeeId)
+	_, err := e.rp.GetByID(employeeID)
 
 	if err != nil {
 		return model.InboundOrdersReportByEmployee{}, err
 	}
 
-	data, err := e.rp.GetInboundOrdersReportByEmployee(employeeId)
+	data, err := e.rp.GetInboundOrdersReportByEmployee(employeeID)
 
 	if err != nil {
 		return model.InboundOrdersReportByEmployee{}, err
@@ -114,16 +115,19 @@ func (e *EmployeeService) GetInboundOrdersReports() ([]model.InboundOrdersReport
 }
 
 func updateEmployeeFields(existing *model.Employee, updates model.Employee) {
-	if updates.CardNumberId != "" {
-		existing.CardNumberId = updates.CardNumberId
+	if updates.CardNumberID != "" {
+		existing.CardNumberID = updates.CardNumberID
 	}
+
 	if updates.FirstName != "" {
 		existing.FirstName = updates.FirstName
 	}
+
 	if updates.LastName != "" {
 		existing.LastName = updates.LastName
 	}
-	if updates.WarehouseId != 0 {
-		existing.WarehouseId = updates.WarehouseId
+
+	if updates.WarehouseID != 0 {
+		existing.WarehouseID = updates.WarehouseID
 	}
 }

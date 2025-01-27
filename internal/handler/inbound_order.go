@@ -17,12 +17,12 @@ type InboundOrderHandler struct {
 }
 
 type InboundOrderJSON struct {
-	Id             int    `json:"id"`
+	ID             int    `json:"id"`
 	OrderDate      string `json:"order_date"`
 	OrderNumber    string `json:"order_number"`
-	EmployeeId     int    `json:"employee_id"`
-	ProductBatchId int    `json:"product_batch_id"`
-	WareHouseId    int    `json:"warehouse_id"`
+	EmployeeID     int    `json:"employee_id"`
+	ProductBatchID int    `json:"product_batch_id"`
+	WareHouseID    int    `json:"warehouse_id"`
 }
 
 func NewInboundHandler(sv interfaces.IInboundOrderService) *InboundOrderHandler {
@@ -50,7 +50,9 @@ func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Re
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
+
 		return
 	}
 
@@ -59,23 +61,24 @@ func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Re
 
 func toInboundOrder(inboundOrder InboundOrderJSON) model.InboundOrder {
 	formatedDate, _ := time.Parse("2006-01-02", inboundOrder.OrderDate)
+
 	return model.InboundOrder{
-		Id:             inboundOrder.Id,
+		ID:             inboundOrder.ID,
 		OrderDate:      formatedDate,
 		OrderNumber:    inboundOrder.OrderNumber,
-		EmployeeId:     inboundOrder.EmployeeId,
-		ProductBatchId: inboundOrder.ProductBatchId,
-		WareHouseId:    inboundOrder.WareHouseId,
+		EmployeeID:     inboundOrder.EmployeeID,
+		ProductBatchID: inboundOrder.ProductBatchID,
+		WareHouseID:    inboundOrder.WareHouseID,
 	}
 }
 
 func toInboundOrderJSON(inboundOrder model.InboundOrder) InboundOrderJSON {
 	return InboundOrderJSON{
-		Id:             inboundOrder.Id,
+		ID:             inboundOrder.ID,
 		OrderDate:      inboundOrder.OrderDate.Format("2006-01-02"),
 		OrderNumber:    inboundOrder.OrderNumber,
-		EmployeeId:     inboundOrder.EmployeeId,
-		ProductBatchId: inboundOrder.ProductBatchId,
-		WareHouseId:    inboundOrder.WareHouseId,
+		EmployeeID:     inboundOrder.EmployeeID,
+		ProductBatchID: inboundOrder.ProductBatchID,
+		WareHouseID:    inboundOrder.WareHouseID,
 	}
 }
