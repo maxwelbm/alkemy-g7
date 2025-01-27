@@ -11,6 +11,13 @@ type Locality struct {
 	Country  string `json:"country_name"`
 }
 
+type LocalityJSON struct {
+	ID       *string `json:"id"`
+	Locality *string `json:"locality_name"`
+	Province *string `json:"province_name"`
+	Country  *string `json:"country_name"`
+}
+
 type LocalitiesJSONSellers struct {
 	ID       string `json:"locality_id"`
 	Locality string `json:"locality_name"`
@@ -24,8 +31,19 @@ type LocalitiesJSONCarriers struct {
 }
 
 func (s *Locality) ValidateEmptyFields(l *Locality) error {
-	if l.Locality == "" || l.Province == "" || l.Country == "" {
+	localityJSON := LocalityJSON{
+		Locality: &l.Locality,
+		Province: &l.Province,
+		Country:  &l.Country,
+	}
+
+	if *localityJSON.Locality == "" || *localityJSON.Province == "" || *localityJSON.Country == "" {
 		return er.ErrNullLocalityAttribute
 	}
+
+	if localityJSON.Locality == nil || localityJSON.Province == nil || localityJSON.Country == nil {
+		return er.ErrInvalidLocalityJSONFormat
+	}
+
 	return nil
 }
