@@ -41,7 +41,7 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 }
 
 func (prs *ProductRecService) GetProductRecordById(id int) (model.ProductRecords, error) {
-	productRecord, err := prs.ProductRecRepository.GetById(id)
+	productRecord, err := prs.ProductRecRepository.GetByID(id)
 	if err != nil {
 		return model.ProductRecords{}, err
 	}

@@ -29,16 +29,19 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 	}
 
 	id, err := result.LastInsertId()
+
 	if err != nil {
 		return model.ProductRecords{}, err
 	}
+
 	productRec.ID = int(id)
 
 	return productRec, nil
 }
 
-func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
+func (pr *ProductRecRepository) GetByID(id int) (model.ProductRecords, error) {
 	var productRecord model.ProductRecords
+
 	query := `
 	SELECT
 	id,
@@ -50,12 +53,14 @@ func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
 	WHERE id = ?
 	`
 	row := pr.DB.QueryRow(query, id)
+
 	err := row.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
 		&productRecord.ProductID, &productRecord.PurchasePrice, &productRecord.SalePrice)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorNotFound, "")
 		}
+		
 		return model.ProductRecords{}, err
 	}
 
@@ -74,22 +79,29 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 	sale_price
 	FROM product_records
 	`
+
 	rows, err := pr.DB.Query(query)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
 		var productRecord model.ProductRecords
+
 		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
 			&productRecord.ProductID, &productRecord.PurchasePrice,
 			&productRecord.SalePrice)
+
 		if err != nil {
 			return nil, err
 		}
+
 		productRecordList = append(productRecordList, productRecord)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
@@ -97,7 +109,7 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 	return productRecordList, nil
 }
 
-func (pr *ProductRecRepository) GetByIdProduct(idProduct int) ([]model.ProductRecords, error) {
+func (pr *ProductRecRepository) GetByIDProduct(idProduct int) ([]model.ProductRecords, error) {
 	var productRecordList []model.ProductRecords
 
 	query := `
@@ -110,10 +122,13 @@ func (pr *ProductRecRepository) GetByIdProduct(idProduct int) ([]model.ProductRe
 	FROM product_records
 	where product_id = ?
 	`
+
 	rows, err := pr.DB.Query(query, idProduct)
+
 	if err != nil {
 		return productRecordList, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -121,11 +136,14 @@ func (pr *ProductRecRepository) GetByIdProduct(idProduct int) ([]model.ProductRe
 		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
 			&productRecord.ProductID, &productRecord.PurchasePrice,
 			&productRecord.SalePrice)
+
 		if err != nil {
 			return nil, err
 		}
+
 		productRecordList = append(productRecordList, productRecord)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
@@ -146,19 +164,25 @@ func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, er
 	GROUP by p.id, p.description
 	`
 	rows, err := pr.DB.Query(query)
+
 	if err != nil {
 		return productRecordReport, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
 		var productRecord model.ProductRecordsReport
+
 		err := rows.Scan(&productRecord.ProductID, &productRecord.Description, &productRecord.RecordsCount)
+
 		if err != nil {
 			return nil, err
 		}
+
 		productRecordReport = append(productRecordReport, productRecord)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
