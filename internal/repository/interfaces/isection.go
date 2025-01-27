@@ -8,4 +8,6 @@ type ISectionRepo interface {
 	Post(section *model.Section) (model.Section, error)
 	Update(id int, section *model.Section) (model.Section, error)
 	Delete(id int) error
+	CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error)
+	CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error)
 }

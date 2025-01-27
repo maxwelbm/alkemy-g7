@@ -2,25 +2,25 @@ package service
 
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type SectionService struct {
-	rp repository.SectionRepository
+	Rp interfaces.ISectionRepo
 }
 
-func CreateServiceSection(rp repository.SectionRepository) *SectionService {
-	return &SectionService{rp: rp}
+func CreateServiceSection(rp interfaces.ISectionRepo) *SectionService {
+	return &SectionService{Rp: rp}
 }
 
 func (s *SectionService) Get() (sections []model.Section, err error) {
-	sections, err = s.rp.Get()
+	sections, err = s.Rp.Get()
 	return
 }
 
 func (s *SectionService) GetById(id int) (section model.Section, err error) {
-	section, err = s.rp.GetById(id)
+	section, err = s.Rp.GetById(id)
 	return
 }
 
@@ -28,7 +28,7 @@ func (s *SectionService) Post(section *model.Section) (sec model.Section, err er
 	if err := section.Validate(); err != nil {
 		return model.Section{}, err
 	}
-	sec, err = s.rp.Post(section)
+	sec, err = s.Rp.Post(section)
 	return
 }
 
@@ -41,7 +41,7 @@ func (s *SectionService) Update(id int, section *model.Section) (sec model.Secti
 
 	updateSectionFields(&existingSection, section)
 
-	sec, err = s.rp.Update(id, &existingSection)
+	sec, err = s.Rp.Update(id, &existingSection)
 	return
 }
 
@@ -50,11 +50,11 @@ func (s *SectionService) Delete(id int) (err error) {
 	if err != nil {
 		return
 	}
-	secProdBatches, _ := s.rp.CountProductBatchesBySectionId(id)
+	secProdBatches, _ := s.Rp.CountProductBatchesBySectionId(id)
 	if secProdBatches.ProductsCount > 0 {
 		return customError.HandleError("section", customError.ErrorDep, "")
 	}
-	err = s.rp.Delete(id)
+	err = s.Rp.Delete(id)
 	return
 }
 
@@ -86,11 +86,11 @@ func updateSectionFields(existingSection *model.Section, updatedSection *model.S
 }
 
 func (s *SectionService) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
-	countProdBatches, err = s.rp.CountProductBatchesBySectionId(id)
+	countProdBatches, err = s.Rp.CountProductBatchesBySectionId(id)
 	return
 }
 
 func (s *SectionService) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {
-	countProductBatches, err = s.rp.CountProductBatchesSections()
+	countProductBatches, err = s.Rp.CountProductBatchesSections()
 	return
 }
