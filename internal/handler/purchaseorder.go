@@ -12,7 +12,7 @@ import (
 )
 
 type PurchaseOrderHandler struct {
-	svc interfaces.IPurchaseOrdersService
+	Svc interfaces.IPurchaseOrdersService
 }
 
 func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService) *PurchaseOrderHandler {
@@ -54,7 +54,7 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 		return
 	}
 
-	purchaseOrder, err := h.svc.CreatePurchaseOrder(reqBody)
+	purchaseOrder, err := h.Svc.CreatePurchaseOrder(reqBody)
 
 	if err != nil {
 		if err, ok := err.(*customError.BuyerError); ok {

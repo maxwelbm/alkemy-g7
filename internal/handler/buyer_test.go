@@ -561,3 +561,152 @@ func TestHandlerGetBuyers(t *testing.T) {
 
 	})
 }
+
+func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
+	t.Run("return a count of buyers successfully", func(t *testing.T) {
+		hd := setup()
+
+		countBuyers := []model.BuyerPurchaseOrder{model.BuyerPurchaseOrder{
+			ID:                  1,
+			CardNumberID:        "cn001",
+			FirstName:           "Jhon",
+			LastName:            "DOe",
+			PurchaseOrdersCount: 12,
+		}}
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CountPurchaseOrderBuyer").Return(countBuyers, nil)
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "data": [
+        {
+            "id": 1,
+            "card_number_id": "cn001",
+            "first_name": "Jhon",
+            "last_name": "DOe",
+            "purchase_orders_count": 12
+        }
+    ]
+}`
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
+	t.Run("return a count of buyer successfully", func(t *testing.T) {
+		hd := setup()
+
+		countBuyer := model.BuyerPurchaseOrder{
+			ID:                  1,
+			CardNumberID:        "cn001",
+			FirstName:           "Jhon",
+			LastName:            "DOe",
+			PurchaseOrdersCount: 12,
+		}
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CountPurchaseOrderByBuyerID", countBuyer.ID).Return(countBuyer, nil)
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=1", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "data":
+        {
+            "id": 1,
+            "card_number_id": "cn001",
+            "first_name": "Jhon",
+            "last_name": "DOe",
+            "purchase_orders_count": 12
+        }
+}`
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
+	t.Run("Error invalid ID", func(t *testing.T) {
+		hd := setup()
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=aaa", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "message":"Invalid ID"
+}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("Buyer Not Found", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CountPurchaseOrderByBuyerID", 99).Return(model.BuyerPurchaseOrder{}, customError.NewBuyerError(http.StatusNotFound, customError.ErrNotFound.Error(), "Buyer"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=99", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "message":"Buyer not found"
+}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
+	t.Run("Unmapped Error in CountPurchaseOrders", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CountPurchaseOrderBuyer").Return([]model.BuyerPurchaseOrder{}, errors.New("Unmapped error"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "message":"Unable to count buyer Purchase orders"
+}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+
+	t.Run("Unmapped Error in CountPurchaseOrderByID", func(t *testing.T) {
+		hd := setup()
+
+		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc.On("CountPurchaseOrderByBuyerID", 1).Return(model.BuyerPurchaseOrder{}, errors.New("Unmapped error"))
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=1", nil)
+		response := httptest.NewRecorder()
+
+		hd.HandlerCountPurchaseOrderBuyer(response, request)
+
+		expectedJson := `{
+    "message":"Unable to count buyer Purchase orders"
+}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockSvc.AssertExpectations(t)
+	})
+}
