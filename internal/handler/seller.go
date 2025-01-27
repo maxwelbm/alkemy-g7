@@ -21,6 +21,14 @@ type SellersController struct {
 	Service interfaces.ISellerService
 }
 
+// GetAllSellers retrieves all sellers.
+// @Summary Retrieve all sellers
+// @Description Fetch all registered sellers from the database
+// @Tags Seller
+// @Produce json
+// @Success 200 {object} model.SellerResponseSwagger
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to list sellers"
+// @Router /sellers [get]
 func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
 	sellers, err := hd.Service.GetAll()
 	if ok := hd.handlerError(err, w); ok {
@@ -42,6 +50,17 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
 
+// GetByID retrieves a seller by their ID.
+// @Summary Retrieve seller
+// @Description This endpoint fetches the details of a specific seller based on the provided seller ID.
+// @Tags Seller
+// @Produce json
+// @Param id path int true "Seller ID"
+// @Success 200 {object} model.SellerResponseSwagger{data=model.Seller}
+// @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
+// @Failure 404 {object} model.ErrorResponseSwagger "seller not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for seller"
+// @Router /sellers/{id} [get]
 func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
@@ -53,10 +72,6 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ok := hd.handlerError(err, w); ok {
-		return
-	}
-
 	seller, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
@@ -65,6 +80,21 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
 
+// CreateSellers creates a new seller.
+// @Summary Create a new seller
+// @Description This endpoint allows for creating a new seller.
+// @Description 422 responses may include:
+// @Description - JSON syntax error (malformed JSON).
+// @Description - Mandatory fields not filled in.
+// @Tags Seller
+// @Produce json
+// @Param seller body model.Seller true "Seller information"
+// @Success 201 {object} model.SellerResponseSwagger{data=model.Seller}
+// @Failure 400 {object} model.ErrorResponseSwagger "Unprocessable Entity"
+// @Failure 404 {object} model.ErrorResponseSwagger "Locality not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "CID number already exists"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to create seller"
+// @Router /sellers [post]
 func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
 	var seller model.Seller
 	if err := request.JSON(r, &seller); err != nil {
@@ -80,6 +110,33 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdseller))
 }
 
+// UpdateSellers updates an existing seller.
+// @Summary Update an existing seller
+// @Description This endpoint allows for updating the details of a specific seller identified by the provided ID.
+// @Description This endpoint performs the following actions:
+// @Description 1. Validates the provided ID and ensures it corresponds to an existing seller.
+// @Description 2. Validates the input JSON for correct structure and required fields.
+// @Description 3. Checks for unique constraints, such as unique cid numbers.
+// @Description Responses for errors may include:
+// @Description - **422**: Unprocessable Entity, responses may include:
+// @Description   - JSON syntax error (malformed JSON).
+// @Description   - Mandatory fields not filled in.
+// @Description
+// @Description - **404**: Seller not found, indicating the specified seller does not exist.
+// @Description - **409**: CID number already exists, indicating a unique constraint violation.
+// @Description - **404**: Locality not found, indicating the specified locality does not exist.
+// @Description - **500**: Internal server error for unexpected issues.
+// @Tags Seller
+// @Produce json
+// @Param id path int true "Seller ID"
+// @Param seller body model.Seller true "Seller information"
+// @Success 200 {object} model.SellerResponseSwagger{data=model.Seller} "Seller successfully updated"
+// @Failure 422 {object} model.ErrorResponseSwagger "Unprocessable Entity"
+// @Failure 404 {object} model.ErrorResponseSwagger "Seller not found"
+// @Failure 404 {object} model.ErrorResponseSwagger "Locality not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "CID number already exists"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to update seller"
+// @Router /sellers/{id} [patch]
 func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
@@ -88,10 +145,6 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
-		return
-	}
-
-	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -114,6 +167,18 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
 
+// DeleteSellers deletes a seller by their ID.
+// @Summary Delete a seller by ID
+// @Description This endpoint allows for deleting a seller based on the provided seller ID.
+// @Tags Seller
+// @Produce json
+// @Param id path int true "Seller ID"
+// @Success 204 {object} nil "Seller successfully deleted"
+// @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID"
+// @Failure 404 {object} model.ErrorResponseSwagger "Seller not found"
+// @Failure 409 {object} model.ErrorResponseSwagger "Seller cannot be deleted due to existing dependencies"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete seller"
+// @Router /sellers/{id} [delete]
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
@@ -122,10 +187,6 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
-		return
-	}
-
-	if ok := hd.handlerError(err, w); ok {
 		return
 	}
 
@@ -153,7 +214,7 @@ func (hd *SellersController) handlerError(err error, w http.ResponseWriter) bool
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return true
 		}
-		
+
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped seller handler error", nil))
 
 		return true

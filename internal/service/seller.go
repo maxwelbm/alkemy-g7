@@ -52,7 +52,7 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 	err = seller.ValidateUpdateFields(seller, &existSl)
 	
 	if err != nil {
-		return sl, err
+		return
 	}
 	
 	sl, err = s.Rp.Patch(id, seller)
