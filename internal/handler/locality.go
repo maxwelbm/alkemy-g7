@@ -24,6 +24,14 @@ type LocalitiesController struct {
 func (hd *LocalitiesController) GetById(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
+
+	if id == 0 || err != nil {
+		err := er.ErrMissingLocalityID
+		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
+		return
+	}
+
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -52,7 +60,7 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 }
 
 func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
+	id := 0
 
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
@@ -67,9 +75,11 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
+
 			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+
 			id = idParam
 		}
 	}
@@ -83,7 +93,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 }
 
 func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Request) {
-	var id int = 0
+	id := 0
 
 	if len(r.URL.Query()) > 0 {
 		param := r.URL.Query().Get("id")
@@ -98,9 +108,11 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 				response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody(er.ErrInvalidLocalityPathParam.Error(), nil))
 				return
 			}
+
 			if ok := hd.handlerError(err, w); ok {
 				return
 			}
+
 			id = idParam
 		}
 	}
@@ -121,7 +133,9 @@ func (hd *LocalitiesController) handlerError(err error, w http.ResponseWriter) b
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unmapped locality handler error", nil))
+
 		return true
 	}
+
 	return false
 }

@@ -98,6 +98,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 		response      string
 		statusCode    int
 		err           error
+		call          bool
 	}{
 		{
 			description:   "get seller by id with success",
@@ -115,6 +116,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
                         }`,
 			statusCode: http.StatusOK,
 			err:        nil,
+			call:       true,
 		},
 		{
 			description:   "get seller by id not found",
@@ -123,6 +125,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			response:      `{"message":"seller not found"}`,
 			statusCode:    http.StatusNotFound,
 			err:           customError.ErrSellerNotFound,
+			call:          true,
 		},
 		{
 			description:   "get seller by id with internal server error",
@@ -131,6 +134,16 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 			response:      `{"message":"internal server error"}`,
 			statusCode:    http.StatusInternalServerError,
 			err:           customError.ErrDefaultSeller,
+			call:          true,
+		},
+		{
+			description:   "get seller by id with zero id",
+			returnService: model.Seller{},
+			id:            0,
+			response:      `{"message":"missing 'id' parameter in the request"}`,
+			statusCode:    http.StatusBadRequest,
+			err:           customError.ErrMissingSellerID,
+			call:          false,
 		},
 	}
 	for _, test := range tests {
@@ -143,7 +156,9 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 
 			assert.Equal(t, test.statusCode, response.Code)
 			assert.JSONEq(t, test.response, response.Body.String())
-			mock.AssertExpectations(t)
+			if test.call {
+				mock.AssertExpectations(t)
+			}
 		})
 	}
 }
@@ -217,14 +232,14 @@ func TestHandlerCreateSeller(t *testing.T) {
 			call:       false,
 		},
 		{
-			description:   "create seller with no required attributes",
+			description:   "create seller without required attributes",
 			arg:           model.Seller{},
 			returnService: model.Seller{},
-			body: []byte(`{}`),
-			response:   `{"message":"invalid request body, received empty or null value"}`,
-			statusCode: http.StatusUnprocessableEntity,
-			err:        customError.ErrNullSellerAttribute,
-			call:       false,
+			body:          []byte(`{}`),
+			response:      `{"message":"invalid request body, received empty or null value"}`,
+			statusCode:    http.StatusUnprocessableEntity,
+			err:           customError.ErrNullSellerAttribute,
+			call:          false,
 		},
 		{
 			description:   "create seller with attribute cid already existing",
@@ -243,7 +258,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 			call:       true,
 		},
 		{
-			description:   "create seller with attribute locality id inexisting",
+			description:   "create seller with attribute locality id not found",
 			arg:           model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
 			returnService: model.Seller{},
 			body: []byte(`{           
@@ -269,6 +284,172 @@ func TestHandlerCreateSeller(t *testing.T) {
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			hd.CreateSellers(response, request)
+
+			assert.Equal(t, test.statusCode, response.Code)
+			assert.JSONEq(t, test.response, response.Body.String())
+			if test.call {
+				mock.AssertExpectations(t)
+			}
+		})
+	}
+}
+
+func TestHandlerUpdateSeller(t *testing.T) {
+	hd := setupSeller()
+	mock := hd.Service.(*service.SellerMockService)
+
+	r := chi.NewRouter()
+	r.Patch("/api/v1/sellers/{id}", hd.UpdateSellers)
+
+	tests := []struct {
+		description   string
+		arg           model.Seller
+		id            int
+		returnService model.Seller
+		body          []byte
+		response      string
+		statusCode    int
+		err           error
+		call          bool
+	}{
+		{
+			description:   "update seller with success",
+			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central Perk", Telephone: "55566777787", Locality: 10},
+			id:            5,
+			returnService: model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central Perk", Telephone: "55566777787", Locality: 10},
+			body: []byte(`{           
+							"cid": 55,
+							"company_name": "Cypress Company",
+							"address": "900 Central Perk",
+							"telephone": "55566777787",
+							"locality_id": 10
+						}`),
+			response: `{
+                        "data": {
+                            "id": 5,
+                            "cid": 55,
+                            "company_name": "Cypress Company",
+                            "address": "900 Central Perk",
+                            "telephone": "55566777787",
+                            "locality_id": 10
+                        }
+                    }`,
+			statusCode: http.StatusOK,
+			err:        nil,
+			call:       true,
+		},
+		{
+			description:   "update seller with id not found",
+			arg:           model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central Perk", Telephone: "55566777787", Locality: 20},
+			id:            999,
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": 65,
+							"company_name": "Cypress Company",
+							"address": "30 Central Perk",
+							"telephone": "55566777787",
+							"locality_id": 20
+						}`),
+			response:   `{"message":"seller not found"}`,
+			statusCode: http.StatusNotFound,
+			err:        customError.ErrSellerNotFound,
+			call:       false,
+		},
+		{
+			description:   "update seller with bad request",
+			arg:           model.Seller{},
+			id:            4,
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": "cid",
+							"company_name": 9999,
+							"address": 9999,
+							"telephone": 9999,
+							"locality_id": "locality"
+						}`),
+			response:   `{"message":"invalid JSON format in the request body"}`,
+			statusCode: http.StatusBadRequest,
+			err:        customError.ErrInvalidSellerJSONFormat,
+			call:       false,
+		},
+		{
+			description:   "update seller with empty attributes values",
+			id:            2,
+			arg:           model.Seller{CID: 0, CompanyName: "", Address: "", Telephone: "", Locality: 0},
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": 0,
+							"company_name": "",
+							"address": "",
+							"telephone": "",
+							"locality_id": 0
+						}`),
+			response:   `{"message":"invalid request body, received empty or null value"}`,
+			statusCode: http.StatusUnprocessableEntity,
+			err:        customError.ErrNullSellerAttribute,
+			call:       false,
+		},
+		{
+			description:   "update seller with attribute cid already existing",
+			arg:           model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Perk", Telephone: "55566777787", Locality: 17},
+			id: 9,
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": 1,
+							"company_name": "Midgard Sellers",
+							"address": "3 New Time Park",
+							"telephone": "99989898778",
+							"locality_id": 17
+						}`),
+			response:   `{"message":"seller's CID already exists"}`,
+			statusCode: http.StatusConflict,
+			err:        customError.ErrCIDSellerAlreadyExist,
+			call:       false,
+		},
+		{
+			description:   "update seller with attribute locality id not found",
+			arg:           model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999},
+			returnService: model.Seller{},
+			id: 7,
+			body: []byte(`{           
+							"cid": 8,
+							"company_name": "Rupture Clivers",
+							"address": "1200 New Time Park",
+							"telephone": "7776657987",
+							"locality_id": 9999
+						}`),
+			response:   `{"message":"locality not found"}`,
+			statusCode: http.StatusNotFound,
+			err:        customError.ErrLocalityNotFound,
+			call:       false,
+		},
+		{
+			description:   "update seller with zero id",
+			arg:           model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "400 Central Perk", Telephone: "55566777787", Locality: 30},
+			id:            0,
+			returnService: model.Seller{},
+			body: []byte(`{           
+							"cid": 55,
+							"company_name": "Cypress Company",
+							"address": "400 Central Perk",
+							"telephone": "55566777787",
+							"locality_id": 30
+						}`),
+			response:   `{"message":"missing 'id' parameter in the request"}`,
+			statusCode: http.StatusBadRequest,
+			err:        customError.ErrMissingSellerID,
+			call:       false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			mock.On("UpdateSeller", test.id, &test.arg).Return(test.returnService, test.err)
+			mock.On("GetById", test.id).Return(test.returnService, test.err)
+
+			request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(test.id), bytes.NewReader(test.body))
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			r.ServeHTTP(response, request)
 
 			assert.Equal(t, test.statusCode, response.Code)
 			assert.JSONEq(t, test.response, response.Body.String())
