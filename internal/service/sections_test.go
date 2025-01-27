@@ -133,3 +133,39 @@ func TestUpdateSection(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
+func TestDeleteSection(t *testing.T) {
+	t.Run("given a valid id section then delete it", func(t *testing.T) {
+		svc := setupRepMock()
+
+		deletedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
+		mockRepo := svc.Rp.(*repository.MockSectionRepository)
+
+		mockRepo.On("GetById", 1).Return(deletedSection, nil)
+
+		mockRepo.On("CountProductBatchesBySectionId", 1).Return(model.SectionProductBatches{}, nil)
+
+		mockRepo.On("Delete", 1).Return(nil)
+
+		err := svc.Delete(1)
+
+		assert.NoError(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("given an invalid section id then return error", func(t *testing.T) {
+		svc := setupRepMock()
+
+		expectedError := customError.HandleError("section", customError.ErrorNotFound, "")
+
+		mockRepo := svc.Rp.(*repository.MockSectionRepository)
+
+		mockRepo.On("GetById", 50).Return(model.Section{}, expectedError)
+
+		err := svc.Delete(50)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+}

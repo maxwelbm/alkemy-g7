@@ -41,11 +41,18 @@ func (m *MockSectionRepository) Update(id int, section *model.Section) (model.Se
 }
 
 func (m *MockSectionRepository) Delete(id int) error {
-	panic("needs implementation...")
+	args := m.Called(id)
+	err := args.Error(0)
+
+	return err
 }
 
 func (sm *MockSectionRepository) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
-	panic("needs implementation...")
+	args := sm.Called(id)
+	countProdBatches = args.Get(0).(model.SectionProductBatches)
+	err = args.Error(1)
+
+	return
 }
 
 func (sm *MockSectionRepository) CountProductBatchesSections() (countProductBatches []model.SectionProductBatches, err error) {

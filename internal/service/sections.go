@@ -50,6 +50,7 @@ func (s *SectionService) Delete(id int) (err error) {
 	if err != nil {
 		return
 	}
+
 	secProdBatches, _ := s.Rp.CountProductBatchesBySectionId(id)
 	if secProdBatches.ProductsCount > 0 {
 		return customError.HandleError("section", customError.ErrorDep, "")
