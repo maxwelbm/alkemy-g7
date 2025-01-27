@@ -148,7 +148,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			mock.On("GetById", test.id).Return(test.returnService, test.err)
+			mock.On("GetByID", test.id).Return(test.returnService, test.err)
 
 			request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(test.id), nil)
 			response := httptest.NewRecorder()
@@ -444,7 +444,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
 			mock.On("UpdateSeller", test.id, &test.arg).Return(test.returnService, test.err)
-			mock.On("GetById", test.id).Return(test.returnService, test.err)
+			mock.On("GetByID", test.id).Return(test.returnService, test.err)
 
 			request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(test.id), bytes.NewReader(test.body))
 			request.Header.Set("Content-Type", "application/json")
@@ -516,7 +516,7 @@ func TestHandlerDeleteSeller(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
 			mock.On("DeleteSeller", test.id).Return(test.err)
-			mock.On("GetById", test.id).Return(test.returnService, test.err)
+			mock.On("GetByID", test.id).Return(test.returnService, test.err)
 
 			request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(test.id), nil)
 			response := httptest.NewRecorder()
