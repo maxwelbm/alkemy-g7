@@ -6,7 +6,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type EmployeeService struct {
@@ -34,20 +34,20 @@ func (e *EmployeeService) GetEmployeeById(id int) (model.Employee, error) {
 
 func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employee, error) {
 	if !employee.IsValidEmployee() {
-		return model.Employee{}, custom_error.EmployeeErrInvalid
+		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
 	_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
 
 	if err != nil {
-		return model.Employee{}, custom_error.EmployeeErrInvalidWarehouseID
+		return model.Employee{}, customError.EmployeeErrInvalidWarehouseID
 	}
 
 	employee, err = e.rp.Post(employee)
 
 	if err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
-			err = custom_error.EmployeeErrDuplicatedCardNumber
+			err = customError.EmployeeErrDuplicatedCardNumber
 		}
 		return model.Employee{}, err
 	}
@@ -57,14 +57,14 @@ func (e *EmployeeService) InsertEmployee(employee model.Employee) (model.Employe
 
 func (e *EmployeeService) UpdateEmployee(id int, employee model.Employee) (model.Employee, error) {
 	if employee.IsEmptyEmployee() {
-		return model.Employee{}, custom_error.EmployeeErrInvalid
+		return model.Employee{}, customError.EmployeeErrInvalid
 	}
 
 	if employee.WarehouseId != 0 {
 		_, err := e.wrSrv.GetByIdWareHouse(employee.WarehouseId)
 
 		if err != nil {
-			return model.Employee{}, custom_error.EmployeeErrInvalidWarehouseID
+			return model.Employee{}, customError.EmployeeErrInvalidWarehouseID
 		}
 	}
 
@@ -91,7 +91,7 @@ func (e *EmployeeService) DeleteEmployee(id int) error {
 
 func (e *EmployeeService) GetInboundOrdersReportByEmployee(employeeId int) (model.InboundOrdersReportByEmployee, error) {
 	if employeeId <= 0 {
-		return model.InboundOrdersReportByEmployee{}, custom_error.EmployeeErrInvalid
+		return model.InboundOrdersReportByEmployee{}, customError.EmployeeErrInvalid
 	}
 
 	_, err := e.GetEmployeeById(employeeId)

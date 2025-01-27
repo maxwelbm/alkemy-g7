@@ -9,7 +9,7 @@ import (
 	responses "github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type ProductRecHandler struct {

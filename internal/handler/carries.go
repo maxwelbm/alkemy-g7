@@ -9,7 +9,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	svc "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type CarrierHandler struct {
@@ -40,12 +40,12 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 
 		if err != nil {
 
-			if err, ok := err.(*custom_error.CarrierError); ok {
+			if err, ok := err.(*customError.CarrierError); ok {
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
 
-			if strings.Contains(err.Error(), custom_error.ErrorLocalityNotFound.Error()) {
+			if strings.Contains(err.Error(), customError.ErrLocalityNotFound.Error()) {
 				response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}

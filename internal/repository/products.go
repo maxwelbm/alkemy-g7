@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type ProductRepository struct {
