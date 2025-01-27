@@ -14,7 +14,7 @@ func (p ProductrecMock) CreateProductRecords(pr model.ProductRecords) (model.Pro
 	panic("implement me")
 }
 
-func (p ProductrecMock) GetProductRecordById(id int) (model.ProductRecords, error) {
+func (p ProductrecMock) GetProductRecordByID(id int) (model.ProductRecords, error) {
 	args := p.Called(id)
 	return args.Get(0).(model.ProductRecords), args.Error(1)
 }
