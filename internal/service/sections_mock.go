@@ -42,7 +42,10 @@ func (sm *MockSectionService) Update(id int, section *model.Section) (sec model.
 }
 
 func (sm *MockSectionService) Delete(id int) (err error) {
-	panic("needs implementation...")
+	args := sm.Called(id)
+	err = args.Error(0)
+
+	return
 }
 
 func (sm *MockSectionService) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {

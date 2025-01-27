@@ -299,3 +299,38 @@ func TestHandlerUpdateSection(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 }
+
+func TestHandlerDeleteSection(t *testing.T) {
+	t.Run("given a valid section id then delete this section", func(t *testing.T) {
+		hd := setupSectionService()
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Delete", 1).Return(nil)
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/sections/1", nil)
+		response := httptest.NewRecorder()
+
+		hd.Delete(response, request)
+
+		assert.Equal(t, http.StatusNoContent, response.Code)
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("given an invalid section id then return error", func(t *testing.T) {
+		hd := setupSectionService()
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Delete", 50).Return(custom_error.HandleError("section", custom_error.ErrorNotFound, ""))
+
+		request := httptest.NewRequest(http.MethodDelete, "/api/v1/sections/50", nil)
+		response := httptest.NewRecorder()
+
+		hd.Delete(response, request)
+
+		expectedSectionJSON := `{"message": "section not found"}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+		mockService.AssertExpectations(t)
+	})
+}
