@@ -21,6 +21,17 @@ type LocalitiesController struct {
 	service interfaces.ILocalityService
 }
 
+// GetByID retrieves a locality by their ID.
+// @Summary Retrieve locality
+// @Description This endpoint fetches the details of a specific locality based on the provided locality ID.
+// @Tags Locality
+// @Produce json
+// @Param id path int true "Locality ID"
+// @Success 200 {object} model.LocalityResponseSwagger{data=model.Locality}
+// @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
+// @Failure 404 {object} model.ErrorResponseSwagger "locality not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for locality"
+// @Router /localities/{id} [get]
 func (hd *LocalitiesController) GetByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
@@ -44,6 +55,16 @@ func (hd *LocalitiesController) GetByID(w http.ResponseWriter, r *http.Request) 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", locality))
 }
 
+// CreateLocality creates a new locality.
+// @Summary Create a new locality
+// @Description This endpoint allows for creating a new locality.
+// @Tags Locality
+// @Produce json
+// @Param locality body model.Locality true "Locality information"
+// @Success 201 {object} model.LocalityResponseSwagger{data=model.Locality}
+// @Failure 400 {object} model.ErrorResponseSwagger "Unprocessable Entity"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to create locality"
+// @Router /localities [post]
 func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Request) {
 	var locality model.Locality
 	if err := request.JSON(r, &locality); err != nil {
@@ -59,6 +80,17 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdLocality))
 }
 
+// GetSellers retrieves a count of sellers from locality by their ID.
+// @Summary Retrieve locality and count sellers
+// @Description This endpoint fetches the details of a specific locality abount sellers count based on the provided locality ID.
+// @Tags Locality
+// @Produce json
+// @Param id path int true "Locality ID" 
+// @Success 200 {object} model.LocalitySellersResponseSwagger{data=model.LocalitiesJSONSellers}
+// @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
+// @Failure 404 {object} model.ErrorResponseSwagger "locality not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for locality"
+// @Router /localities/reportSellers [get]
 func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Request) {
 	id := 0
 
@@ -92,6 +124,17 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", result))
 }
 
+// GetCarriers retrieves a count of carriers from locality by their ID.
+// @Summary Retrieve locality and count carriers
+// @Description This endpoint fetches the details of a specific locality abount carriers count based on the provided locality ID.
+// @Tags Locality
+// @Produce json
+// @Param id path int true "Locality ID" 
+// @Success 200 {object} model.LocalityCarriersResponseSwagger{data=model.LocalitiesJSONCarriers}
+// @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
+// @Failure 404 {object} model.ErrorResponseSwagger "locality not found"
+// @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for locality"
+// @Router /localities/reportCarriers [get]
 func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Request) {
 	id := 0
 

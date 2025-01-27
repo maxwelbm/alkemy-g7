@@ -71,5 +71,5 @@ func (s *Seller) ValidateEmptyFields(sl *Seller) error {
 }
 
 type SellerResponseSwagger struct {
-	Data []Buyer `json:"data"`
+	Data []Seller `json:"data"`
 }
