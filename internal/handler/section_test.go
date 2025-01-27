@@ -240,3 +240,62 @@ func TestHandlerCreateSection(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 }
+
+func TestHandlerUpdateSection(t *testing.T) {
+	t.Run("given a valid section to update then update it with no error", func(t *testing.T) {
+		hd := setupSectionService()
+
+		updatedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 12.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Update", 1, &model.Section{ID: 1, CurrentTemperature: 14.0}).Return(updatedSection, nil)
+
+		reqBody := []byte(`{"current_temperature": 14.0}`)
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/sections/1", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		hd.Update(response, request)
+
+		expectedSectionJSON := `{
+		"data":
+		{
+			"id": 1,
+			"section_number": "S01",
+			"current_temperature": 12.0,
+			"minimum_temperature": 5.0,
+			"current_capacity": 10,
+			"minimum_capacity": 5,
+			"maximum_capacity": 20,
+			"warehouse_id": 1,
+			"product_type_id": 1
+		}
+		}`
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("given a invalid section to update then return an error", func(t *testing.T) {
+		hd := setupSectionService()
+
+		mockService := hd.Sv.(*service.MockSectionService)
+		mockService.On("Update", 50, &model.Section{ID: 50, CurrentTemperature: 5.0}).Return(model.Section{}, custom_error.HandleError("section", custom_error.ErrorNotFound, ""))
+
+		reqBody := []byte(`{
+			"current_temperature": 5.0
+		}`)
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/sections/50", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		hd.Update(response, request)
+
+		expectedSectionJSON := `{"message": "section not found"}`
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.JSONEq(t, expectedSectionJSON, response.Body.String())
+		mockService.AssertExpectations(t)
+	})
+}

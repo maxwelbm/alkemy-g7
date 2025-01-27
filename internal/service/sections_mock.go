@@ -34,7 +34,11 @@ func (sm *MockSectionService) Post(section *model.Section) (sec model.Section, e
 }
 
 func (sm *MockSectionService) Update(id int, section *model.Section) (sec model.Section, err error) {
-	panic("needs implementation...")
+	args := sm.Called(id, section)
+	sec = args.Get(0).(model.Section)
+	err = args.Error(1)
+
+	return
 }
 
 func (sm *MockSectionService) Delete(id int) (err error) {
