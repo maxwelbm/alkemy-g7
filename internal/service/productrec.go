@@ -6,7 +6,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	repo "github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	serv "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type ProductRecService struct {

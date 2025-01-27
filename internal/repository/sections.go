@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type SectionRepository struct {
@@ -47,7 +47,7 @@ func (r *SectionRepository) GetById(id int) (section model.Section, err error) {
 	err = row.Scan(&section.ID, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseID, &section.ProductTypeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.HandleError("section", custom_error.ErrorNotFound, "")
+			err = customError.HandleError("section", customError.ErrorNotFound, "")
 			return
 		}
 		return
@@ -121,7 +121,7 @@ func (r *SectionRepository) CountProductBatchesBySectionId(id int) (countProdBat
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = custom_error.HandleError("section", custom_error.ErrorNotFound, "")
+			err = customError.HandleError("section", customError.ErrorNotFound, "")
 		}
 		return
 	}

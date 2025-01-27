@@ -6,17 +6,24 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"
+	_ "github.com/maxwelbm/alkemy-g7.git/docs"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/database"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title Meli Fresh API
+// @version 1.0.0
+// @description This REST API provides access to Mercado Livre's new line of perishable products, allowing users to efficiently manage, consult and purchase fresh products. With support for CRUD operations, this API was designed to facilitate inventory management, check product availability and ensure an agile and intuitive shopping experience. Aimed at developers who want to integrate e-commerce solutions, the API offers clear endpoints and comprehensive documentation for easy integration and use.
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-	dbConfig, err := database.GetDbConfig()
+	dbConfig, err := database.GetDBConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	db, err := database.NewConnectionDb(dbConfig)
+	db, err := database.NewConnectionDB(dbConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,8 +48,9 @@ func initRoutes(productHandler *handler.ProductHandler,
 	warehouseHandler *handler.WarehouseHandler, purchaseOrderHandler *handler.PurchaseOrderHandler,
 	inboundHandler *handler.InboundOrderHandler, productRecHandler *handler.ProductRecHandler,
 	productBatchesHandler *handler.ProductBatchesController, localitiesHandler *handler.LocalitiesController, carrierHandler *handler.CarrierHandler) *chi.Mux {
-
 	rt := chi.NewRouter()
+
+	rt.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
 		r.Get("/", warehouseHandler.GetAllWareHouse())

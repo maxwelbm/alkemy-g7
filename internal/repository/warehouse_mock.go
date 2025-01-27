@@ -1,0 +1,51 @@
+package repository
+
+import (
+	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/stretchr/testify/mock"
+)
+
+type WareHouseMockRepo struct {
+	mock.Mock
+}
+
+func (mock *WareHouseMockRepo) DeleteByIdWareHouse(id int) error {
+	args := mock.Called(id)
+
+	return args.Error(0)
+}
+
+func (mock *WareHouseMockRepo) GetAllWareHouse() (w []model.WareHouse, err error) {
+	args := mock.Called()
+
+	w = args.Get(0).([]model.WareHouse)
+	err = args.Error(1)
+
+	return
+}
+
+func (mock *WareHouseMockRepo) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
+	args := mock.Called(id)
+
+	w = args.Get(0).(model.WareHouse)
+	err = args.Error(1)
+
+	return
+}
+
+func (mock *WareHouseMockRepo) PostWareHouse(warehouse model.WareHouse) (id int64, err error) {
+	args := mock.Called(warehouse)
+
+	id = args.Get(0).(int64)
+	err = args.Error(1)
+
+	return
+}
+
+func (mock *WareHouseMockRepo) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
+	args := mock.Called(id, warehouse)
+
+	err = args.Error(0)
+
+	return
+}

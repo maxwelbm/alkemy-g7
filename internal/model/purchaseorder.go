@@ -7,12 +7,12 @@ import (
 )
 
 type PurchaseOrder struct {
-	ID              int       `json:"id"`
-	OrderNumber     string    `json:"order_number"`
-	OrderDate       time.Time `json:"order_date"`
-	TrackingCode    string    `json:"tracking_code"`
-	BuyerID         int       `json:"buyer_id"`
-	ProductRecordID int       `json:"product_record_id"`
+	ID              int       `json:"id" example:"1"`
+	OrderNumber     string    `json:"order_number" example:"ON001"`
+	OrderDate       time.Time `json:"order_date" example:"2025-01-01T00:00:00Z"`
+	TrackingCode    string    `json:"tracking_code" example:"TC001"`
+	BuyerID         int       `json:"buyer_id" example:"1"`
+	ProductRecordID int       `json:"product_record_id" example:"1"`
 }
 
 func (p *PurchaseOrder) ValidateEmptyFields() error {
@@ -43,4 +43,8 @@ func (p *PurchaseOrder) ValidateEmptyFields() error {
 	}
 
 	return nil
+}
+
+type PurchaseOrderResponseSwagger struct {
+	Data []PurchaseOrder `json:"data"`
 }

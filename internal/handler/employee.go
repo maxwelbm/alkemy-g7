@@ -10,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/custom_error"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/customError"
 )
 
 type EmployeeJSON struct {
@@ -51,7 +51,7 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 	data, err := e.sv.GetEmployees()
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -86,7 +86,7 @@ func (e *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request
 	data, err := e.sv.GetEmployeeById(id)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -114,7 +114,7 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	data, err := e.sv.InsertEmployee(*employee)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -150,7 +150,7 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	updatedEmployee, err := e.sv.UpdateEmployee(id, employee)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -175,7 +175,7 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 	err = e.sv.DeleteEmployee(id)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
@@ -193,7 +193,7 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 		data, err := e.sv.GetInboundOrdersReports()
 
 		if err != nil {
-			if err, ok := err.(*custom_error.EmployeerErr); ok {
+			if err, ok := err.(*customError.EmployeerErr); ok {
 				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 				return
 			}
@@ -213,7 +213,7 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 	data, err := e.sv.GetInboundOrdersReportByEmployee(idInt)
 
 	if err != nil {
-		if err, ok := err.(*custom_error.EmployeerErr); ok {
+		if err, ok := err.(*customError.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
