@@ -5,14 +5,14 @@ import (
 )
 
 type Locality struct {
-	ID       string `json:"id"`
+	ID       int    `json:"id"`
 	Locality string `json:"locality_name"`
 	Province string `json:"province_name"`
 	Country  string `json:"country_name"`
 }
 
 type LocalityJSON struct {
-	ID       *string `json:"id"`
+	ID       *int    `json:"id"`
 	Locality *string `json:"locality_name"`
 	Province *string `json:"province_name"`
 	Country  *string `json:"country_name"`
