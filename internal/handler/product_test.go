@@ -106,7 +106,7 @@ func TestGetProductById(t *testing.T) {
 	}
 
 	r := chi.NewRouter()
-	r.Get("/api/v1/products/{id}", productHd.GetProductById)
+	r.Get("/api/v1/products/{id}", productHd.GetProductByID)
 
 	testCases := []struct {
 		name               string
@@ -211,38 +211,38 @@ func TestInsertProduct(t *testing.T) {
 }
 
 func TestUpdateProduct(t *testing.T) {
-    createRequest := func(id string, body string) *http.Request {
-        req := httptest.NewRequest("PATCH", "/api/v1/products/"+id, strings.NewReader(body))
-        req.Header.Set("Content-Type", "application/json")
-        return req
-    }
+	createRequest := func(id string, body string) *http.Request {
+		req := httptest.NewRequest("PATCH", "/api/v1/products/"+id, strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		return req
+	}
 
-    updateProduct := func(id int, product model.Product) (model.Product, error) {
-        if id != 1 {
-            return model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, "")
-        }
-        product.ID = 1
-        return product, nil
-    }
+	updateProduct := func(id int, product model.Product) (model.Product, error) {
+		if id != 1 {
+			return model.Product{}, custom_error.HandleError("product", custom_error.ErrorNotFound, "")
+		}
+		product.ID = 1
+		return product, nil
+	}
 
-    productHd := ProductHandler{
-        ProductService: &StubMockProductService{FuncUpdateProduct: updateProduct},
-    }
+	productHd := ProductHandler{
+		ProductService: &StubMockProductService{FuncUpdateProduct: updateProduct},
+	}
 
-    r := chi.NewRouter()
-    r.Patch("/api/v1/products/{id}", productHd.UpdateProduct) // Registrando o handler de atualização
+	r := chi.NewRouter()
+	r.Patch("/api/v1/products/{id}", productHd.UpdateProduct) // Registrando o handler de atualização
 
-    testCases := []struct {
-        name               string
-        id                 string
-        productRequestBody string
-        expectedStatusCode int
-        expectedResponse   string
-    }{
-        {
-            name: "should return 200 ok and update the product",
-            id:   "1",
-            productRequestBody: `{
+	testCases := []struct {
+		name               string
+		id                 string
+		productRequestBody string
+		expectedStatusCode int
+		expectedResponse   string
+	}{
+		{
+			name: "should return 200 ok and update the product",
+			id:   "1",
+			productRequestBody: `{
                 "product_code": "P003",
                 "description": "New Product",
                 "width": 1,
@@ -255,13 +255,13 @@ func TestUpdateProduct(t *testing.T) {
                 "product_type_id": 1,
                 "seller_id": 1
             }`,
-            expectedStatusCode: http.StatusOK,
-            expectedResponse: `{"data":{"id":1,"product_code":"P003","description":"New Product","width":1,"height":1,"length":1,"net_weight":1,"expiration_rate":1,"recommended_freezing_temperature":1,"freezing_rate":1,"product_type_id":1,"seller_id":1}}`,
-        },
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   `{"data":{"id":1,"product_code":"P003","description":"New Product","width":1,"height":1,"length":1,"net_weight":1,"expiration_rate":1,"recommended_freezing_temperature":1,"freezing_rate":1,"product_type_id":1,"seller_id":1}}`,
+		},
 		{
-            name: "should return 200 ok and update the product",
-            id:   "2",
-            productRequestBody: `{
+			name: "should return 200 ok and update the product",
+			id:   "2",
+			productRequestBody: `{
                 "product_code": "P003",
                 "description": "New Product",
                 "width": 1,
@@ -274,87 +274,86 @@ func TestUpdateProduct(t *testing.T) {
                 "product_type_id": 1,
                 "seller_id": 1
             }`,
-            expectedStatusCode: http.StatusNotFound,
-            expectedResponse: `{"message":"product not found"}`,
-        },
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   `{"message":"product not found"}`,
+		},
 		{
-            name: "should return 200 ok and update the product",
-            id:   "1",
-            productRequestBody: `{
+			name: "should return 200 ok and update the product",
+			id:   "1",
+			productRequestBody: `{
                 "product_code": 1,
             }`,
-            expectedStatusCode: http.StatusUnprocessableEntity,
-            expectedResponse: `{"message":"invalid json syntax"}`,
-        },
+			expectedStatusCode: http.StatusUnprocessableEntity,
+			expectedResponse:   `{"message":"invalid json syntax"}`,
+		},
 		{
-            name: "should return 200 ok and update the product",
-            id:   "ad",
-            productRequestBody: `{
+			name: "should return 200 ok and update the product",
+			id:   "ad",
+			productRequestBody: `{
                 "product_code": 1,
             }`,
-            expectedStatusCode: http.StatusBadRequest,
-            expectedResponse: `{"message":"invalid id"}`,
-        },
-        
-    }
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   `{"message":"invalid id"}`,
+		},
+	}
 
-    for _, tc := range testCases {
-        t.Run(tc.name, func(t *testing.T) {
-            req := createRequest(tc.id, tc.productRequestBody)
-            res := httptest.NewRecorder()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := createRequest(tc.id, tc.productRequestBody)
+			res := httptest.NewRecorder()
 
-            r.ServeHTTP(res, req) // Agora usando o router para servir a requisição
+			r.ServeHTTP(res, req) // Agora usando o router para servir a requisição
 
-            assert.Equal(t, tc.expectedStatusCode, res.Code)
-            assert.JSONEq(t, tc.expectedResponse, res.Body.String())
-        })
-    }
+			assert.Equal(t, tc.expectedStatusCode, res.Code)
+			assert.JSONEq(t, tc.expectedResponse, res.Body.String())
+		})
+	}
 }
 
 func TestDeleteProduct(t *testing.T) {
-    deleteProduct := func(id int) error {
-        if id != 1 {
-            return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
-        }
-        return nil
-    }
+	deleteProduct := func(id int) error {
+		if id != 1 {
+			return custom_error.HandleError("product", custom_error.ErrorNotFound, "")
+		}
+		return nil
+	}
 
-    productHd := ProductHandler{
-        ProductService: &StubMockProductService{FuncDeleteProduct: deleteProduct},
-    }
+	productHd := ProductHandler{
+		ProductService: &StubMockProductService{FuncDeleteProduct: deleteProduct},
+	}
 
-    r := chi.NewRouter()
-    r.Delete("/api/v1/products/{id}", productHd.DeleteProductById)
+	r := chi.NewRouter()
+	r.Delete("/api/v1/products/{id}", productHd.DeleteProductByID)
 
-    testCases := []struct {
-        name               string
-        id                 string
-        expectedStatusCode int
-        expectedResponse   string
-    }{
-        {
-            name:               "should return 204 no content when product is deleted",
-            id:                 "1",
-            expectedStatusCode: http.StatusNoContent,
-            expectedResponse:   `{"message":"product deleted"}`,
-        },
-        {
-            name:               "should return 404 not found when product does not exist",
-            id:                 "2",
-            expectedStatusCode: http.StatusNotFound,
-            expectedResponse:   `{"message":"product not found"}`,
-        },
-    }
+	testCases := []struct {
+		name               string
+		id                 string
+		expectedStatusCode int
+		expectedResponse   string
+	}{
+		{
+			name:               "should return 204 no content when product is deleted",
+			id:                 "1",
+			expectedStatusCode: http.StatusNoContent,
+			expectedResponse:   `{"message":"product deleted"}`,
+		},
+		{
+			name:               "should return 404 not found when product does not exist",
+			id:                 "2",
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   `{"message":"product not found"}`,
+		},
+	}
 
-    for _, tc := range testCases {
-        t.Run(tc.name, func(t *testing.T) {
-            req := httptest.NewRequest("DELETE", "/api/v1/products/"+tc.id, nil)
-            res := httptest.NewRecorder()
-			
-            r.ServeHTTP(res, req)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest("DELETE", "/api/v1/products/"+tc.id, nil)
+			res := httptest.NewRecorder()
 
-            assert.Equal(t, tc.expectedStatusCode, res.Code)
-            assert.JSONEq(t, tc.expectedResponse, res.Body.String())
-        })
-    }
+			r.ServeHTTP(res, req)
+
+			assert.Equal(t, tc.expectedStatusCode, res.Code)
+			assert.JSONEq(t, tc.expectedResponse, res.Body.String())
+		})
+	}
 }

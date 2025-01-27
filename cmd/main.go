@@ -63,11 +63,11 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/products", func(r chi.Router) {
 		r.Get("/", productHandler.GetAllProducts)
-		r.Get("/{id}", productHandler.GetProductById)
+		r.Get("/{id}", productHandler.GetProductByID)
 		r.Get("/reportRecords", productRecHandler.GetProductRecReport)
 		r.Post("/", productHandler.CreateProduct)
 		r.Patch("/{id}", productHandler.UpdateProduct)
-		r.Delete("/{id}", productHandler.DeleteProductById)
+		r.Delete("/{id}", productHandler.DeleteProductByID)
 	})
 
 	rt.Route("/api/v1/productRecords", func(r chi.Router) {
