@@ -54,10 +54,10 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
 		r.Get("/", warehouseHandler.GetAllWareHouse())
-		r.Get("/{id}", warehouseHandler.GetWareHouseById())
+		r.Get("/{id}", warehouseHandler.GetWareHouseByID())
 		r.Post("/", warehouseHandler.PostWareHouse())
 		r.Patch("/{id}", warehouseHandler.UpdateWareHouse())
-		r.Delete("/{id}", warehouseHandler.DeleteByIdWareHouse())
+		r.Delete("/{id}", warehouseHandler.DeleteByIDWareHouse())
 	})
 
 	rt.Route("/api/v1/sections", func(r chi.Router) {

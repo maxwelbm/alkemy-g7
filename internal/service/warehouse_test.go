@@ -76,9 +76,9 @@ func TestGetByIdWareHouse(t *testing.T) {
 		}
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
-		mockRepo.On("GetByIdWareHouse", 1).Return(expectWarehouse, nil)
+		mockRepo.On("GetByIDWareHouse", 1).Return(expectWarehouse, nil)
 
-		w, err := svc.GetByIdWareHouse(1)
+		w, err := svc.GetByIDWareHouse(1)
 
 		assert.Equal(t, expectWarehouse, w)
 		assert.Nil(t, err)
@@ -89,9 +89,9 @@ func TestGetByIdWareHouse(t *testing.T) {
 		svc := setupWarehouse()
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
-		mockRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
+		mockRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
 
-		w, err := svc.GetByIdWareHouse(1)
+		w, err := svc.GetByIDWareHouse(1)
 
 		assert.Empty(t, w)
 		assert.NotNil(t, err)
@@ -113,10 +113,10 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		}
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
-		mockRepo.On("GetByIdWareHouse", 1).Return(expectedWarehouse, nil)
-		mockRepo.On("DeleteByIdWareHouse", 1).Return(nil)
+		mockRepo.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
+		mockRepo.On("DeleteByIDWareHouse", 1).Return(nil)
 
-		err := svc.DeleteByIdWareHouse(1)
+		err := svc.DeleteByIDWareHouse(1)
 
 		assert.Nil(t, err)
 		mockRepo.AssertExpectations(t)
@@ -135,10 +135,10 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		}
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
-		mockRepo.On("GetByIdWareHouse", 1).Return(expectedWarehouse, nil)
-		mockRepo.On("DeleteByIdWareHouse", 1).Return(assert.AnError)
+		mockRepo.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
+		mockRepo.On("DeleteByIDWareHouse", 1).Return(assert.AnError)
 
-		err := svc.DeleteByIdWareHouse(1)
+		err := svc.DeleteByIDWareHouse(1)
 
 		assert.NotNil(t, err)
 		mockRepo.AssertExpectations(t)
@@ -148,9 +148,9 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 		svc := setupWarehouse()
 
 		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
-		mockRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
+		mockRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
 
-		err := svc.DeleteByIdWareHouse(1)
+		err := svc.DeleteByIDWareHouse(1)
 
 		assert.NotNil(t, err)
 		mockRepo.AssertExpectations(t)
@@ -172,7 +172,7 @@ func TestPostWareHouse(t *testing.T) {
 		}
 		mockRepo.On("PostWareHouse", warehouse).Return(int64(1), nil)
 
-		mockRepo.On("GetByIdWareHouse", 1).Return(warehouse, nil)
+		mockRepo.On("GetByIDWareHouse", 1).Return(warehouse, nil)
 
 		w, err := svc.PostWareHouse(warehouse)
 
@@ -217,7 +217,7 @@ func TestUpdateWarehouse(t *testing.T) {
 			MinimunTemperature: 1,
 			Address:            "test",
 		}
-		mockRepo.On("GetByIdWareHouse", 1).Return(warehouse, nil)
+		mockRepo.On("GetByIDWareHouse", 1).Return(warehouse, nil)
 		mockRepo.On("UpdateWareHouse", 1, warehouse).Return(nil)
 
 		w, err := svc.UpdateWareHouse(1, warehouse)
@@ -239,7 +239,7 @@ func TestUpdateWarehouse(t *testing.T) {
 			MinimunTemperature: 1,
 			Address:            "test",
 		}
-		mockRepo.On("GetByIdWareHouse", 3).Return(model.WareHouse{}, nil)
+		mockRepo.On("GetByIDWareHouse", 3).Return(model.WareHouse{}, nil)
 		mockRepo.On("UpdateWareHouse", 3, warehouse).Return(assert.AnError)
 
 		w, err := svc.UpdateWareHouse(3, warehouse)

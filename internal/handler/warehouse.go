@@ -30,11 +30,10 @@ func (h *WarehouseHandler) GetAllWareHouse() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", wareHouse))
-
 	}
 }
 
-func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
+func (h *WarehouseHandler) GetWareHouseByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
@@ -43,7 +42,7 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 			return
 		}
 
-		warehouse, err := h.Srv.GetByIdWareHouse(id)
+		warehouse, err := h.Srv.GetByIDWareHouse(id)
 
 		if err != nil {
 			if err, ok := err.(*customError.WareHouseError); ok {
@@ -52,15 +51,13 @@ func (h *WarehouseHandler) GetWareHouseById() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to search warehouse", nil))
-			return
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", warehouse))
-
 	}
 }
 
-func (h *WarehouseHandler) DeleteByIdWareHouse() http.HandlerFunc {
+func (h *WarehouseHandler) DeleteByIDWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
@@ -69,7 +66,7 @@ func (h *WarehouseHandler) DeleteByIdWareHouse() http.HandlerFunc {
 			return
 		}
 
-		err = h.Srv.DeleteByIdWareHouse(id)
+		err = h.Srv.DeleteByIDWareHouse(id)
 
 		if err != nil {
 			if err, ok := err.(*customError.WareHouseError); ok {
@@ -107,7 +104,6 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to post warehouse", nil))
-			return
 		}
 
 		response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", warehouse))
@@ -117,6 +113,7 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody model.WareHouse
+
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 		if err != nil {
@@ -145,7 +142,6 @@ func (h *WarehouseHandler) UpdateWareHouse() http.HandlerFunc {
 			}
 
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to update warehouse", nil))
-			return
 		}
 
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", warehouse))

@@ -104,7 +104,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		r := chi.NewRouter()
-		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseById())
+		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
 		expectedWarehouse := model.WareHouse{
 			Id:                 1,
@@ -144,7 +144,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		r := chi.NewRouter()
-		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseById())
+		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
 		mockServiceWarehouse.On("GetByIdWareHouse", 30).Return(model.WareHouse{}, customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
@@ -167,7 +167,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/th", nil)
 
 		response := httptest.NewRecorder()
-		handler := hd.GetWareHouseById()
+		handler := hd.GetWareHouseByID()
 		handler.ServeHTTP(response, request)
 
 		expectedJson := `{"message":"invalid id"}`
@@ -182,7 +182,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		r := chi.NewRouter()
-		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseById())
+		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
 
 		mockServiceWarehouse.On("GetByIdWareHouse", 2).Return(model.WareHouse{}, errors.New("error"))
 
@@ -206,7 +206,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		r := chi.NewRouter()
-		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIdWareHouse())
+		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
 
 		mockServiceWarehouse.On("DeleteByIdWareHouse", 1).Return(nil)
 
@@ -224,7 +224,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
 
 		r := chi.NewRouter()
-		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIdWareHouse())
+		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
 
 		mockServiceWarehouse.On("DeleteByIdWareHouse", 30).Return(customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound))
 
@@ -247,7 +247,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/th", nil)
 
 		response := httptest.NewRecorder()
-		handler := hd.DeleteByIdWareHouse()
+		handler := hd.DeleteByIDWareHouse()
 		handler.ServeHTTP(response, request)
 
 		expectedJson := `{"message":"invalid id"}`
@@ -430,6 +430,122 @@ func TestHandlerPostWarehouse(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		expectedJson := `{"message":"unable to post warehouse"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+}
+
+func TestHandlerUpdateWarehouse(t *testing.T) {
+	t.Run("UpdateWarehouse return sucess", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		warehouse := model.WareHouse{
+			Id:                 1,
+			WareHouseCode:      "warehouse_code",
+			Address:            "Update Address",
+			Telephone:          "telephone",
+			MinimunCapacity:    1,
+			MinimunTemperature: 1,
+		}
+
+		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{
+			Address: "Update Address",
+		}).Return(warehouse, nil)
+
+		body := []byte(`{
+			"address": "Update Address"
+		}`)
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/1", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		expectedJson := `{
+			"data": {
+				"id": 1,
+				"warehouse_code": "warehouse_code",
+				"address": "Update Address",
+				"telephone": "telephone",
+				"minimun_capacity": 1,
+				"minimun_temperature": 1
+			}
+		}`
+
+		r := chi.NewRouter()
+		r.Patch("/api/v1/warehouses/{id}", hd.UpdateWareHouse())
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+		mockServiceWarehouse.AssertExpectations(t)
+	})
+
+	t.Run("UpdateWarehouse invalid id", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{}).Return(model.WareHouse{}, errors.New("invalid id"))
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/th", nil)
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"invalid id"}`
+
+		hd.UpdateWareHouse().ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("UpdateWarehouse invalid request body", func(t *testing.T) {
+		hd := setupWarehouse()
+
+		r := chi.NewRouter()
+		r.Patch("/api/v1/warehouses/{id}", hd.UpdateWareHouse())
+
+		reqBody := []byte(`{
+			"warehouse_code": "warehouse_code",
+			"address": "",
+			"telephone": "",
+			"minimun_capacity": 1,
+			"minimun_temperature": 1`,
+		)
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/1", bytes.NewReader(reqBody))
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"invalid request body"}`
+
+		r.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.JSONEq(t, expectedJson, response.Body.String())
+	})
+
+	t.Run("UpdateWarehouse internal server error", func(t *testing.T) {
+		hd := setupWarehouse()
+		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+
+		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{
+			Address: "Update Address",
+		}).Return(model.WareHouse{}, errors.New("internal server error"))
+
+		body := []byte(`{
+			"address": "Update Address"
+		}`)
+
+		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/1", bytes.NewReader(body))
+		response := httptest.NewRecorder()
+
+		expectedJson := `{"message":"unable to update warehouse"}`
+
+		r := chi.NewRouter()
+		r.Patch("/api/v1/warehouses/{id}", hd.UpdateWareHouse())
 
 		r.ServeHTTP(response, request)
 

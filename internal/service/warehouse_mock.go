@@ -9,14 +9,14 @@ type WarehouseServiceMock struct {
 	mock.Mock
 }
 
-func (mock *WarehouseServiceMock) DeleteByIdWareHouse(id int) error {
-	args := mock.Called(id)
+func (mr *WarehouseServiceMock) DeleteByIDWareHouse(id int) error {
+	args := mr.Called(id)
 
 	return args.Error(0)
 }
 
-func (mock *WarehouseServiceMock) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
-	args := mock.Called(id)
+func (mr *WarehouseServiceMock) GetByIDWareHouse(id int) (w model.WareHouse, err error) {
+	args := mr.Called(id)
 
 	w = args.Get(0).(model.WareHouse)
 	err = args.Error(1)
@@ -24,8 +24,8 @@ func (mock *WarehouseServiceMock) GetByIdWareHouse(id int) (w model.WareHouse, e
 	return
 }
 
-func (mock *WarehouseServiceMock) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
-	args := mock.Called(warehouse)
+func (mr *WarehouseServiceMock) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
+	args := mr.Called(warehouse)
 
 	w = args.Get(0).(model.WareHouse)
 	err = args.Error(1)
@@ -33,12 +33,17 @@ func (mock *WarehouseServiceMock) PostWareHouse(warehouse model.WareHouse) (w mo
 	return
 }
 
-func (mock *WarehouseServiceMock) UpdateWareHouse(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
-	panic("unimplemented")
+func (mr *WarehouseServiceMock) UpdateWareHouse(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
+	args := mr.Called(id, warehouse)
+
+	w = args.Get(0).(model.WareHouse)
+	err = args.Error(1)
+
+	return
 }
 
-func (mock *WarehouseServiceMock) GetAllWareHouse() (w []model.WareHouse, err error) {
-	args := mock.Called()
+func (mr *WarehouseServiceMock) GetAllWareHouse() (w []model.WareHouse, err error) {
+	args := mr.Called()
 
 	w = args.Get(0).([]model.WareHouse)
 	err = args.Error(1)
