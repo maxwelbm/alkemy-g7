@@ -18,19 +18,34 @@ func (sm *MockSectionService) Get() (sections []model.Section, err error) {
 }
 
 func (sm *MockSectionService) GetById(id int) (section model.Section, err error) {
-	panic("needs implementation...")
+	args := sm.Called(id)
+	section = args.Get(0).(model.Section)
+	err = args.Error(1)
+
+	return
 }
 
 func (sm *MockSectionService) Post(section *model.Section) (sec model.Section, err error) {
-	panic("needs implementation...")
+	args := sm.Called(section)
+	sec = args.Get(0).(model.Section)
+	err = args.Error(1)
+
+	return
 }
 
 func (sm *MockSectionService) Update(id int, section *model.Section) (sec model.Section, err error) {
-	panic("needs implementation...")
+	args := sm.Called(id, section)
+	sec = args.Get(0).(model.Section)
+	err = args.Error(1)
+
+	return
 }
 
 func (sm *MockSectionService) Delete(id int) (err error) {
-	panic("needs implementation...")
+	args := sm.Called(id)
+	err = args.Error(0)
+
+	return
 }
 
 func (sm *MockSectionService) CountProductBatchesBySectionId(id int) (countProdBatches model.SectionProductBatches, err error) {
