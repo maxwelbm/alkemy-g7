@@ -157,11 +157,15 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Update(idInt, &sec)
 	if err != nil {
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
-	response.JSON(w, http.StatusOK, responses.CreateResponseBody("success", s))
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", s))
 }
 
 func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {

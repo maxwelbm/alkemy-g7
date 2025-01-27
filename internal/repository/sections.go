@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -84,13 +83,12 @@ func (r *SectionRepository) Update(id int, section *model.Section) (newSec model
 	_, err = r.db.Exec(queryUpdate, (*section).SectionNumber, (*section).CurrentTemperature, (*section).MinimumTemperature, (*section).CurrentCapacity, (*section).MinimumCapacity, (*section).MaximumCapacity, (*section).WarehouseID, (*section).ProductTypeID, id)
 
 	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			switch mysqlErr.Number {
-			case 1062:
-				err = custom_error.ErrConflictSection
-			default:
-			}
+		if err == sql.ErrNoRows {
+			err = custom_error.HandleError("section", custom_error.ErrorNotFound, "")
+			return
+		}
+		if err.(*mysql.MySQLError).Number == 1062 {
+			err = custom_error.HandleError("section", custom_error.ErrorConflict, "")
 			return
 		}
 		return
