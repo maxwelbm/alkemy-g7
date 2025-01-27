@@ -113,14 +113,18 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 
 	s, err := h.Sv.Post(&section)
 	if err != nil {
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
-	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("section created", s))
+	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", s))
 }
 
 func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
+	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
