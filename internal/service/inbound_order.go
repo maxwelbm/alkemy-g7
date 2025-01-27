@@ -41,7 +41,7 @@ func (i *InboundOrderService) Post(inboundOrder model.InboundOrder) (model.Inbou
 	//@todo
 	// productBatchExists := @todo
 
-	_, err = i.warehouseSv.GetByIdWareHouse(inboundOrder.WareHouseID)
+	_, err = i.warehouseSv.GetByIDWareHouse(inboundOrder.WareHouseID)
 
 	if err != nil {
 		return model.InboundOrder{}, customError.InboundErrInvalidWarehouse

@@ -17,19 +17,22 @@ type WareHouse struct {
 func (w *WareHouse) ValidateEmptyFields(isPatch bool) error {
 	var fieldsEmpty []string
 
-	// Verifica quais campos estão vazios ou com valores inválidos
 	if w.Address == "" {
 		fieldsEmpty = append(fieldsEmpty, "address")
 	}
+
 	if w.Telephone == "" {
 		fieldsEmpty = append(fieldsEmpty, "telephone")
 	}
+
 	if w.WareHouseCode == "" {
 		fieldsEmpty = append(fieldsEmpty, "warehouse_code")
 	}
+
 	if w.MinimunCapacity <= 0 {
 		fieldsEmpty = append(fieldsEmpty, "minimun_capacity")
 	}
+
 	if w.MinimunTemperature <= 0 {
 		fieldsEmpty = append(fieldsEmpty, "minimun_temperature")
 	}

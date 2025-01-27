@@ -27,6 +27,7 @@ func (r *WarehouseMysql) GetAllWareHouse() (w []model.WareHouse, err error) {
 	for rows.Next() {
 		var warehouse model.WareHouse
 		err = rows.Scan(&warehouse.Id, &warehouse.WareHouseCode, &warehouse.Address, &warehouse.Telephone, &warehouse.MinimunCapacity, &warehouse.MinimunTemperature)
+
 		if err != nil {
 			return
 		}
@@ -42,7 +43,7 @@ func (r *WarehouseMysql) GetAllWareHouse() (w []model.WareHouse, err error) {
 	return
 }
 
-func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
+func (r *WarehouseMysql) GetByIDWareHouse(id int) (w model.WareHouse, err error) {
 	row := r.db.QueryRow("SELECT w.id, w.warehouse_code, w.address, w.telephone, w.minimum_capacity, w.minimum_temperature FROM warehouses w WHERE w.id = ?", id)
 
 	err = row.Scan(&w.Id, &w.WareHouseCode, &w.Address, &w.Telephone, &w.MinimunCapacity, &w.MinimunTemperature)
@@ -50,7 +51,6 @@ func (r *WarehouseMysql) GetByIdWareHouse(id int) (w model.WareHouse, err error)
 		if err == sql.ErrNoRows {
 			err = customError.NewWareHouseError(customError.ErrNotFound.Error(), "warehouse", http.StatusNotFound)
 		}
-		return
 	}
 
 	return
@@ -68,10 +68,7 @@ func (r *WarehouseMysql) PostWareHouse(warehouse model.WareHouse) (id int64, err
 			switch mysqlErr.Number {
 			case 1062:
 				err = customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
-			default:
-				// ...
 			}
-			return
 		}
 
 		return
@@ -86,7 +83,6 @@ func (r *WarehouseMysql) PostWareHouse(warehouse model.WareHouse) (id int64, err
 }
 
 func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
-
 	_, err = r.db.Exec(
 		"UPDATE warehouses w SET w.warehouse_code = ?, w.address = ?, w.telephone = ?, w.minimum_capacity = ?, w.minimum_temperature = ? WHERE w.id = ?",
 		warehouse.WareHouseCode, warehouse.Address, warehouse.Telephone, warehouse.MinimunCapacity, warehouse.MinimunTemperature, warehouse.Id,
@@ -97,10 +93,7 @@ func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse model.WareHouse) (err
 			switch mysqlErr.Number {
 			case 1062:
 				err = customError.NewWareHouseError(customError.ErrConflict.Error(), "warehouse_code", http.StatusConflict)
-			default:
-				// ...
 			}
-			return
 		}
 
 		return
@@ -109,8 +102,7 @@ func (r *WarehouseMysql) UpdateWareHouse(id int, warehouse model.WareHouse) (err
 	return
 }
 
-func (r *WarehouseMysql) DeleteByIdWareHouse(id int) (err error) {
-
+func (r *WarehouseMysql) DeleteByIDWareHouse(id int) (err error) {
 	_, err = r.db.Exec("DELETE FROM `warehouses` WHERE `id` = ?", id)
 
 	if err != nil {

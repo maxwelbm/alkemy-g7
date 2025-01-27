@@ -17,7 +17,7 @@ var employeeSv = CreateEmployeeService(employeeRepo, warehouseRepo)
 
 func TestInsertEmployee(t *testing.T) {
 	t.Run("should create the employee case everything is ok", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, nil).Once()
+		warehouseRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, nil).Once()
 		employeeRepo.On("Post", mock.Anything).Return(model.Employee{ID: 10, CardNumberID: "#123", FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, nil).Once()
 
 		validEntry := model.Employee{
@@ -48,7 +48,7 @@ func TestInsertEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error in case of warehouseNotFound", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", 2).Return(model.WareHouse{}, customError.ErrNotFound).Once()
+		warehouseRepo.On("GetByIDWareHouse", 2).Return(model.WareHouse{}, customError.ErrNotFound).Once()
 
 		validEntry := model.Employee{
 			CardNumberID: "#123",
@@ -65,7 +65,7 @@ func TestInsertEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error in case of database error", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", 1).Return(model.WareHouse{}, nil)
+		warehouseRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, nil)
 		employeeRepo.On("Post", mock.Anything).Return(model.Employee{}, &mysql.MySQLError{Number: 1062})
 
 		validEntry := model.Employee{
@@ -129,7 +129,7 @@ func TestUpdateEmployee(t *testing.T) {
 		employeeRepo.On("GetByID", mock.Anything).Return(existingEmployeeMock, nil).Once()
 		employeeRepo.On("Update", mock.Anything, mock.Anything).Return(model.Employee{ID: existingEmployeeMock.ID, CardNumberID: validEntry.CardNumberID, FirstName: validEntry.FirstName, LastName: validEntry.LastName, WarehouseID: validEntry.WarehouseID}, nil)
 
-		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
+		warehouseRepo.On("GetByIDWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
 
@@ -151,7 +151,7 @@ func TestUpdateEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error in case of new warehouseid does not exist", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, errors.New("")).Once()
+		warehouseRepo.On("GetByIDWareHouse", mock.Anything).Return(model.WareHouse{}, errors.New("")).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
 
@@ -160,7 +160,7 @@ func TestUpdateEmployee(t *testing.T) {
 	})
 
 	t.Run("should return an error in case of employeeid does not exist", func(t *testing.T) {
-		warehouseRepo.On("GetByIdWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
+		warehouseRepo.On("GetByIDWareHouse", mock.Anything).Return(model.WareHouse{}, nil).Once()
 		employeeRepo.On("GetByID", mock.Anything).Return(model.Employee{}, customError.EmployeeErrNotFound).Once()
 
 		employee, err := employeeSv.UpdateEmployee(1, validEntry)
@@ -290,7 +290,7 @@ func (m *warehouseRepositoryMock) GetAllWareHouse() (w []model.WareHouse, err er
 	return nil, nil
 }
 
-func (m *warehouseRepositoryMock) GetByIdWareHouse(id int) (w model.WareHouse, err error) {
+func (m *warehouseRepositoryMock) GetByIDWareHouse(id int) (w model.WareHouse, err error) {
 	args := m.Called(id)
 	return args.Get(0).(model.WareHouse), args.Error(1)
 }
@@ -301,6 +301,6 @@ func (m *warehouseRepositoryMock) PostWareHouse(warehouse model.WareHouse) (id i
 func (m *warehouseRepositoryMock) UpdateWareHouse(id int, warehouse model.WareHouse) (err error) {
 	return nil
 }
-func (w *warehouseRepositoryMock) DeleteByIdWareHouse(id int) error {
+func (w *warehouseRepositoryMock) DeleteByIDWareHouse(id int) error {
 	return nil
 }
