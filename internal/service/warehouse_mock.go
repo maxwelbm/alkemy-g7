@@ -9,6 +9,7 @@ type WarehouseServiceMock struct {
 	mock.Mock
 }
 
+
 func (mr *WarehouseServiceMock) DeleteByIDWareHouse(id int) error {
 	args := mr.Called(id)
 
@@ -26,6 +27,7 @@ func (mr *WarehouseServiceMock) GetByIDWareHouse(id int) (w model.WareHouse, err
 
 func (mr *WarehouseServiceMock) PostWareHouse(warehouse model.WareHouse) (w model.WareHouse, err error) {
 	args := mr.Called(warehouse)
+
 
 	w = args.Get(0).(model.WareHouse)
 	err = args.Error(1)

@@ -115,7 +115,9 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 			Address:            "test",
 		}
 
+
 		mockServiceWarehouse.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
+
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/"+strconv.Itoa(1), nil)
 
@@ -167,7 +169,9 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/th", nil)
 
 		response := httptest.NewRecorder()
+
 		handler := hd.GetWareHouseByID()
+    
 		handler.ServeHTTP(response, request)
 
 		expectedJson := `{"message":"invalid id"}`
@@ -247,7 +251,9 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/th", nil)
 
 		response := httptest.NewRecorder()
+
 		handler := hd.DeleteByIDWareHouse()
+
 		handler.ServeHTTP(response, request)
 
 		expectedJson := `{"message":"invalid id"}`
