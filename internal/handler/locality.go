@@ -85,7 +85,7 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 // @Description This endpoint fetches the details of a specific locality abount sellers count based on the provided locality ID.
 // @Tags Locality
 // @Produce json
-// @Param id path int true "Locality ID" 
+// @Param id path int false "Locality ID"
 // @Success 200 {object} model.LocalitySellersResponseSwagger{data=model.LocalitiesJSONSellers}
 // @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
 // @Failure 404 {object} model.ErrorResponseSwagger "locality not found"
@@ -129,7 +129,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 // @Description This endpoint fetches the details of a specific locality abount carriers count based on the provided locality ID.
 // @Tags Locality
 // @Produce json
-// @Param id path int true "Locality ID" 
+// @Param id path int false "Locality ID"
 // @Success 200 {object} model.LocalityCarriersResponseSwagger{data=model.LocalitiesJSONCarriers}
 // @Failure 400 {object} model.ErrorResponseSwagger "missing 'id' parameter in the request"
 // @Failure 404 {object} model.ErrorResponseSwagger "locality not found"
