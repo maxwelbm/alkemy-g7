@@ -47,3 +47,15 @@ func (s *Locality) ValidateEmptyFields(l *Locality) error {
 
 	return nil
 }
+
+type LocalityResponseSwagger struct {
+	Data []Locality `json:"data"`
+}
+
+type LocalitySellersResponseSwagger struct {
+	Data []LocalitiesJSONSellers `json:"data"`
+}
+
+type LocalityCarriersResponseSwagger struct {
+	Data []LocalitiesJSONCarriers `json:"data"`
+}
