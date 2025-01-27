@@ -26,7 +26,7 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 		return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorInvalid, err.Error())
 	}
 
-	if _, err := prs.ProductSv.GetProductById(pr.ProductId); err != nil {
+	if _, err := prs.ProductSv.GetProductById(pr.ProductID); err != nil {
 		return model.ProductRecords{}, err
 	}
 
@@ -65,7 +65,7 @@ func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.Pro
 	}
 
 	for _, report := range allReports {
-		if report.ProductId == idProduct {
+		if report.ProductID == idProduct {
 			filteredReports = append(filteredReports, report)
 		}
 	}

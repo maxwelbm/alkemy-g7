@@ -23,7 +23,7 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 	`
 
 	result, err := pr.DB.Exec(query, productRec.LastUpdateDate,
-		productRec.PurchasePrice, productRec.SalePrice, productRec.ProductId)
+		productRec.PurchasePrice, productRec.SalePrice, productRec.ProductID)
 	if err != nil {
 		return model.ProductRecords{}, err
 	}
@@ -51,7 +51,7 @@ func (pr *ProductRecRepository) GetById(id int) (model.ProductRecords, error) {
 	`
 	row := pr.DB.QueryRow(query, id)
 	err := row.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
-		&productRecord.ProductId, &productRecord.PurchasePrice, &productRecord.SalePrice)
+		&productRecord.ProductID, &productRecord.PurchasePrice, &productRecord.SalePrice)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.ProductRecords{}, appErr.HandleError("product record", appErr.ErrorNotFound, "")
@@ -83,7 +83,7 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 	for rows.Next() {
 		var productRecord model.ProductRecords
 		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
-			&productRecord.ProductId, &productRecord.PurchasePrice,
+			&productRecord.ProductID, &productRecord.PurchasePrice,
 			&productRecord.SalePrice)
 		if err != nil {
 			return nil, err
@@ -119,7 +119,7 @@ func (pr *ProductRecRepository) GetByIdProduct(idProduct int) ([]model.ProductRe
 	for rows.Next() {
 		var productRecord model.ProductRecords
 		err := rows.Scan(&productRecord.ID, &productRecord.LastUpdateDate,
-			&productRecord.ProductId, &productRecord.PurchasePrice,
+			&productRecord.ProductID, &productRecord.PurchasePrice,
 			&productRecord.SalePrice)
 		if err != nil {
 			return nil, err
@@ -153,7 +153,7 @@ func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, er
 
 	for rows.Next() {
 		var productRecord model.ProductRecordsReport
-		err := rows.Scan(&productRecord.ProductId, &productRecord.Description, &productRecord.RecordsCount)
+		err := rows.Scan(&productRecord.ProductID, &productRecord.Description, &productRecord.RecordsCount)
 		if err != nil {
 			return nil, err
 		}

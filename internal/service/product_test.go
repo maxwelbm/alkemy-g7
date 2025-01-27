@@ -308,7 +308,7 @@ func TestCreateProduct(t *testing.T) {
 			},
 			expectedReturnProductMockSucess: dataProduct,
 			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         errors.New("erros de validação: ProductCode is required"),
+			expectedReturnMockError:         errors.New("validation errors: ProductCode is required"),
 		},
 		{
 			name:                            "Should return seller not found",
