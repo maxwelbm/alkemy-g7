@@ -43,19 +43,19 @@ func (wp *WareHouseDefault) PostWareHouse(warehouse model.WareHouse) (w model.Wa
 	id, err := wp.Rp.PostWareHouse(warehouse)
 
 	if err != nil {
-		return
+		return w, err
 	}
 
 	w, err = wp.GetByIDWareHouse(int(id))
 
-	return
+	return w, err
 }
 
 func (wp *WareHouseDefault) UpdateWareHouse(id int, warehouse model.WareHouse) (w model.WareHouse, err error) {
 	warehouseExisting, err := wp.GetByIDWareHouse(id)
 
 	if err != nil {
-		return
+		return w, err
 	}
 
 	if warehouse.WareHouseCode != "" {
@@ -81,10 +81,10 @@ func (wp *WareHouseDefault) UpdateWareHouse(id int, warehouse model.WareHouse) (
 	err = wp.Rp.UpdateWareHouse(id, warehouseExisting)
 
 	if err != nil {
-		return
+		return w, err
 	}
 
 	w, err = wp.GetByIDWareHouse(id)
 
-	return
+	return w, err
 }
