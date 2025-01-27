@@ -106,7 +106,7 @@ func (h *WarehouseHandler) DeleteByIDWareHouse() http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param warehouse body model.WareHouse true "Warehouse details"
-// @Success 201 {object} model.WareHousesResponseSwagger{data=model.Warehouse}
+// @Success 201 {object} model.WareHousesResponseSwagger{data=model.WareHouse}
 // @Failure 400 {object} model.ErrorResponseSwagger "Invalid request body"
 // @Failure 422 {object} model.ErrorResponseSwagger "JSON syntax error Or Mandatory fields not filled in"
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to post warehouse"
@@ -152,7 +152,7 @@ func (h *WarehouseHandler) PostWareHouse() http.HandlerFunc {
 // @Produce json
 // @Param id path int true "Warehouse ID"
 // @Param warehouse body model.WareHouse true "Updated warehouse details"
-// @Success 200 {object} model.WareHousesResponseSwagger{data=model.Warehouse}
+// @Success 200 {object} model.WareHousesResponseSwagger{data=model.WareHouse}
 // @Failure 400 {object} model.ErrorResponseSwagger "Invalid ID or Invalid request body"
 // @Failure 422 {object} model.ErrorResponseSwagger "JSON syntax error Or Mandatory fields not filled in"
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to update warehouse"
