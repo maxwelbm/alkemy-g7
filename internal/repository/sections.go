@@ -103,6 +103,10 @@ func (r *SectionRepository) Delete(id int) (err error) {
 	queryDelete := "DELETE FROM `sections` WHERE `id` = ?"
 	_, err = r.db.Exec(queryDelete, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = custom_error.HandleError("section", custom_error.ErrorNotFound, "")
+			return
+		}
 		return
 	}
 	return

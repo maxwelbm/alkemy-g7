@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
@@ -169,7 +168,7 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
+	idStr := r.URL.Path[len("/api/v1/sections/"):]
 	idInt, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id param", nil))
@@ -178,6 +177,10 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Sv.Delete(idInt)
 	if err != nil {
+		if err, ok := err.(*custom_error.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
 		response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
