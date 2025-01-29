@@ -67,7 +67,7 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unables to search for buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to search for buyer", nil))
 
 		return
 	}
