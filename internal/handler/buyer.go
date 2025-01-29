@@ -23,7 +23,7 @@ func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 // HandlerGetAllBuyers retrieves all buyers.
 // @Summary Retrieve all buyers
 // @Description Fetch all registered buyers from the database
-// @Tags Buyer
+// @Tags Buyes
 // @Produce json
 // @Success 200 {object} model.BuyerResponseSwagger
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to list Buyers"
