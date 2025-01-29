@@ -23,7 +23,7 @@ func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
 // HandlerGetAllBuyers retrieves all buyers.
 // @Summary Retrieve all buyers
 // @Description Fetch all registered buyers from the database
-// @Tags Buyes
+// @Tags Buyer
 // @Produce json
 // @Success 200 {object} model.BuyerResponseSwagger
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to list Buyers"
@@ -67,7 +67,7 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to search for buyer", nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unables to search for buyer", nil))
 
 		return
 	}
