@@ -3,30 +3,30 @@ package handler_test
 import (
 	"bytes"
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() *handler.BuyerHandler {
-	mockBuyerService := new(service.MockBuyerService)
+func setup(t *testing.T) *handler.BuyerHandler {
+	mockBuyerService := mocks.NewMockIBuyerservice(t)
 	hd := handler.NewBuyerHandler(mockBuyerService)
 	return hd
 }
 
 func TestHandlerGetBuyerById(t *testing.T) {
 	t.Run("return buyer by id existing successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		expectedBuyer := model.Buyer{ID: 2, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("GetBuyerByID", 2).Return(expectedBuyer, nil)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/2", nil)
@@ -51,9 +51,9 @@ func TestHandlerGetBuyerById(t *testing.T) {
 	})
 
 	t.Run("Return buyer not Found", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("GetBuyerByID", 99).Return(model.Buyer{}, customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/99", nil)
@@ -70,7 +70,7 @@ func TestHandlerGetBuyerById(t *testing.T) {
 	})
 
 	t.Run("Error return due to invalid ID", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/aaa", nil)
 		response := httptest.NewRecorder()
@@ -85,9 +85,9 @@ func TestHandlerGetBuyerById(t *testing.T) {
 	})
 
 	t.Run("return an error when fetching buyer", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("GetBuyerByID", 2).Return(model.Buyer{}, errors.New("Unmapped error"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/2", nil)
@@ -106,11 +106,11 @@ func TestHandlerGetBuyerById(t *testing.T) {
 
 func TestHandlerCreateBuyer(t *testing.T) {
 	t.Run("Buyer created successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		createdBuyer := model.Buyer{ID: 1, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}).
 			Return(createdBuyer, nil)
 
@@ -142,7 +142,7 @@ func TestHandlerCreateBuyer(t *testing.T) {
 	})
 
 	t.Run("Buyer does not have the required fields", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 		body := []byte(`{           
            
 		"card_number_id": "",
@@ -164,9 +164,9 @@ func TestHandlerCreateBuyer(t *testing.T) {
 	})
 
 	t.Run("Return error card_number already exists", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}).
 			Return(model.Buyer{}, customerror.NewBuyerError(http.StatusConflict, customerror.ErrConflict.Error(), "card_number_id"))
 
@@ -193,7 +193,7 @@ func TestHandlerCreateBuyer(t *testing.T) {
 	})
 
 	t.Run("Return error Json Syntax", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 		body := []byte(`{           
 		"last_name": "",
 		FieldInexistingInBuyer
@@ -213,9 +213,9 @@ func TestHandlerCreateBuyer(t *testing.T) {
 	})
 
 	t.Run("return an error when created buyer", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CreateBuyer", model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}).Return(model.Buyer{}, errors.New("Unmapped error"))
 
 		body := []byte(`{           
@@ -241,10 +241,10 @@ func TestHandlerCreateBuyer(t *testing.T) {
 
 func TestHandlerUpdateBuyer(t *testing.T) {
 	t.Run("Buyer Updated successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		UpdatedBuyer := model.Buyer{ID: 1, FirstName: "Abilio", LastName: "Milan", CardNumberID: "4321"}
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("UpdateBuyer", 1, model.Buyer{FirstName: "Abilio"}).Return(UpdatedBuyer, nil)
 
 		body := []byte(`{           
@@ -275,9 +275,9 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("Buyer not Found", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("UpdateBuyer", 99, model.Buyer{FirstName: "Jonas"}).
 			Return(model.Buyer{}, customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer"))
 
@@ -301,9 +301,9 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("Return error card_number already exists", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("UpdateBuyer", 1, model.Buyer{CardNumberID: "1234"}).
 			Return(model.Buyer{}, customerror.NewBuyerError(http.StatusConflict, customerror.ErrConflict.Error(), "card_number_id"))
 
@@ -328,7 +328,7 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("Buyer does not have the required fields", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		body := []byte(`{           
            
@@ -351,7 +351,7 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("Return error Json Syntax", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 		body := []byte(`{           
 		"last_name": "",
 		FieldInexistingInBuyer
@@ -371,9 +371,9 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("return an error when updated buyer", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("UpdateBuyer", 1, model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}).Return(model.Buyer{}, errors.New("Unmapped error"))
 
 		body := []byte(`{           
@@ -396,7 +396,7 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 	})
 
 	t.Run("Error return due to invalid ID", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		request := httptest.NewRequest(http.MethodPatch, "/api/v1/buyers/aaa", nil)
 		response := httptest.NewRecorder()
@@ -414,9 +414,9 @@ func TestHandlerUpdateBuyer(t *testing.T) {
 
 func TestHandlerDeleteBuyerById(t *testing.T) {
 	t.Run("Deleted Buyer successfly", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("DeleteBuyerByID", 1).Return(nil)
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
@@ -430,9 +430,9 @@ func TestHandlerDeleteBuyerById(t *testing.T) {
 	})
 
 	t.Run("Buyer not Found", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("DeleteBuyerByID", 99).Return(customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer"))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/99", nil)
@@ -449,9 +449,9 @@ func TestHandlerDeleteBuyerById(t *testing.T) {
 	})
 
 	t.Run("There are dependencies with the buyer", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("DeleteBuyerByID", 1).Return(customerror.NewBuyerError(http.StatusConflict, customerror.ErrDependencies.Error(), "Buyer"))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
@@ -468,7 +468,7 @@ func TestHandlerDeleteBuyerById(t *testing.T) {
 	})
 
 	t.Run("Invalid ID parameter", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/aaaa", nil)
 		response := httptest.NewRecorder()
@@ -483,9 +483,9 @@ func TestHandlerDeleteBuyerById(t *testing.T) {
 	})
 
 	t.Run("return an error when deleted buyer", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("DeleteBuyerByID", 1).Return(errors.New("Unmapped error"))
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/buyers/1", nil)
@@ -507,14 +507,14 @@ func TestHandlerGetBuyers(t *testing.T) {
 
 	t.Run("return a list of all existing buyers successfully", func(t *testing.T) {
 
-		hd := setup()
+		hd := setup(t)
 
 		expectedBuyers := []model.Buyer{{ID: 1, FirstName: "John", LastName: "Doe", CardNumberID: "1234"},
 			{ID: 2, FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}}
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
 		response := httptest.NewRecorder()
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("GetAllBuyer").Return(expectedBuyers, nil)
 
 		hd.HandlerGetAllBuyers(response, request)
@@ -543,9 +543,9 @@ func TestHandlerGetBuyers(t *testing.T) {
 	})
 
 	t.Run("return an error when fetching buyers", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("GetAllBuyer").Return([]model.Buyer{}, errors.New("Unmapped error"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers", nil)
@@ -564,7 +564,7 @@ func TestHandlerGetBuyers(t *testing.T) {
 
 func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	t.Run("return a count of buyers successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		countBuyers := []model.BuyerPurchaseOrder{model.BuyerPurchaseOrder{
 			ID:                  1,
@@ -574,7 +574,7 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 			PurchaseOrdersCount: 12,
 		}}
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CountPurchaseOrderBuyer").Return(countBuyers, nil)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders", nil)
@@ -600,7 +600,7 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	})
 
 	t.Run("return a count of buyer successfully", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		countBuyer := model.BuyerPurchaseOrder{
 			ID:                  1,
@@ -610,7 +610,7 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 			PurchaseOrdersCount: 12,
 		}
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CountPurchaseOrderByBuyerID", countBuyer.ID).Return(countBuyer, nil)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=1", nil)
@@ -635,7 +635,7 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	})
 
 	t.Run("Error invalid ID", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=aaa", nil)
 		response := httptest.NewRecorder()
@@ -651,9 +651,9 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	})
 
 	t.Run("Buyer Not Found", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CountPurchaseOrderByBuyerID", 99).Return(model.BuyerPurchaseOrder{}, customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=99", nil)
@@ -671,9 +671,9 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	})
 
 	t.Run("Unmapped Error in CountPurchaseOrders", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CountPurchaseOrderBuyer").Return([]model.BuyerPurchaseOrder{}, errors.New("Unmapped error"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders", nil)
@@ -691,9 +691,9 @@ func TestHandlerCountPurchaseOrderBuyer(t *testing.T) {
 	})
 
 	t.Run("Unmapped Error in CountPurchaseOrderByID", func(t *testing.T) {
-		hd := setup()
+		hd := setup(t)
 
-		mockSvc := hd.Svc.(*service.MockBuyerService)
+		mockSvc := hd.Svc.(*mocks.MockIBuyerservice)
 		mockSvc.On("CountPurchaseOrderByBuyerID", 1).Return(model.BuyerPurchaseOrder{}, errors.New("Unmapped error"))
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/buyers/reportPurchaseOrders?id=1", nil)
