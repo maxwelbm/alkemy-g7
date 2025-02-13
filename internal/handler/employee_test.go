@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -379,5 +380,133 @@ func TestDeleteEmployee(t *testing.T) {
 		expected := `{"message":"something went wrong"}`
 		assert.Equal(t, res.Code, http.StatusInternalServerError)
 		assert.Equal(t, res.Body.String(), expected)
+	})
+}
+
+func TestGetInboundOrdersReports(t *testing.T) {
+	createRequest := func(query string) *http.Request {
+		req := httptest.NewRequest("GET", "/api/v1/reportInboundOrders?id="+query, nil)
+		return req
+	}
+
+	srv := mocks.NewMockIEmployeeService(t)
+	employeeHd := EmployeeHandler{
+		sv: srv,
+	}
+
+	t.Run("should return 200 OK and reports when no ID is provided", func(t *testing.T) {
+		srv.On("GetInboundOrdersReports").Return([]model.InboundOrdersReportByEmployee{
+			{ID: 1, CardNumberID: "#123", FirstName: "Jon", LastName: "Jones", WarehouseID: 1, InboundOrdersCount: 20},
+			{ID: 2, CardNumberID: "#456", FirstName: "Islam", LastName: "Makachev", WarehouseID: 6, InboundOrdersCount: 26},
+		}, nil).Once()
+
+		req := createRequest("")
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := `{
+    "data": [
+        {
+            "id": 1,
+            "card_number_id": "#123",
+            "first_name": "Jon",
+            "last_name": "Jones",
+            "warehouse_id": 1,
+            "inbound_orders_count": 20
+        },
+        {
+            "id": 2,
+            "card_number_id": "#456",
+            "first_name": "Islam",
+            "last_name": "Makachev",
+            "warehouse_id": 6,
+            "inbound_orders_count": 26
+        }
+		]
+	}`
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 400 bad request for invalid ID", func(t *testing.T) {
+		req := createRequest("abc")
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := `{"message":"invalid employee id"}`
+
+		assert.Equal(t, http.StatusBadRequest, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return error in case of expected error without ID", func(t *testing.T) {
+		srv.On("GetInboundOrdersReports").Return(nil, customerror.EmployeeErrNotFoundInboundOrders).Once()
+
+		req := createRequest("")
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := ` {"message":"inboud orders not found"}`
+		t.Log(res.Body.String())
+		assert.Equal(t, http.StatusNotFound, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 500 internal server error when service fails without ID", func(t *testing.T) {
+		srv.On("GetInboundOrdersReports", mock.Anything).Return(nil, errors.New("something went wrong")).Once()
+
+		req := createRequest("")
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, http.StatusInternalServerError, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 200 OK and reports for valid employee ID", func(t *testing.T) {
+		id := 1
+		srv.On("GetInboundOrdersReportByEmployee", id).Return(model.InboundOrdersReportByEmployee{ID: 1, CardNumberID: "#123", FirstName: "Jon", LastName: "Jones", WarehouseID: 1, InboundOrdersCount: 20}, nil).Once()
+
+		req := createRequest(strconv.Itoa(id))
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := `{"data":{"id":1,"card_number_id":"#123","first_name":"Jon","last_name":"Jones","warehouse_id":1,"inbound_orders_count":20}}`
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return 500 internal server error when getting report by employee fails", func(t *testing.T) {
+		id := 1
+		srv.On("GetInboundOrdersReportByEmployee", id).Return(model.InboundOrdersReportByEmployee{}, errors.New("something went wrong")).Once()
+
+		req := createRequest(strconv.Itoa(id))
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := `{"message":"something went wrong"}`
+		assert.Equal(t, http.StatusInternalServerError, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
+	})
+
+	t.Run("should return error in case of expected error with ID", func(t *testing.T) {
+		srv.On("GetInboundOrdersReportByEmployee", mock.Anything).Return(model.InboundOrdersReportByEmployee{}, customerror.EmployeeErrNotFoundInboundOrders).Once()
+
+		req := createRequest("12")
+		res := httptest.NewRecorder()
+
+		employeeHd.GetInboundOrdersReports(res, req)
+
+		expected := ` {"message":"inboud orders not found"}`
+		t.Log(res.Body.String())
+		assert.Equal(t, http.StatusNotFound, res.Code)
+		assert.JSONEq(t, expected, res.Body.String())
 	})
 }
