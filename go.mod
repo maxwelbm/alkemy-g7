@@ -5,6 +5,7 @@ go 1.23.3
 require github.com/go-chi/chi/v5 v5.2.0
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/bootcamp-go/web v1.0.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/stretchr/testify v1.10.0

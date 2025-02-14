@@ -1,26 +1,26 @@
 package service_test
 
 import (
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupPurchaseOrderService() *service.PurchaseOrderService {
-	mockRepo := new(repository.PurchaseOrderRepositoryMock)
-	purchaseService := service.NewPurchaseOrderService(mockRepo, service.NewMockBuyerService(), service.NewProductrecMock())
+func setupPurchaseOrderService(t *testing.T) *service.PurchaseOrderService {
+	mockRepo := mocks.NewMockIPurchaseOrdersRepo(t)
+	purchaseService := service.NewPurchaseOrderService(mockRepo, mocks.NewMockIBuyerservice(t), mocks.NewMockIProductRecService(t))
 	return purchaseService
 }
 
 func TestCreatePurchaseOrder(t *testing.T) {
 	t.Run("Created Purchase Order successfully", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
 
@@ -35,7 +35,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			ProductRecordID: 1,
 		}
 
-		mockBuyerService := Svc.SvcBuyer.(*service.MockBuyerService)
+		mockBuyerService := Svc.SvcBuyer.(*mocks.MockIBuyerservice)
 		mockBuyerService.On("GetBuyerByID", createdOrder.BuyerID).Return(model.Buyer{
 			ID:           1,
 			CardNumberID: "CN001",
@@ -43,7 +43,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			LastName:     "Doe",
 		}, nil)
 
-		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
+		mockProductRec := Svc.SvcProductRec.(*mocks.MockIProductRecService)
 		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{
 			ID:             1,
 			LastUpdateDate: parsedTime,
@@ -52,7 +52,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			ProductID:      1,
 		}, nil)
 
-		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
+		mockRepo := Svc.Rp.(*mocks.MockIPurchaseOrdersRepo)
 		mockRepo.On("Post", createdOrder).Return(int64(1), nil)
 		mockRepo.On("GetByID", createdOrder.ID).Return(createdOrder, nil)
 
@@ -65,7 +65,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Buyer not exists", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -82,7 +82,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 		}
 		expectedError := customerror.NewBuyerError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Buyer")
 
-		mockBuyerService := Svc.SvcBuyer.(*service.MockBuyerService)
+		mockBuyerService := Svc.SvcBuyer.(*mocks.MockIBuyerservice)
 		mockBuyerService.On("GetBuyerByID", createdOrder.BuyerID).Return(model.Buyer{}, expectedError)
 
 		purchaser, err := Svc.CreatePurchaseOrder(createdOrder)
@@ -93,7 +93,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Product Record not exists", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -109,7 +109,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			ProductRecordID: 99,
 		}
 
-		mockBuyerService := Svc.SvcBuyer.(*service.MockBuyerService)
+		mockBuyerService := Svc.SvcBuyer.(*mocks.MockIBuyerservice)
 		mockBuyerService.On("GetBuyerByID", createdOrder.BuyerID).Return(model.Buyer{
 			ID:           1,
 			CardNumberID: "CN001",
@@ -119,7 +119,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 
 		expectedError := customerror.HandleError("product record", customerror.ErrorNotFound, "")
 
-		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
+		mockProductRec := Svc.SvcProductRec.(*mocks.MockIProductRecService)
 		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{}, expectedError)
 
 		purchaser, err := Svc.CreatePurchaseOrder(createdOrder)
@@ -131,7 +131,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Order number already exists", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
 
@@ -146,7 +146,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			ProductRecordID: 1,
 		}
 
-		mockBuyerService := Svc.SvcBuyer.(*service.MockBuyerService)
+		mockBuyerService := Svc.SvcBuyer.(*mocks.MockIBuyerservice)
 		mockBuyerService.On("GetBuyerByID", createdOrder.BuyerID).Return(model.Buyer{
 			ID:           1,
 			CardNumberID: "CN001",
@@ -154,7 +154,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 			LastName:     "Doe",
 		}, nil)
 
-		mockProductRec := Svc.SvcProductRec.(*service.ProductrecMock)
+		mockProductRec := Svc.SvcProductRec.(*mocks.MockIProductRecService)
 		mockProductRec.On("GetProductRecordByID", createdOrder.ProductRecordID).Return(model.ProductRecords{
 			ID:             1,
 			LastUpdateDate: parsedTime,
@@ -165,7 +165,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 
 		expectedError := customerror.NewPurcahseOrderError(http.StatusConflict, customerror.ErrConflict.Error(), "order_number")
 
-		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
+		mockRepo := Svc.Rp.(*mocks.MockIPurchaseOrdersRepo)
 		mockRepo.On("Post", createdOrder).Return(int64(0), expectedError)
 
 		purchaser, err := Svc.CreatePurchaseOrder(createdOrder)
@@ -179,7 +179,7 @@ func TestCreatePurchaseOrder(t *testing.T) {
 
 func TestGetPurchaseOrderByID(t *testing.T) {
 	t.Run("Get existing purchase order successfully", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -195,7 +195,7 @@ func TestGetPurchaseOrderByID(t *testing.T) {
 			ProductRecordID: 1,
 		}
 
-		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
+		mockRepo := Svc.Rp.(*mocks.MockIPurchaseOrdersRepo)
 		mockRepo.On("GetByID", PurchaseSearch.ID).Return(PurchaseSearch, nil)
 
 		purchaser, err := Svc.GetPurchaseOrderByID(PurchaseSearch.ID)
@@ -206,11 +206,11 @@ func TestGetPurchaseOrderByID(t *testing.T) {
 	})
 
 	t.Run("Purchase order not found", func(t *testing.T) {
-		Svc := setupPurchaseOrderService()
+		Svc := setupPurchaseOrderService(t)
 
 		exepctedError := customerror.NewPurcahseOrderError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Purchase Order")
 
-		mockRepo := Svc.Rp.(*repository.PurchaseOrderRepositoryMock)
+		mockRepo := Svc.Rp.(*mocks.MockIPurchaseOrdersRepo)
 		mockRepo.On("GetByID", 99).Return(model.PurchaseOrder{}, exepctedError)
 
 		purchaser, err := Svc.GetPurchaseOrderByID(99)

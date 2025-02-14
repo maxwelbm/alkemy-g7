@@ -1,0 +1,4 @@
+cmd/
+docs/
+internal/mocks
+pkg/database
