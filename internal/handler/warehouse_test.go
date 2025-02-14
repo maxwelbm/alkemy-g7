@@ -492,9 +492,6 @@ func TestHandlerUpdateWarehouse(t *testing.T) {
 
 	t.Run("UpdateWarehouse invalid id", func(t *testing.T) {
 		hd := setupWarehouse(t)
-		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
-
-		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{}).Return(model.WareHouse{}, errors.New("invalid id"))
 
 		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/th", nil)
 		response := httptest.NewRecorder()
