@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,20 +11,19 @@ import (
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupPurchaseOrder() *handler.PurchaseOrderHandler {
-	mockService := new(service.PurchaseOrderServiceMock)
+func setupPurchaseOrder(t *testing.T) *handler.PurchaseOrderHandler {
+	mockService := mocks.NewMockIPurchaseOrdersService(t)
 
 	return handler.NewPurchaseOrderHandler(mockService)
 }
 
 func TestHandlerCreatePurchaseOrder(t *testing.T) {
 	t.Run("Created Purchase Order successfully", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -38,7 +38,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 			BuyerID:         1,
 			ProductRecordID: 1,
 		}
-		mockService := hd.Svc.(*service.PurchaseOrderServiceMock)
+		mockService := hd.Svc.(*mocks.MockIPurchaseOrdersService)
 		mockService.On("CreatePurchaseOrder", model.PurchaseOrder{
 			ID:              0,
 			OrderNumber:     "ON001",
@@ -76,7 +76,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Error Buyer Not found", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -84,7 +84,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		parsedTime, err := time.Parse(layout, dateString)
 		assert.NoError(t, err)
 
-		mockService := hd.Svc.(*service.PurchaseOrderServiceMock)
+		mockService := hd.Svc.(*mocks.MockIPurchaseOrdersService)
 		mockService.On("CreatePurchaseOrder", model.PurchaseOrder{
 			ID:              0,
 			OrderNumber:     "ON001",
@@ -113,7 +113,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 	t.Run("Error Product Record Not found", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -121,7 +121,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		parsedTime, err := time.Parse(layout, dateString)
 		assert.NoError(t, err)
 
-		mockService := hd.Svc.(*service.PurchaseOrderServiceMock)
+		mockService := hd.Svc.(*mocks.MockIPurchaseOrdersService)
 		mockService.On("CreatePurchaseOrder", model.PurchaseOrder{
 			ID:              0,
 			OrderNumber:     "ON001",
@@ -150,7 +150,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 	t.Run("Order Number Already exists", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -158,7 +158,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		parsedTime, err := time.Parse(layout, dateString)
 		assert.NoError(t, err)
 
-		mockService := hd.Svc.(*service.PurchaseOrderServiceMock)
+		mockService := hd.Svc.(*mocks.MockIPurchaseOrdersService)
 		mockService.On("CreatePurchaseOrder", model.PurchaseOrder{
 			ID:              0,
 			OrderNumber:     "ON001",
@@ -188,7 +188,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Error JSON syntax", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		body := []byte(`{
     "order_number": ,
@@ -210,7 +210,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Error fields required", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		body := []byte(`{
     "order_number":"" ,
@@ -232,7 +232,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 	})
 
 	t.Run("Unmapped Error", func(t *testing.T) {
-		hd := setupPurchaseOrder()
+		hd := setupPurchaseOrder(t)
 
 		dateString := "2025-01-01T00:00:00Z"
 		layout := time.RFC3339
@@ -240,7 +240,7 @@ func TestHandlerCreatePurchaseOrder(t *testing.T) {
 		parsedTime, err := time.Parse(layout, dateString)
 		assert.NoError(t, err)
 
-		mockService := hd.Svc.(*service.PurchaseOrderServiceMock)
+		mockService := hd.Svc.(*mocks.MockIPurchaseOrdersService)
 		mockService.On("CreatePurchaseOrder", model.PurchaseOrder{
 			ID:              0,
 			OrderNumber:     "ON001",
