@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -11,19 +12,18 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupSeller() *handler.SellersController {
-	mock := new(service.SellerMockService)
+func setupSeller(t *testing.T) *handler.SellersController {
+	mock := mocks.NewMockISellerService(t)
 	hd := handler.CreateHandlerSellers(mock)
 	return hd
 }
 
 var (
-	endpoint string = "/api/v1/sellers/"
+	endpoint = "/api/v1/sellers/"
 )
 
 func TestHandlerGetAllSeller(t *testing.T) {
@@ -69,8 +69,8 @@ func TestHandlerGetAllSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			hd := setupSeller()
-			mock := hd.Service.(*service.SellerMockService)
+			hd := setupSeller(t)
+			mock := hd.Service.(*mocks.MockISellerService)
 			mock.On("GetAll").Return(test.returnService, test.err)
 
 			request := httptest.NewRequest(http.MethodGet, endpoint, nil)
@@ -85,8 +85,8 @@ func TestHandlerGetAllSeller(t *testing.T) {
 }
 
 func TestHandlerGetByIDSeller(t *testing.T) {
-	hd := setupSeller()
-	mock := hd.Service.(*service.SellerMockService)
+	hd := setupSeller(t)
+	mock := hd.Service.(*mocks.MockISellerService)
 
 	r := chi.NewRouter()
 	r.Get("/api/v1/sellers/{id}", hd.GetByID)
@@ -276,8 +276,8 @@ func TestHandlerCreateSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			hd := setupSeller()
-			mock := hd.Service.(*service.SellerMockService)
+			hd := setupSeller(t)
+			mock := hd.Service.(*mocks.MockISellerService)
 			mock.On("CreateSeller", &test.arg).Return(test.returnService, test.err)
 
 			request := httptest.NewRequest(http.MethodPost, endpoint, bytes.NewReader(test.body))
@@ -295,8 +295,8 @@ func TestHandlerCreateSeller(t *testing.T) {
 }
 
 func TestHandlerUpdateSeller(t *testing.T) {
-	hd := setupSeller()
-	mock := hd.Service.(*service.SellerMockService)
+	hd := setupSeller(t)
+	mock := hd.Service.(*mocks.MockISellerService)
 
 	r := chi.NewRouter()
 	r.Patch("/api/v1/sellers/{id}", hd.UpdateSellers)
@@ -461,8 +461,8 @@ func TestHandlerUpdateSeller(t *testing.T) {
 }
 
 func TestHandlerDeleteSeller(t *testing.T) {
-	hd := setupSeller()
-	mock := hd.Service.(*service.SellerMockService)
+	hd := setupSeller(t)
+	mock := hd.Service.(*mocks.MockISellerService)
 
 	r := chi.NewRouter()
 	r.Delete("/api/v1/sellers/{id}", hd.DeleteSellers)

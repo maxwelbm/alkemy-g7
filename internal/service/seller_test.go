@@ -2,24 +2,24 @@ package service_test
 
 import (
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"strings"
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupSeller() *service.SellersService {
-	mockSeller := new(repository.SellerMockRepository)
-	mockLocality := new(repository.LocalityMockRepository)
+func setupSeller(t *testing.T) *service.SellersService {
+	mockSeller := mocks.NewMockISellerRepo(t)
+	mockLocality := mocks.NewMockILocalityRepo(t)
 
 	return service.CreateServiceSellers(mockSeller, mockLocality)
 }
 
-func setupLocality(mockLocality *repository.LocalityMockRepository) *service.LocalitiesService {
+func setupLocality(mockLocality *mocks.MockILocalityRepo) *service.LocalitiesService {
 	return service.CreateServiceLocalities(mockLocality)
 }
 
@@ -49,11 +49,11 @@ func TestServiceGetAllSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			service := setupSeller()
-			mock := service.Rp.(*repository.SellerMockRepository)
+			s := setupSeller(t)
+			mock := s.Rp.(*mocks.MockISellerRepo)
 			mock.On("Get").Return(test.sellers, test.err)
 
-			sellers, err := service.GetAll()
+			sellers, err := s.GetAll()
 
 			assert.Equal(t, test.sellers, sellers)
 			switch test.existErr {
@@ -115,11 +115,11 @@ func TestServiceSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			service := setupSeller()
-			mock := service.Rp.(*repository.SellerMockRepository)
+			s := setupSeller(t)
+			mock := s.Rp.(*mocks.MockISellerRepo)
 			mock.On("GetByID", test.id).Return(test.seller, test.err)
 
-			seller, err := service.GetByID(test.id)
+			seller, err := s.GetByID(test.id)
 
 			assert.Equal(t, test.seller, seller)
 			switch test.existErr {
@@ -211,13 +211,13 @@ func TestServiceCreateSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			service := setupSeller()
-			mockSeller := service.Rp.(*repository.SellerMockRepository)
-			mockLocality := service.Rpl.(*repository.LocalityMockRepository)
+			s := setupSeller(t)
+			mockSeller := s.Rp.(*mocks.MockISellerRepo)
+			mockLocality := s.Rpl.(*mocks.MockILocalityRepo)
 			mockSeller.On("Post", &test.arg).Return(test.seller, test.errSeller)
 			mockLocality.On("GetByID", test.id).Return(test.locality, test.errLocality)
 
-			seller, err := service.CreateSeller(&test.arg)
+			seller, err := s.CreateSeller(&test.arg)
 
 			assert.Equal(t, test.seller, seller)
 
@@ -368,9 +368,9 @@ func TestServiceUpdateSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			serviceSeller := setupSeller()
-			mockSeller := serviceSeller.Rp.(*repository.SellerMockRepository)
-			mockLocality := serviceSeller.Rpl.(*repository.LocalityMockRepository)
+			serviceSeller := setupSeller(t)
+			mockSeller := serviceSeller.Rp.(*mocks.MockISellerRepo)
+			mockLocality := serviceSeller.Rpl.(*mocks.MockILocalityRepo)
 			serviceLocality := setupLocality(mockLocality)
 			mockSeller.On("Patch", test.sellerID, &test.arg).Return(test.seller, test.errSeller)
 			mockSeller.On("GetByID", test.sellerID).Return(test.seller, test.errSeller)
@@ -450,11 +450,11 @@ func TestServiceDeleteSeller(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			service := setupSeller()
-			mock := service.Rp.(*repository.SellerMockRepository)
+			s := setupSeller(t)
+			mock := s.Rp.(*mocks.MockISellerRepo)
 			mock.On("Delete", test.id).Return(test.err)
 
-			err := service.DeleteSeller(test.id)
+			err := s.DeleteSeller(test.id)
 
 			switch test.existErr {
 			case true:
