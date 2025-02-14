@@ -450,7 +450,7 @@ func TestGetInboundOrdersReports(t *testing.T) {
 		employeeHd.GetInboundOrdersReports(res, req)
 
 		expected := ` {"message":"inboud orders not found"}`
-		t.Log(res.Body.String())
+
 		assert.Equal(t, http.StatusNotFound, res.Code)
 		assert.JSONEq(t, expected, res.Body.String())
 	})
@@ -505,7 +505,7 @@ func TestGetInboundOrdersReports(t *testing.T) {
 		employeeHd.GetInboundOrdersReports(res, req)
 
 		expected := ` {"message":"inboud orders not found"}`
-		t.Log(res.Body.String())
+
 		assert.Equal(t, http.StatusNotFound, res.Code)
 		assert.JSONEq(t, expected, res.Body.String())
 	})
