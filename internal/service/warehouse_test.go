@@ -3,14 +3,14 @@ package service_test
 import (
 	"testing"
 
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupWarehouse() *service.WareHouseDefault {
-	mockRepo := new(repository.WareHouseMockRepo)
+func setupWarehouse(t *testing.T) *service.WareHouseDefault {
+	mockRepo := mocks.NewMockIWarehouseRepo(t)
 
 	return service.NewWareHouseService(mockRepo)
 }
@@ -18,7 +18,7 @@ func setupWarehouse() *service.WareHouseDefault {
 func TestGetAllWarehouse(t *testing.T) {
 	t.Run("GetAll", func(t *testing.T) {
 
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
 		expectWarehouse := []model.WareHouse{
 			{
@@ -38,7 +38,8 @@ func TestGetAllWarehouse(t *testing.T) {
 				Address:            "test",
 			},
 		}
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetAllWareHouse").Return(expectWarehouse, nil)
 
 		w, err := svc.GetAllWareHouse()
@@ -49,9 +50,9 @@ func TestGetAllWarehouse(t *testing.T) {
 	})
 
 	t.Run("GetAllError", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetAllWareHouse").Return([]model.WareHouse{}, assert.AnError)
 
 		w, err := svc.GetAllWareHouse()
@@ -64,7 +65,7 @@ func TestGetAllWarehouse(t *testing.T) {
 
 func TestGetByIdWareHouse(t *testing.T) {
 	t.Run("GetById", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
 		expectWarehouse := model.WareHouse{
 			ID:                 1,
@@ -75,7 +76,7 @@ func TestGetByIdWareHouse(t *testing.T) {
 			Address:            "test",
 		}
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetByIDWareHouse", 1).Return(expectWarehouse, nil)
 
 		w, err := svc.GetByIDWareHouse(1)
@@ -86,9 +87,9 @@ func TestGetByIdWareHouse(t *testing.T) {
 	})
 
 	t.Run("GetByIdError", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
 
 		w, err := svc.GetByIDWareHouse(1)
@@ -101,7 +102,7 @@ func TestGetByIdWareHouse(t *testing.T) {
 
 func TestDeleteByIdWareHouse(t *testing.T) {
 	t.Run("DeleteById", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
 		expectedWarehouse := model.WareHouse{
 			ID:                 1,
@@ -112,7 +113,7 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 			Address:            "test",
 		}
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
 		mockRepo.On("DeleteByIDWareHouse", 1).Return(nil)
 
@@ -123,7 +124,7 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 	})
 
 	t.Run("DeleteByIdError", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
 		expectedWarehouse := model.WareHouse{
 			ID:                 2,
@@ -134,7 +135,7 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 			Address:            "test",
 		}
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetByIDWareHouse", 1).Return(expectedWarehouse, nil)
 		mockRepo.On("DeleteByIDWareHouse", 1).Return(assert.AnError)
 
@@ -145,9 +146,9 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 	})
 
 	t.Run("DeleteByIdNotFound", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 		mockRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, assert.AnError)
 
 		err := svc.DeleteByIDWareHouse(1)
@@ -159,9 +160,9 @@ func TestDeleteByIdWareHouse(t *testing.T) {
 
 func TestPostWareHouse(t *testing.T) {
 	t.Run("Post", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 
 		warehouse := model.WareHouse{
 			WareHouseCode:      "test",
@@ -182,9 +183,9 @@ func TestPostWareHouse(t *testing.T) {
 	})
 
 	t.Run("PostError", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 
 		warehouse := model.WareHouse{
 			WareHouseCode:      "test",
@@ -206,9 +207,9 @@ func TestPostWareHouse(t *testing.T) {
 
 func TestUpdateWarehouse(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 
 		warehouse := model.WareHouse{
 			WareHouseCode:      "test",
@@ -228,9 +229,9 @@ func TestUpdateWarehouse(t *testing.T) {
 	})
 
 	t.Run("UpdateError", func(t *testing.T) {
-		svc := setupWarehouse()
+		svc := setupWarehouse(t)
 
-		mockRepo := svc.Rp.(*repository.WareHouseMockRepo)
+		mockRepo := svc.Rp.(*mocks.MockIWarehouseRepo)
 
 		warehouse := model.WareHouse{
 			WareHouseCode:      "test",

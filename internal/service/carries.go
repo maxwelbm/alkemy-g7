@@ -7,30 +7,30 @@ import (
 )
 
 type CarrierDefault struct {
-	rp          interfaces.ICarriersRepo
-	svcLocality svc.ILocalityService
+	Rp          interfaces.ICarriersRepo
+	SvcLocality svc.ILocalityService
 }
 
 func NewCarrierService(rp interfaces.ICarriersRepo, svcLocality svc.ILocalityService) *CarrierDefault {
 	return &CarrierDefault{
-		rp:          rp,
-		svcLocality: svcLocality,
+		Rp:          rp,
+		SvcLocality: svcLocality,
 	}
 }
 
 func (cp *CarrierDefault) GetByID(id int) (carrier model.Carries, err error) {
-	carrier, err = cp.rp.GetByID(id)
+	carrier, err = cp.Rp.GetByID(id)
 	return
 }
 
 func (cp *CarrierDefault) PostCarrier(newCarrier model.Carries) (carrier model.Carries, err error) {
-	_, err = cp.svcLocality.GetByID(newCarrier.LocalityID)
+	_, err = cp.SvcLocality.GetByID(newCarrier.LocalityID)
 
 	if err != nil {
 		return
 	}
 
-	id, err := cp.rp.PostCarrier(newCarrier)
+	id, err := cp.Rp.PostCarrier(newCarrier)
 
 	if err != nil {
 		return

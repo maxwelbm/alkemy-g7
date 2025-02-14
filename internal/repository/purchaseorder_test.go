@@ -3,13 +3,14 @@ package repository_test
 import (
 	"database/sql"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestPurchaseOrderRepository_Post(t *testing.T) {
