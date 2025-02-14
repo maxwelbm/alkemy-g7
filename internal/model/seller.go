@@ -24,7 +24,7 @@ type SellerJSON struct {
 
 func (s *Seller) ValidateUpdateFields(sl *Seller, existSeller *Seller) error {
 	if sl.CID == 0 && sl.Address == "" && sl.CompanyName == "" && sl.Telephone == "" && sl.Locality == 0 {
-		return er.ErrNullLocalityAttribute
+		return er.ErrNullSellerAttribute
 	}
 
 	if sl.CID == 0 {
