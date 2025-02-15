@@ -90,6 +90,7 @@ func TestProductRepository_GetAll(t *testing.T) {
 
 func TestProductRepository_GetByID(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}

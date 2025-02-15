@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
@@ -24,6 +25,8 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 
 	result, err := pr.DB.Exec(query, productRec.LastUpdateDate,
 		productRec.PurchasePrice, productRec.SalePrice, productRec.ProductID)
+
+	
 	if err != nil {
 		return model.ProductRecords{}, err
 	}
@@ -96,7 +99,7 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 			&productRecord.SalePrice)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Error trying to convert row to struct")
 		}
 
 		productRecordList = append(productRecordList, productRecord)
@@ -138,7 +141,7 @@ func (pr *ProductRecRepository) GetByIDProduct(idProduct int) ([]model.ProductRe
 			&productRecord.SalePrice)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Error trying to convert row to struct")
 		}
 
 		productRecordList = append(productRecordList, productRecord)
@@ -177,7 +180,7 @@ func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, er
 		err := rows.Scan(&productRecord.ProductID, &productRecord.Description, &productRecord.RecordsCount)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Error trying to convert row to struct")
 		}
 
 		productRecordReport = append(productRecordReport, productRecord)
