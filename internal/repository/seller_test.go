@@ -37,21 +37,11 @@ func TestSellersRepository_Get(t *testing.T) {
 
 		sellers, err := rp.Get()
 		errMock := mock.ExpectationsWereMet()
+
 		assert.NoError(t, err)
 		assert.Equal(t, expectedSellers, sellers)
 		assert.NoError(t, errMock)
 	})
-
-	//t.Run("test repository method for get all sellers with errors", func(t *testing.T) {
-	//	mock.ExpectQuery("SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers`").WillReturnError(customerror.ErrDefaultSellerSQL)
-	//
-	//	sellers, err := rp.Get()
-	//	mockErr := mock.ExpectationsWereMet()
-	//	expectedError := customerror.ErrDefaultSellerSQL
-	//	assert.ErrorIs(t, expectedError, err)
-	//	assert.Equal(t, []model.Seller(nil), sellers)
-	//	assert.NoError(t, mockErr)
-	//})
 
 	t.Run("test repository method for get all sellers with query error", func(t *testing.T) {
 		mock.ExpectQuery("SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers`").WillReturnError(sql.ErrNoRows)
@@ -85,11 +75,11 @@ func TestSellersRepository_GetByID(t *testing.T) {
 			WillReturnRows(rows)
 
 		result, err := rp.GetByID(ID)
-		assert.NoError(t, err)
 
 		errMock := mock.ExpectationsWereMet()
-		assert.NoError(t, errMock)
 
+		assert.NoError(t, err)
+		assert.NoError(t, errMock)
 		assert.Equal(t, seller, result)
 	})
 
@@ -107,7 +97,6 @@ func TestSellersRepository_GetByID(t *testing.T) {
 		assert.NoError(t, errorMock)
 		assert.Error(t, errorExpected, err)
 		assert.Equal(t, model.Seller{}, seller)
-
 	})
 }
 
