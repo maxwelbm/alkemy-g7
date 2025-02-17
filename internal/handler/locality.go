@@ -14,11 +14,11 @@ import (
 )
 
 func CreateHandlerLocality(service interfaces.ILocalityService) *LocalitiesController {
-	return &LocalitiesController{service: service}
+	return &LocalitiesController{Service: service}
 }
 
 type LocalitiesController struct {
-	service interfaces.ILocalityService
+	Service interfaces.ILocalityService
 }
 
 // GetByID retrieves a locality by their ID.
@@ -47,7 +47,7 @@ func (hd *LocalitiesController) GetByID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	locality, err := hd.service.GetByID(id)
+	locality, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -72,7 +72,7 @@ func (hd *LocalitiesController) CreateLocality(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	createdLocality, err := hd.service.CreateLocality(&locality)
+	createdLocality, err := hd.Service.CreateLocality(&locality)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -116,7 +116,7 @@ func (hd *LocalitiesController) GetSellers(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	result, err := hd.service.GetSellers(id)
+	result, err := hd.Service.GetSellers(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
@@ -160,7 +160,7 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	result, err := hd.service.GetCarriers(id)
+	result, err := hd.Service.GetCarriers(id)
 	if ok := hd.handlerError(err, w); ok {
 		return
 	}
