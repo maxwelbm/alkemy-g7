@@ -26,7 +26,7 @@ var (
 	endpoint = "/api/v1/sellers/"
 )
 
-func TestHandlerGetAllSeller(t *testing.T) {
+func TestSellersController_GetAllSellers(t *testing.T) {
 	t.Run("test handler method for get a list of all existing sellers successfully", func(t *testing.T) {
 		hd := setupSeller(t)
 		mock := hd.Service.(*mocks.MockISellerService)
@@ -85,16 +85,16 @@ func TestHandlerGetAllSeller(t *testing.T) {
 	})
 }
 
-func TestHandlerGetByIDSeller(t *testing.T) {
+func TestSellersController_GetByID(t *testing.T) {
 	hd := setupSeller(t)
 	mock := hd.Service.(*mocks.MockISellerService)
 
 	r := chi.NewRouter()
 	r.Get("/api/v1/sellers/{id}", hd.GetByID)
 
-	t.Run("test handler service for get seller by id with success", func(t *testing.T) {
+	t.Run("test handler service for get seller by ID with success", func(t *testing.T) {
 		returnService := model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3}
-		id := 3
+		ID := 3
 		res := `{
 					"data": {
 						"id": 3,
@@ -107,9 +107,9 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 				}`
 		statusCode := http.StatusOK
 
-		mock.On("GetByID", id).Return(returnService, nil)
+		mock.On("GetByID", ID).Return(returnService, nil)
 
-		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -118,16 +118,16 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test handler service for get seller with id not found", func(t *testing.T) {
+	t.Run("test handler service for get seller with ID not found", func(t *testing.T) {
 		returnService := model.Seller{}
-		id := 999
+		ID := 999
 		res := `{"message":"seller not found"}`
 		statusCode := http.StatusNotFound
 		errS := customerror.ErrSellerNotFound
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -138,14 +138,14 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 
 	t.Run("test handler service for get seller with internal server error", func(t *testing.T) {
 		returnService := model.Seller{}
-		id := 4
+		ID := 4
 		res := `{"message":"internal server error"}`
 		statusCode := http.StatusInternalServerError
 		errS := customerror.ErrDefaultSeller
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -155,11 +155,11 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 	})
 
 	t.Run("test handler service for get seller with zero id", func(t *testing.T) {
-		id := 0
+		ID := 0
 		res := `{"message":"missing 'id' parameter in the request"}`
 		statusCode := http.StatusBadRequest
 
-		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodGet, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -168,7 +168,7 @@ func TestHandlerGetByIDSeller(t *testing.T) {
 	})
 }
 
-func TestHandlerCreateSeller(t *testing.T) {
+func TestSellersController_CreateSellers(t *testing.T) {
 	t.Run("test handler method for create seller with success", func(t *testing.T) {
 		hd := setupSeller(t)
 		mock := hd.Service.(*mocks.MockISellerService)
@@ -278,7 +278,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test handler method for create seller with cid attribute already existing", func(t *testing.T) {
+	t.Run("test handler method for create seller with CID attribute already existing", func(t *testing.T) {
 		hd := setupSeller(t)
 		mock := hd.Service.(*mocks.MockISellerService)
 
@@ -337,7 +337,7 @@ func TestHandlerCreateSeller(t *testing.T) {
 	})
 }
 
-func TestHandlerUpdateSeller(t *testing.T) {
+func TestSellersController_UpdateSellers(t *testing.T) {
 	hd := setupSeller(t)
 	mock := hd.Service.(*mocks.MockISellerService)
 
@@ -346,7 +346,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 
 	t.Run("test handler method for update seller with success", func(t *testing.T) {
 		arg := model.Seller{CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10}
-		id := 5
+		ID := 5
 		returnService := model.Seller{ID: 5, CID: 55, CompanyName: "Cypress Company", Address: "900 Central Park", Telephone: "55566777787", Locality: 10}
 		body := []byte(`{           
 							"cid": 55,
@@ -367,10 +367,10 @@ func TestHandlerUpdateSeller(t *testing.T) {
                     }`
 		statusCode := http.StatusOK
 
-		mock.On("UpdateSeller", id, &arg).Return(returnService, nil)
-		mock.On("GetByID", id).Return(returnService, nil)
+		mock.On("UpdateSeller", ID, &arg).Return(returnService, nil)
+		mock.On("GetByID", ID).Return(returnService, nil)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -380,8 +380,8 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test handler method for update seller with id not found", func(t *testing.T) {
-		id := 999
+	t.Run("test handler method for update seller with ID not found", func(t *testing.T) {
+		ID := 999
 		returnService := model.Seller{}
 		body := []byte(`{           
 							"cid": 65,
@@ -394,9 +394,9 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		statusCode := http.StatusNotFound
 		errS := customerror.ErrSellerNotFound
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -407,7 +407,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	})
 
 	t.Run("test handler method for update seller with bad request", func(t *testing.T) {
-		id := 4
+		ID := 4
 		returnService := model.Seller{}
 		body := []byte(`{           
 							"cid": "cid",
@@ -420,9 +420,9 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		statusCode := http.StatusBadRequest
 		errS := customerror.ErrInvalidSellerJSONFormat
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -433,7 +433,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	})
 
 	t.Run("test handler method for update seller with empty attributes values", func(t *testing.T) {
-		id := 2
+		ID := 2
 		returnService := model.Seller{}
 		body := []byte(`{           
 							"cid": 0,
@@ -446,9 +446,9 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		statusCode := http.StatusUnprocessableEntity
 		errS := customerror.ErrNullSellerAttribute
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -458,8 +458,8 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test handler method for update seller with cid attribute already existing", func(t *testing.T) {
-		id := 9
+	t.Run("test handler method for update seller with CID attribute already existing", func(t *testing.T) {
+		ID := 9
 		returnService := model.Seller{}
 		body := []byte(`{           
 							"cid": 1,
@@ -472,9 +472,9 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		statusCode := http.StatusConflict
 		errS := customerror.ErrCIDSellerAlreadyExist
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -486,7 +486,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 
 	t.Run("test handler method for update seller with locality attribute not found", func(t *testing.T) {
 		returnService := model.Seller{}
-		id := 7
+		ID := 7
 		body := []byte(`{           
 							"cid": 8,
 							"company_name": "Rupture Clivers",
@@ -498,9 +498,9 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		statusCode := http.StatusNotFound
 		errS := customerror.ErrLocalityNotFound
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -511,7 +511,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	})
 
 	t.Run("test handler method for update seller with zero id", func(t *testing.T) {
-		id := 0
+		ID := 0
 		body := []byte(`{           
 							"cid": 55,
 							"company_name": "Cypress Company",
@@ -522,7 +522,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 		res := `{"message":"missing 'id' parameter in the request"}`
 		statusCode := http.StatusBadRequest
 
-		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(id), bytes.NewReader(body))
+		request := httptest.NewRequest(http.MethodPatch, endpoint+strconv.Itoa(ID), bytes.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
@@ -532,7 +532,7 @@ func TestHandlerUpdateSeller(t *testing.T) {
 	})
 }
 
-func TestHandlerDeleteSeller(t *testing.T) {
+func TestSellersController_DeleteSellers(t *testing.T) {
 	hd := setupSeller(t)
 	mock := hd.Service.(*mocks.MockISellerService)
 
@@ -540,15 +540,15 @@ func TestHandlerDeleteSeller(t *testing.T) {
 	r.Delete("/api/v1/sellers/{id}", hd.DeleteSellers)
 
 	t.Run("test handler method for delete seller with success", func(t *testing.T) {
-		id := 3
+		ID := 3
 		returnService := model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3}
 		res := `{}`
 		statusCode := http.StatusNoContent
 
-		mock.On("DeleteSeller", id).Return(nil)
-		mock.On("GetByID", id).Return(returnService, nil)
+		mock.On("DeleteSeller", ID).Return(nil)
+		mock.On("GetByID", ID).Return(returnService, nil)
 
-		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -557,16 +557,16 @@ func TestHandlerDeleteSeller(t *testing.T) {
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test handler method for delete seller with id not found", func(t *testing.T) {
-		id := 999
+	t.Run("test handler method for delete seller with ID not found", func(t *testing.T) {
+		ID := 999
 		returnService := model.Seller{}
 		res := `{"message":"seller not found"}`
 		statusCode := http.StatusNotFound
 		errS := customerror.ErrSellerNotFound
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -576,15 +576,15 @@ func TestHandlerDeleteSeller(t *testing.T) {
 	})
 
 	t.Run("test handler method for delete seller with internal server error", func(t *testing.T) {
-		id := 4
+		ID := 4
 		returnService := model.Seller{}
 		res := `{"message":"internal server error"}`
 		statusCode := http.StatusInternalServerError
 		errS := customerror.ErrDefaultSeller
 
-		mock.On("GetByID", id).Return(returnService, errS)
+		mock.On("GetByID", ID).Return(returnService, errS)
 
-		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
@@ -594,11 +594,11 @@ func TestHandlerDeleteSeller(t *testing.T) {
 	})
 
 	t.Run("test handler method for delete seller with zero id", func(t *testing.T) {
-		id := 0
+		ID := 0
 		res := `{"message":"missing 'id' parameter in the request"}`
 		statusCode := http.StatusBadRequest
 
-		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(id), nil)
+		request := httptest.NewRequest(http.MethodDelete, endpoint+strconv.Itoa(ID), nil)
 		response := httptest.NewRecorder()
 		r.ServeHTTP(response, request)
 
