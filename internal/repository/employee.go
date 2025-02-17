@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"log"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -9,11 +10,12 @@ import (
 )
 
 type EmployeeRepository struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logger.Logger
 }
 
-func CreateEmployeeRepository(db *sql.DB) *EmployeeRepository {
-	return &EmployeeRepository{db: db}
+func CreateEmployeeRepository(db *sql.DB, log *logger.Logger) *EmployeeRepository {
+	return &EmployeeRepository{db: db, log: log}
 }
 
 func (e *EmployeeRepository) Get() ([]model.Employee, error) {

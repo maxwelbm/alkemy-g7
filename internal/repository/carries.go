@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
@@ -11,11 +12,12 @@ import (
 )
 
 type Carriers struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logger.Logger
 }
 
-func NewCarriersRepository(db *sql.DB) *Carriers {
-	return &Carriers{db: db}
+func NewCarriersRepository(db *sql.DB, log *logger.Logger) *Carriers {
+	return &Carriers{db: db, log: log}
 }
 
 func (r *Carriers) GetByID(id int) (carrier model.Carries, err error) {
@@ -59,6 +61,6 @@ func (r *Carriers) PostCarrier(carrier model.Carries) (id int64, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	return
 }

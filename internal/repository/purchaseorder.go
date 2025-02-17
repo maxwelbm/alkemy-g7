@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
@@ -10,7 +11,8 @@ import (
 )
 
 type PurchaseOrderRepository struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logger.Logger
 }
 
 // Post implements interfaces.IPurchaseOrdersRepo.
@@ -51,6 +53,6 @@ func (p *PurchaseOrderRepository) GetByID(id int) (purchaseOrder model.PurchaseO
 	return
 }
 
-func NewPurchaseOrderRepository(db *sql.DB) *PurchaseOrderRepository {
-	return &PurchaseOrderRepository{db: db}
+func NewPurchaseOrderRepository(db *sql.DB, log *logger.Logger) *PurchaseOrderRepository {
+	return &PurchaseOrderRepository{db: db, log: log}
 }

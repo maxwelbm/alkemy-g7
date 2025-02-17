@@ -2,17 +2,19 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductRepository struct {
-	DB *sql.DB
+	DB  *sql.DB
+	log *logger.Logger
 }
 
-func NewProductRepository(db *sql.DB) *ProductRepository {
-	return &ProductRepository{DB: db}
+func NewProductRepository(db *sql.DB, log *logger.Logger) *ProductRepository {
+	return &ProductRepository{DB: db, log: log}
 }
 
 func (pr *ProductRepository) GetAll() (map[int]model.Product, error) {

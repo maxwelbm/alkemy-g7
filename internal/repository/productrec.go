@@ -3,17 +3,19 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductRecRepository struct {
-	DB *sql.DB
+	DB  *sql.DB
+	log *logger.Logger
 }
 
-func NewProductRecRepository(db *sql.DB) *ProductRecRepository {
-	return &ProductRecRepository{DB: db}
+func NewProductRecRepository(db *sql.DB, log *logger.Logger) *ProductRecRepository {
+	return &ProductRecRepository{DB: db, log: log}
 }
 
 func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.ProductRecords, error) {
@@ -26,7 +28,6 @@ func (pr *ProductRecRepository) Create(productRec model.ProductRecords) (model.P
 	result, err := pr.DB.Exec(query, productRec.LastUpdateDate,
 		productRec.PurchasePrice, productRec.SalePrice, productRec.ProductID)
 
-	
 	if err != nil {
 		return model.ProductRecords{}, err
 	}

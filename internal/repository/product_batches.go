@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -9,11 +10,12 @@ import (
 )
 
 type ProductBatchesRepository struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logger.Logger
 }
 
-func CreateProductBatchesRepository(db *sql.DB) *ProductBatchesRepository {
-	return &ProductBatchesRepository{db: db}
+func CreateProductBatchesRepository(db *sql.DB, log *logger.Logger) *ProductBatchesRepository {
+	return &ProductBatchesRepository{db: db, log: log}
 }
 
 func (r *ProductBatchesRepository) GetByID(id int) (prodBatches model.ProductBatches, err error) {
@@ -41,7 +43,7 @@ func (r *ProductBatchesRepository) Post(prodBatches *model.ProductBatches) (newP
 		if err.(*mysql.MySQLError).Number == 1062 {
 			err = customerror.HandleError("product batches:", customerror.ErrorConflict, "")
 		}
-		
+
 		return
 	}
 

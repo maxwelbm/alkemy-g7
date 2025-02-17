@@ -16,7 +16,7 @@ func TestPostInboundOrder(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := NewInboundService(db)
+	repo := NewInboundService(db, nil)
 
 	inboundOrder := model.InboundOrder{
 		OrderDate:      time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),

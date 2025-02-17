@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
@@ -10,7 +11,8 @@ import (
 )
 
 type BuyerRepository struct {
-	db *sql.DB
+	db  *sql.DB
+	log *logger.Logger
 }
 
 func (r *BuyerRepository) Delete(id int) (err error) {
@@ -141,6 +143,6 @@ func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []
 	return
 }
 
-func NewBuyerRepository(db *sql.DB) *BuyerRepository {
-	return &BuyerRepository{db: db}
+func NewBuyerRepository(db *sql.DB, log *logger.Logger) *BuyerRepository {
+	return &BuyerRepository{db: db, log: log}
 }

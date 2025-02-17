@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"log"
 	"net/http"
 
@@ -30,11 +31,13 @@ func main() {
 
 	defer db.Close()
 
+	logInstance := logger.NewLogger(db.Connection)
+
 	productHandler, employeeHd,
 		sellersHandler, buyerHandler,
 		warehousesHandler, sectionHandler,
 		purchaseOrderHandler, inboundHandler,
-		productRecHandler, productBatchesHandler, localitiesHandler, carrierHandler := dependencies.LoadDependencies(db.Connection)
+		productRecHandler, productBatchesHandler, localitiesHandler, carrierHandler := dependencies.LoadDependencies(db.Connection, logInstance)
 
 	rt := initRoutes(productHandler, employeeHd, sellersHandler, buyerHandler, sectionHandler, warehousesHandler, purchaseOrderHandler, inboundHandler, productRecHandler, productBatchesHandler, localitiesHandler, carrierHandler)
 	if err := http.ListenAndServe(":8080", rt); err != nil {
