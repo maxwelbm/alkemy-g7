@@ -25,6 +25,8 @@ func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJS
 		return
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		var c model.LocalitiesJSONCarriers
 		err = rows.Scan(&c.ID, &c.Locality, &c.Carriers)
@@ -34,11 +36,6 @@ func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJS
 		}
 
 		report = append(report, c)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return
 	}
 
 	return
@@ -55,9 +52,8 @@ func (rp *LocalitiesRepository) GetReportCarriersWithID(id int) (locality []mode
 	var c model.LocalitiesJSONCarriers
 	err = row.Scan(&c.ID, &c.Locality, &c.Carriers)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		e := er.ErrLocalityNotFound
-		return locality, e
+	if err != nil {
+		return
 	}
 
 	locality = append(locality, c)
@@ -73,6 +69,8 @@ func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSO
 		return
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		var l model.LocalitiesJSONSellers
 		err = rows.Scan(&l.ID, &l.Locality, &l.Sellers)
@@ -82,11 +80,6 @@ func (rp *LocalitiesRepository) GetSellers(id int) (report []model.LocalitiesJSO
 		}
 
 		report = append(report, l)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return
 	}
 
 	return
@@ -100,14 +93,14 @@ func (rp *LocalitiesRepository) GetReportSellersWithID(id int) (locality []model
 	query := "SELECT l.id, l.locality_name, COUNT(s.locality_id) AS `sellers_count` FROM `sellers` s RIGHT JOIN `locality` l ON s.locality_id = l.id WHERE l.id = ? GROUP BY l.id, l.locality_name"
 	row := rp.db.QueryRow(query, id)
 
-	var l model.LocalitiesJSONSellers
-	err = row.Scan(&l.ID, &l.Locality, &l.Sellers)
+	var s model.LocalitiesJSONSellers
+	err = row.Scan(&s.ID, &s.Locality, &s.Sellers)
 
 	if err != nil {
 		return
 	}
 
-	locality = append(locality, l)
+	locality = append(locality, s)
 
 	return
 }
@@ -120,6 +113,8 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 		return
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		var locality model.Locality
 		err = rows.Scan(&locality.ID, &locality.Locality, &locality.Province, &locality.Country)
@@ -129,11 +124,6 @@ func (rp *LocalitiesRepository) Get() (localities []model.Locality, err error) {
 		}
 
 		localities = append(localities, locality)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return
 	}
 
 	return
