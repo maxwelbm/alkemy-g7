@@ -2,23 +2,23 @@ package service
 
 import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
+	irepo "github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
 type ProductBatchesService struct {
-	rp      repository.ProductBatchesRepository
-	svcProd interfaces.IProductService
-	svcSec  interfaces.ISectionService
+	Rp      irepo.IProductBatchesRepo
+	SvcProd interfaces.IProductService
+	SvcSec  interfaces.ISectionService
 }
 
-func CreateProductBatchesService(rp repository.ProductBatchesRepository, svcProd interfaces.IProductService, svcSec interfaces.ISectionService) *ProductBatchesService {
-	return &ProductBatchesService{rp: rp, svcProd: svcProd, svcSec: svcSec}
+func CreateProductBatchesService(rp irepo.IProductBatchesRepo, SvcProd interfaces.IProductService, SvcSec interfaces.ISectionService) *ProductBatchesService {
+	return &ProductBatchesService{Rp: rp, SvcProd: SvcProd, SvcSec: SvcSec}
 }
 
 func (s *ProductBatchesService) GetByID(id int) (prodBatches model.ProductBatches, err error) {
-	prodBatches, err = s.rp.GetByID(id)
+	prodBatches, err = s.Rp.GetByID(id)
 	return
 }
 
@@ -27,17 +27,17 @@ func (s *ProductBatchesService) Post(prodBatches *model.ProductBatches) (newProd
 		return model.ProductBatches{}, customerror.HandleError("product batches", customerror.ErrorInvalid, err.Error())
 	}
 
-	_, err = s.svcProd.GetProductByID(prodBatches.ProductID)
+	_, err = s.SvcProd.GetProductByID(prodBatches.ProductID)
 	if err != nil {
 		return
 	}
 
-	_, err = s.svcSec.GetByID(prodBatches.SectionID)
+	_, err = s.SvcSec.GetByID(prodBatches.SectionID)
 	if err != nil {
 		return
 	}
 
-	newProdBatches, err = s.rp.Post(prodBatches)
+	newProdBatches, err = s.Rp.Post(prodBatches)
 
 	return
 }
