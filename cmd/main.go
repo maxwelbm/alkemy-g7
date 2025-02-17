@@ -50,6 +50,11 @@ func initRoutes(productHandler *handler.ProductHandler,
 	productBatchesHandler *handler.ProductBatchesController, localitiesHandler *handler.LocalitiesController, carrierHandler *handler.CarrierHandler) *chi.Mux {
 	rt := chi.NewRouter()
 
+	rt.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Pong"))
+	})
+
 	rt.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	rt.Route("/api/v1/warehouses", func(r chi.Router) {
