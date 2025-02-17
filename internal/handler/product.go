@@ -125,7 +125,7 @@ func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	product, err := ph.ProductService.CreateProduct(productBody)
 
 	if err != nil {
-		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
