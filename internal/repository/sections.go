@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
@@ -11,10 +12,10 @@ import (
 
 type SectionRepository struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
-func CreateRepositorySections(db *sql.DB, log *logger.Logger) *SectionRepository {
+func CreateRepositorySections(db *sql.DB, log logger.Logger) *SectionRepository {
 	return &SectionRepository{db: db, log: log}
 }
 

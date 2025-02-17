@@ -20,7 +20,7 @@ func TestPurchaseOrderRepository_Post(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rp := repository.NewPurchaseOrderRepository(db)
+	rp := repository.NewPurchaseOrderRepository(db, logMock)
 
 	t.Run("Verifies successful addition of a purchase Order", func(t *testing.T) {
 		purchaseOrderID := 1
@@ -104,7 +104,7 @@ func TestPurchaseOrderRepository_GetByID(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rp := repository.NewPurchaseOrderRepository(db)
+	rp := repository.NewPurchaseOrderRepository(db, logMock)
 
 	t.Run("retrieve existing Purchase Order", func(t *testing.T) {
 		purchaseOrderID := 1

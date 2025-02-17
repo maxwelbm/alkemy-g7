@@ -19,7 +19,7 @@ func TestProductRepository_GetAll(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := NewProductRepository(db)
+	rp := NewProductRepository(db, logMock)
 
 	t.Run("retrieving all products", func(t *testing.T) {
 		products := map[int]model.Product{
@@ -90,13 +90,13 @@ func TestProductRepository_GetAll(t *testing.T) {
 
 func TestProductRepository_GetByID(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	
+
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
 
-	repo := NewProductRepository(db)
+	repo := NewProductRepository(db, logMock)
 
 	t.Run("retrieving an existing product by ID", func(t *testing.T) {
 		productID := 1
@@ -162,7 +162,7 @@ func TestProductRepository_Create(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := NewProductRepository(db)
+	repo := NewProductRepository(db, logMock)
 
 	product := model.Product{
 		ProductCode:                    "CODE1",
@@ -216,7 +216,7 @@ func TestProductRepository_Update(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := NewProductRepository(db)
+	repo := NewProductRepository(db, logMock)
 
 	product := model.Product{
 		ProductCode:                    "UPDATED_CODE",
@@ -264,7 +264,7 @@ func TestProductRepository_Delete(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := NewProductRepository(db)
+	repo := NewProductRepository(db, logMock)
 
 	t.Run("successful deletion of a product", func(t *testing.T) {
 		productID := 1

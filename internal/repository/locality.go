@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
@@ -10,13 +11,13 @@ import (
 	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
-func CreateRepositoryLocalities(db *sql.DB, log *logger.Logger) *LocalitiesRepository {
+func CreateRepositoryLocalities(db *sql.DB, log logger.Logger) *LocalitiesRepository {
 	return &LocalitiesRepository{db, log}
 }
 
 type LocalitiesRepository struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
 func (rp *LocalitiesRepository) GetCarriers(id int) (report []model.LocalitiesJSONCarriers, err error) {

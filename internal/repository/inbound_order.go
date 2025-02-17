@@ -2,16 +2,17 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type InboundOrderService struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
-func NewInboundService(db *sql.DB, log *logger.Logger) *InboundOrderService {
+func NewInboundService(db *sql.DB, log logger.Logger) *InboundOrderService {
 	return &InboundOrderService{
 		db:  db,
 		log: log,

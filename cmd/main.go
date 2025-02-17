@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"log"
 	"net/http"
+
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/cmd/dependencies"

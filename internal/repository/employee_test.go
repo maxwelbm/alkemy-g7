@@ -6,8 +6,11 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 )
+
+var logMock = mocks.MockLog{}
 
 func TestEmployeeRepository_Get(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
@@ -16,7 +19,7 @@ func TestEmployeeRepository_Get(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("retrieving all employees", func(t *testing.T) {
 		employees := []model.Employee{
@@ -45,7 +48,7 @@ func TestEmployeeRepository_GetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("retrieving an existing employee by ID", func(t *testing.T) {
 		employeeID := 1
@@ -88,7 +91,7 @@ func TestEmployeeRepository_Post(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("successful addition of an employee", func(t *testing.T) {
 		employee := model.Employee{
@@ -115,7 +118,7 @@ func TestEmployeeRepository_Update(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("successful update of an employee's details", func(t *testing.T) {
 		employeeID := 1
@@ -143,7 +146,7 @@ func TestEmployeeRepository_Delete(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("successful deletion of an employee", func(t *testing.T) {
 		employeeID := 1
@@ -164,7 +167,7 @@ func TestEmployeeRepository_GetInboundOrdersReportByEmployee(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("successful retrieval of inbound orders report by employee", func(t *testing.T) {
 		employeeID := 1
@@ -208,7 +211,7 @@ func TestEmployeeRepository_GetInboundOrdersReports(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := CreateEmployeeRepository(db)
+	rp := CreateEmployeeRepository(db, logMock)
 
 	t.Run("successful retrieval of all inbound orders reports", func(t *testing.T) {
 		reports := []model.InboundOrdersReportByEmployee{

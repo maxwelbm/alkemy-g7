@@ -3,8 +3,9 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
+
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -13,10 +14,10 @@ import (
 
 type Carriers struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
-func NewCarriersRepository(db *sql.DB, log *logger.Logger) *Carriers {
+func NewCarriersRepository(db *sql.DB, log logger.Logger) *Carriers {
 	return &Carriers{db: db, log: log}
 }
 

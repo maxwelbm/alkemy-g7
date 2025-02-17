@@ -21,7 +21,7 @@ func TestWarehouseMysql_GetAllWareHouse(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewWareHouseRepository(db)
+	rp := repository.NewWareHouseRepository(db, logMock)
 
 	t.Run("Success GetAllWareHouse", func(t *testing.T) {
 		expectedWarehouses := []model.WareHouse{
@@ -86,7 +86,7 @@ func TestWarehouseMysql_GetByIDWareHouse(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewWareHouseRepository(db)
+	rp := repository.NewWareHouseRepository(db, logMock)
 
 	t.Run("Success GetByIDWareHouse", func(t *testing.T) {
 		expectedWarehouse := model.WareHouse{
@@ -144,7 +144,7 @@ func TestWarehouseMysql_PostWareHouse(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewWareHouseRepository(db)
+	rp := repository.NewWareHouseRepository(db, logMock)
 
 	t.Run("Success PostWareHouse", func(t *testing.T) {
 		warehouse := model.WareHouse{
@@ -217,7 +217,7 @@ func TestWarehouseMysql_UpdateWareHouse(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewWareHouseRepository(db)
+	rp := repository.NewWareHouseRepository(db, logMock)
 
 	t.Run("Success UpdateWareHouse", func(t *testing.T) {
 		id := 1
@@ -293,7 +293,7 @@ func TestWarehouseMysql_DeleteByIDWareHouse(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewWareHouseRepository(db)
+	rp := repository.NewWareHouseRepository(db, logMock)
 
 	t.Run("Success DeleteByIDWareHouse", func(t *testing.T) {
 		id := 1

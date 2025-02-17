@@ -2,6 +2,7 @@ package dependencies
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
@@ -9,7 +10,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 )
 
-func LoadDependencies(sqlDB *sql.DB, logInstance *logger.Logger) (*handler.ProductHandler, *handler.EmployeeHandler,
+func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.ProductHandler, *handler.EmployeeHandler,
 	*handler.SellersController, *handler.BuyerHandler, *handler.WarehouseHandler,
 	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler,
 	*handler.ProductRecHandler, *handler.ProductBatchesController, *handler.LocalitiesController, *handler.CarrierHandler) {

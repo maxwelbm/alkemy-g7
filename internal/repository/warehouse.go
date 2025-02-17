@@ -3,21 +3,22 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
+
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
-func NewWareHouseRepository(db *sql.DB, log *logger.Logger) *WarehouseMysql {
+func NewWareHouseRepository(db *sql.DB, log logger.Logger) *WarehouseMysql {
 	return &WarehouseMysql{db, log}
 }
 
 type WarehouseMysql struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
 func (r *WarehouseMysql) GetAllWareHouse() (w []model.WareHouse, err error) {

@@ -3,16 +3,20 @@ package repository_test
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
+
+var logMock = mocks.MockLog{}
 
 func TestBuyerRepository_Post(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
@@ -22,7 +26,7 @@ func TestBuyerRepository_Post(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("Verifies successful addition of a buyer", func(t *testing.T) {
 		buyer := model.Buyer{FirstName: "Ac", LastName: "Milan", CardNumberID: "4321"}
@@ -88,7 +92,7 @@ func TestBuyerRepository_GetByID(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("retrieving a buyer by ID when the buyer exists", func(t *testing.T) {
 		buyerID := 1
@@ -141,7 +145,7 @@ func TestBuyerRepository_Get(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("Tests listing buyers when there are existing records", func(t *testing.T) {
 		expectedBuyers := []model.Buyer{
@@ -195,7 +199,7 @@ func TestBuyerRepository_Update(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("Confirms that a buyer's details can be successfully updated.", func(t *testing.T) {
 
@@ -260,7 +264,7 @@ func TestBuyerRepository_CountPurchaseOrderBuyers(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("count Purchase Order Buyers success", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "card_number_id", "first_name", "last_name", "purchase_orders_count"}).
@@ -307,7 +311,7 @@ func TestBuyerRepository_CountPurchaseOrderByBuyerID(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("count Purchase Order Buyer existing success", func(t *testing.T) {
 		buyerID := 1
@@ -356,7 +360,7 @@ func TestBuyerRepository_Delete(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.NewBuyerRepository(db)
+	rp := repository.NewBuyerRepository(db, logMock)
 
 	t.Run("Delete Buyer exisiting success", func(t *testing.T) {
 		buyerID := 1

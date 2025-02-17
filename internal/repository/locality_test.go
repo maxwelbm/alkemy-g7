@@ -3,14 +3,15 @@ package repository_test
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func TestLocalitiesRepository_CreateLocality(t *testing.T) {
@@ -20,7 +21,7 @@ func TestLocalitiesRepository_CreateLocality(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for create locality with success", func(t *testing.T) {
 		l := model.Locality{ID: 1, Locality: "Denver", Province: "Colorado", Country: "EUA"}
@@ -120,7 +121,7 @@ func TestLocalitiesRepository_GetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get locality by id successfully", func(t *testing.T) {
 		ID := 1
@@ -166,7 +167,7 @@ func TestLocalitiesRepository_Get(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get all localities successfully", func(t *testing.T) {
 		expectedLocalities := []model.Locality{
@@ -210,7 +211,7 @@ func TestLocalitiesRepository_GetSellers(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get report all sellers successfully", func(t *testing.T) {
 		expectedReport := []model.LocalitiesJSONSellers{
@@ -256,7 +257,7 @@ func TestLocalitiesRepository_GetCarriers(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get report all carriers successfully", func(t *testing.T) {
 		expectedReport := []model.LocalitiesJSONCarriers{
@@ -302,7 +303,7 @@ func TestLocalitiesRepository_GetReportSellersWithID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get report sellers by ID successfully", func(t *testing.T) {
 		expectedReport := []model.LocalitiesJSONSellers{
@@ -357,7 +358,7 @@ func TestLocalitiesRepository_GetReportCarriersWithID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositoryLocalities(db)
+	rp := repository.CreateRepositoryLocalities(db, logMock)
 
 	t.Run("test repository method for get report carriers by ID successfully", func(t *testing.T) {
 		expectedReport := []model.LocalitiesJSONCarriers{

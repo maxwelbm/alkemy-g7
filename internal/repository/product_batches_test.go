@@ -20,7 +20,7 @@ func TestProductBatchesRepository_Post(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rp := repository.CreateProductBatchesRepository(db)
+	rp := repository.CreateProductBatchesRepository(db, logMock)
 
 	t.Run("given a valid product batches then create it with no error", func(t *testing.T) {
 		createdPB := model.ProductBatches{
@@ -82,7 +82,7 @@ func TestProductBatchesRepository_GetByID(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rp := repository.CreateProductBatchesRepository(db)
+	rp := repository.CreateProductBatchesRepository(db, logMock)
 
 	t.Run("given a valid id then return the product batch with no error", func(t *testing.T) {
 		pbID := 1

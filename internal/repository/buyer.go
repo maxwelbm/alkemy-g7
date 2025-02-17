@@ -12,7 +12,7 @@ import (
 
 type BuyerRepository struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
 func (r *BuyerRepository) Delete(id int) (err error) {
@@ -143,6 +143,6 @@ func (r *BuyerRepository) CountPurchaseOrderBuyers() (countBuyerPurchaseOrder []
 	return
 }
 
-func NewBuyerRepository(db *sql.DB, log *logger.Logger) *BuyerRepository {
+func NewBuyerRepository(db *sql.DB, log logger.Logger) *BuyerRepository {
 	return &BuyerRepository{db: db, log: log}
 }

@@ -12,18 +12,22 @@ import (
 	logrus "github.com/sirupsen/logrus"
 )
 
-type Logger struct {
+type Logger interface {
+	Log(layer string, level, message string)
+}
+
+type LoggerDefault struct {
 	db     *sql.DB
 	logger *logrus.Logger
 }
 
-func NewLogger(db *sql.DB) *Logger {
+func NewLogger(db *sql.DB) *LoggerDefault {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
-	return &Logger{db: db, logger: logger}
+	return &LoggerDefault{db: db, logger: logger}
 }
 
-func (l *Logger) Log(layer string, level, message string) {
+func (l *LoggerDefault) Log(layer string, level, message string) {
 	entry := model.LogEntry{
 		Level:   level,
 		Message: fmt.Sprintf("[%s] %s", layer, message),

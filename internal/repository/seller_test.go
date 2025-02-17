@@ -3,14 +3,15 @@ package repository_test
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func TestSellersRepository_Get(t *testing.T) {
@@ -20,7 +21,7 @@ func TestSellersRepository_Get(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositorySellers(db)
+	rp := repository.CreateRepositorySellers(db, logMock)
 
 	t.Run("test repository method for get all sellers with success", func(t *testing.T) {
 		expectedSellers := []model.Seller{
@@ -61,7 +62,7 @@ func TestSellersRepository_GetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositorySellers(db)
+	rp := repository.CreateRepositorySellers(db, logMock)
 
 	t.Run("test repository method for get seller by ID with success", func(t *testing.T) {
 		ID := 1
@@ -107,7 +108,7 @@ func TestSellersRepository_Post(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositorySellers(db)
+	rp := repository.CreateRepositorySellers(db, logMock)
 
 	t.Run("test repository method for create seller with success", func(t *testing.T) {
 		seller := model.Seller{ID: 1, CID: 1, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 1}
@@ -224,7 +225,7 @@ func TestSellersRepository_Patch(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositorySellers(db)
+	rp := repository.CreateRepositorySellers(db, logMock)
 
 	t.Run("test repository method for update seller with success", func(t *testing.T) {
 		ID := 4
@@ -274,7 +275,7 @@ func TestSellersRepository_Delete(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.CreateRepositorySellers(db)
+	rp := repository.CreateRepositorySellers(db, logMock)
 
 	t.Run("test repository method for delete seller with success", func(t *testing.T) {
 		ID := 1

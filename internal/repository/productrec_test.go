@@ -21,7 +21,7 @@ func TestProductRecRepository_Create(t *testing.T) {
 
 	defer db.Close()
 
-	repo := NewProductRecRepository(db)
+	repo := NewProductRecRepository(db, logMock)
 
 	productRec := model.ProductRecords{
 		ID:             1,
@@ -80,7 +80,7 @@ func TestProductRecRepository_GetByID(t *testing.T) {
 		ProductID:      101,
 	}
 
-	repo := NewProductRecRepository(db)
+	repo := NewProductRecRepository(db, logMock)
 
 	query := `
 	SELECT
@@ -147,7 +147,7 @@ func TestProductRecRepository_GetByIDProduct(t *testing.T) {
 		ProductID:      101,
 	}
 
-	repo := NewProductRecRepository(db)
+	repo := NewProductRecRepository(db, logMock)
 
 	query := `
 	SELECT
@@ -242,7 +242,7 @@ func TestProductRecRepository_GetAll(t *testing.T) {
 	sale_price
 	FROM product_records`
 
-	repo := NewProductRecRepository(db)
+	repo := NewProductRecRepository(db, logMock)
 
 	t.Run("Getting a list product rec successfully", func(t *testing.T) {
 		var expected []model.ProductRecords
@@ -323,7 +323,7 @@ func TestProductRecRepository_GetAllReport(t *testing.T) {
 	inner join product_records pr on pr.product_id = p.id
 	GROUP by p.id, p.description`
 
-	repo := NewProductRecRepository(db)
+	repo := NewProductRecRepository(db, logMock)
 
 	t.Run("Getting a list product rec successfully", func(t *testing.T) {
 		var expected []model.ProductRecordsReport

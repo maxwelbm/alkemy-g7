@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -10,10 +11,10 @@ import (
 
 type ProductRepository struct {
 	DB  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
-func NewProductRepository(db *sql.DB, log *logger.Logger) *ProductRepository {
+func NewProductRepository(db *sql.DB, log logger.Logger) *ProductRepository {
 	return &ProductRepository{DB: db, log: log}
 }
 

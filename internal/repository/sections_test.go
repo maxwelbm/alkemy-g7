@@ -23,7 +23,7 @@ func TestSectionRepository_Post(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a valid section the create it with no error", func(t *testing.T) {
 		expectedSection := model.Section{ID: 1, SectionNumber: "S01", CurrentTemperature: 10.0, MinimumTemperature: 5.0, CurrentCapacity: 10, MinimumCapacity: 5, MaximumCapacity: 20, WarehouseID: 1, ProductTypeID: 1}
@@ -67,7 +67,7 @@ func TestSectionRepository_GetByID(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a valid id the return the section with no error", func(t *testing.T) {
 		sectionID := 1
@@ -109,7 +109,7 @@ func TestSectionRepository_Get(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("return all the sections", func(t *testing.T) {
 		expectedSections := []model.Section{
@@ -150,7 +150,7 @@ func TestSectionRepository_Update(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a valid section then update it and return no error", func(t *testing.T) {
 		sectionID := 1
@@ -204,7 +204,7 @@ func TestSectionRepository_Delete(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a valid section then delete the section", func(t *testing.T) {
 		sectionID := 1
@@ -244,7 +244,7 @@ func TestCountProductBatchesBySectionID(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a valid product batch then return the count with no error", func(t *testing.T) {
 		sectionID := 1
@@ -287,7 +287,7 @@ func TestCountProductBatchesSections(t *testing.T) {
 
 	defer db.Close()
 
-	rp := repository.CreateRepositorySections(db)
+	rp := repository.CreateRepositorySections(db, logMock)
 
 	t.Run("given a slice of product batches then count it and return with no error", func(t *testing.T) {
 		expectedCount := []model.SectionProductBatches{

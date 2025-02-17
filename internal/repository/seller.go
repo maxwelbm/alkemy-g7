@@ -3,21 +3,22 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"strings"
+
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
-func CreateRepositorySellers(db *sql.DB, log *logger.Logger) *SellersRepository {
+func CreateRepositorySellers(db *sql.DB, log logger.Logger) *SellersRepository {
 	return &SellersRepository{db, log}
 }
 
 type SellersRepository struct {
 	db  *sql.DB
-	log *logger.Logger
+	log logger.Logger
 }
 
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
