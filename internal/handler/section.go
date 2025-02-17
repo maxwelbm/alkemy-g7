@@ -76,7 +76,9 @@ func (h *SectionController) GetByID(w http.ResponseWriter, r *http.Request) {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to search for section", nil))
+
 		return
 	}
 
@@ -115,7 +117,9 @@ func (h *SectionController) Post(w http.ResponseWriter, r *http.Request) {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to create section", nil))
+
 		return
 	}
 
@@ -162,7 +166,9 @@ func (h *SectionController) Update(w http.ResponseWriter, r *http.Request) {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to update section", nil))
+
 		return
 	}
 
@@ -184,7 +190,9 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 			return
 		}
-		// response.JSON(w, handleError(err), responses.CreateResponseBody(err.Error(), nil))
+
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to delete section", nil))
+
 		return
 	}
 
@@ -192,32 +200,37 @@ func (h *SectionController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SectionController) CountProductBatchesSections(w http.ResponseWriter, r *http.Request) {
-	// idStr := r.URL.Query().Get("id")
+	idStr := r.URL.Query().Get("id")
 
-	// if idStr == "" {
-	// 	count, err := h.Sv.CountProductBatchesSections()
-	// 	if err != nil {
-	// 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
-	// 		return
-	// 	}
-	// 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
-	// 	return
-	// }
+	if idStr == "" {
+		count, err := h.Sv.CountProductBatchesSections()
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("unable to count section product batches", nil))
+			return
+		}
 
-	// id, err := strconv.Atoi(idStr)
-	// if err != nil {
-	// 	response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
-	// 	return
-	// }
+		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 
-	// count, err := h.Sv.CountProductBatchesBySectionID(id)
-	// if err != nil {
-	// 	if err, ok := err.(*customerror.GenericError); ok {
-	// 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
-	// 		return
-	// 	}
-	// 	response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
-	// 	return
-	// }
-	// response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
+		return
+	}
+
+	count, err := h.Sv.CountProductBatchesBySectionID(id)
+	if err != nil {
+		if err, ok := err.(*customerror.GenericError); ok {
+			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			return
+		}
+
+		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("error", nil))
+
+		return
+	}
+
+	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 }

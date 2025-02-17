@@ -8,7 +8,7 @@ import (
 	"github.com/bootcamp-go/web/response"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler/responses"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
@@ -27,11 +27,11 @@ type ProductBatchesJSON struct {
 }
 
 type ProductBatchesController struct {
-	sv *service.ProductBatchesService
+	Sv interfaces.IProductBatchesService
 }
 
-func CreateProductBatchesHandler(sv *service.ProductBatchesService) *ProductBatchesController {
-	return &ProductBatchesController{sv}
+func CreateProductBatchesHandler(sv interfaces.IProductBatchesService) *ProductBatchesController {
+	return &ProductBatchesController{Sv: sv}
 }
 
 func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 		SectionID:          reqBody.SectionID,
 	}
 
-	pb, err := h.sv.Post(&productBatches)
+	pb, err := h.Sv.Post(&productBatches)
 
 	if err != nil {
 		if err, ok := err.(*customerror.GenericError); ok {

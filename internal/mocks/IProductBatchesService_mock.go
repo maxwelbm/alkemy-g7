@@ -13,7 +13,7 @@ type MockIProductBatchesService struct {
 }
 
 // GetById provides a mock function with given fields: id
-func (_m *MockIProductBatchesService) GetById(id int) (model.ProductBatches, error) {
+func (_m *MockIProductBatchesService) GetByID(id int) (model.ProductBatches, error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
