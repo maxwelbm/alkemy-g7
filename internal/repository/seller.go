@@ -26,6 +26,8 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 		return
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		var seller model.Seller
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Locality)
@@ -35,11 +37,6 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 		}
 
 		sellers = append(sellers, seller)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return sellers, er.ErrDefaultSellerSQL
 	}
 
 	return
