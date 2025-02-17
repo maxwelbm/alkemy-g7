@@ -10,22 +10,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
-	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func setupWarehouse() *handler.WarehouseHandler {
-	mockServiceWarehouse := new(service.WarehouseServiceMock)
+func setupWarehouse(t *testing.T) *handler.WarehouseHandler {
+	mockServiceWarehouse := mocks.NewMockIWarehouseService(t)
 	hd := handler.NewWareHouseHandler(mockServiceWarehouse)
 	return hd
 }
 func TestHandlerGetAllWarehouse(t *testing.T) {
 
 	t.Run("GetAllWarehouse return sucess", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		expectedWarehouse := []model.WareHouse{{
 			ID:                 1,
@@ -45,7 +45,7 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses", nil)
 		response := httptest.NewRecorder()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 		mockServiceWarehouse.On("GetAllWareHouse").Return(expectedWarehouse, nil)
 
 		handler := hd.GetAllWareHouse()
@@ -80,11 +80,11 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 	})
 
 	t.Run("GetAllWarehouse return error", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses", nil)
 		response := httptest.NewRecorder()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 		mockServiceWarehouse.On("GetAllWareHouse").Return([]model.WareHouse{}, errors.New("not found warehouses"))
 
 		handler := hd.GetAllWareHouse()
@@ -101,8 +101,8 @@ func TestHandlerGetAllWarehouse(t *testing.T) {
 
 func TestHandlerGetWarehouseById(t *testing.T) {
 	t.Run("GetByIdWareHouse return sucess", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
@@ -141,8 +141,8 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 	})
 
 	t.Run("GetByIdWareHouse not found", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
@@ -163,7 +163,7 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 	})
 
 	t.Run("GetByIdWarehouse id invalid", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		request := httptest.NewRequest(http.MethodGet, "/api/v1/warehouses/th", nil)
 
@@ -181,8 +181,8 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 	})
 
 	t.Run("GetByIdWarehouse when service fails returns internal server error", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/warehouses/{id}", hd.GetWareHouseByID())
@@ -205,8 +205,8 @@ func TestHandlerGetWarehouseById(t *testing.T) {
 
 func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 	t.Run("DeleteByIdWarehouse return sucess", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
@@ -223,8 +223,8 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 	})
 
 	t.Run("DeleteByIdWarehouse not found", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/warehouses/{id}", hd.DeleteByIDWareHouse())
@@ -245,7 +245,7 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 	})
 
 	t.Run("DeleteByIdWarehouse id invalid", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		request := httptest.NewRequest(http.MethodDelete, "/api/v1/warehouses/th", nil)
 
@@ -264,8 +264,8 @@ func TestHandlerDeleteByIdWarehouse(t *testing.T) {
 
 func TestHandlerPostWarehouse(t *testing.T) {
 	t.Run("PostWarehouse create sucess", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Post("/api/v1/warehouses", hd.PostWareHouse())
@@ -318,8 +318,8 @@ func TestHandlerPostWarehouse(t *testing.T) {
 	})
 
 	t.Run("PostWarehouse required fields not found", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Post("/api/v1/warehouses", hd.PostWareHouse())
@@ -342,7 +342,7 @@ func TestHandlerPostWarehouse(t *testing.T) {
 	})
 
 	t.Run("PostWarehouse invalid request body", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		r := chi.NewRouter()
 		r.Post("/api/v1/warehouses", hd.PostWareHouse())
@@ -368,8 +368,8 @@ func TestHandlerPostWarehouse(t *testing.T) {
 	})
 
 	t.Run("PostWarehouse warehouse_code conflit", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Post("/api/v1/warehouses", hd.PostWareHouse())
@@ -406,8 +406,8 @@ func TestHandlerPostWarehouse(t *testing.T) {
 	})
 
 	t.Run("PostWarehouse when service fails returns internal server error", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		r := chi.NewRouter()
 		r.Post("/api/v1/warehouses", hd.PostWareHouse())
@@ -446,8 +446,8 @@ func TestHandlerPostWarehouse(t *testing.T) {
 
 func TestHandlerUpdateWarehouse(t *testing.T) {
 	t.Run("UpdateWarehouse return sucess", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		warehouse := model.WareHouse{
 			ID:                 1,
@@ -491,10 +491,7 @@ func TestHandlerUpdateWarehouse(t *testing.T) {
 	})
 
 	t.Run("UpdateWarehouse invalid id", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
-
-		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{}).Return(model.WareHouse{}, errors.New("invalid id"))
+		hd := setupWarehouse(t)
 
 		request := httptest.NewRequest(http.MethodPatch, "/api/v1/warehouses/th", nil)
 		response := httptest.NewRecorder()
@@ -508,7 +505,7 @@ func TestHandlerUpdateWarehouse(t *testing.T) {
 	})
 
 	t.Run("UpdateWarehouse invalid request body", func(t *testing.T) {
-		hd := setupWarehouse()
+		hd := setupWarehouse(t)
 
 		r := chi.NewRouter()
 		r.Patch("/api/v1/warehouses/{id}", hd.UpdateWareHouse())
@@ -533,8 +530,8 @@ func TestHandlerUpdateWarehouse(t *testing.T) {
 	})
 
 	t.Run("UpdateWarehouse internal server error", func(t *testing.T) {
-		hd := setupWarehouse()
-		mockServiceWarehouse := hd.Srv.(*service.WarehouseServiceMock)
+		hd := setupWarehouse(t)
+		mockServiceWarehouse := hd.Srv.(*mocks.MockIWarehouseService)
 
 		mockServiceWarehouse.On("UpdateWareHouse", 1, model.WareHouse{
 			Address: "Update Address",
