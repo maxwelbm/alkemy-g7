@@ -22,7 +22,7 @@ func setupLocality(mockLocality *mocks.MockILocalityRepo) *service.LocalitiesSer
 	return service.CreateServiceLocalities(mockLocality)
 }
 
-func TestServiceGetAllSeller(t *testing.T) {
+func TestSellersService_GetAll(t *testing.T) {
 	s := setupSeller(t)
 	mock := s.Rp.(*mocks.MockISellerRepo)
 
@@ -53,59 +53,59 @@ func TestServiceGetAllSeller(t *testing.T) {
 	})
 }
 
-func TestServiceGetByIDSeller(t *testing.T) {
+func TestSellersService_GetByID(t *testing.T) {
 	s := setupSeller(t)
 	mock := s.Rp.(*mocks.MockISellerRepo)
 
-	t.Run("test service method for get seller by id existing successfully", func(t *testing.T) {
-		id := 3
+	t.Run("test service method for get seller by ID existing successfully", func(t *testing.T) {
+		ID := 3
 		sl := model.Seller{ID: 3, CID: 3, CompanyName: "Enterprise Science", Address: "1200 Central Park Avenue", Telephone: "999444555", Locality: 3}
 
-		mock.On("GetByID", id).Return(sl, nil).Once()
+		mock.On("GetByID", ID).Return(sl, nil).Once()
 
-		seller, err := s.GetByID(id)
+		seller, err := s.GetByID(ID)
 
 		assert.NoError(t, err)
 		assert.Equal(t, sl, seller)
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test service method for get seller by id not found", func(t *testing.T) {
+	t.Run("test service method for get seller by ID not found", func(t *testing.T) {
 		sl := model.Seller{}
-		id := 999
+		ID := 999
 		errS := customerror.ErrSellerNotFound
 
-		mock.On("GetByID", id).Return(sl, errS).Once()
+		mock.On("GetByID", ID).Return(sl, errS).Once()
 
-		seller, err := s.GetByID(id)
+		seller, err := s.GetByID(ID)
 
 		assert.ErrorIs(t, errS, err)
 		assert.Equal(t, sl, seller)
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test service method for get seller by id with zero id", func(t *testing.T) {
+	t.Run("test service method for get seller by ID with zero id", func(t *testing.T) {
 		sl := model.Seller{}
-		id := 0
+		ID := 0
 		errS := customerror.ErrMissingSellerID
 
-		mock.On("GetByID", id).Return(sl, errS).Once()
+		mock.On("GetByID", ID).Return(sl, errS).Once()
 
-		seller, err := s.GetByID(id)
+		seller, err := s.GetByID(ID)
 
 		assert.ErrorIs(t, errS, err)
 		assert.Equal(t, sl, seller)
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test service method for get seller by id with internal server error", func(t *testing.T) {
+	t.Run("test service method for get seller by ID with internal server error", func(t *testing.T) {
 		sl := model.Seller{}
-		id := 4
+		ID := 4
 		errS := customerror.ErrDefaultSeller
 
-		mock.On("GetByID", id).Return(sl, errS).Once()
+		mock.On("GetByID", ID).Return(sl, errS).Once()
 
-		seller, err := s.GetByID(id)
+		seller, err := s.GetByID(ID)
 
 		assert.ErrorIs(t, errS, err)
 		assert.Equal(t, sl, seller)
@@ -113,7 +113,7 @@ func TestServiceGetByIDSeller(t *testing.T) {
 	})
 }
 
-func TestServiceCreateSeller(t *testing.T) {
+func TestSellersService_CreateSeller(t *testing.T) {
 	s := setupSeller(t)
 	mockSeller := s.Rp.(*mocks.MockISellerRepo)
 	mockLocality := s.Rpl.(*mocks.MockILocalityRepo)
@@ -121,11 +121,11 @@ func TestServiceCreateSeller(t *testing.T) {
 	t.Run("test service method for create seller with success", func(t *testing.T) {
 		arg := model.Seller{CID: 5, CompanyName: "Enterprise Cypress", Address: "702 St Mark", Telephone: "33344455566", Locality: 5}
 		sl := model.Seller{ID: 5, CID: 5, CompanyName: "Enterprise Cypress", Address: "702 St Mark", Telephone: "33344455566", Locality: 5}
-		id := 5
+		ID := 5
 		l := model.Locality{ID: 5, Locality: "Brooklyn", Province: "New York", Country: "EUA"}
 
 		mockSeller.On("Post", &arg).Return(sl, nil).Once()
-		mockLocality.On("GetByID", id).Return(l, nil).Once()
+		mockLocality.On("GetByID", ID).Return(l, nil).Once()
 
 		seller, err := s.CreateSeller(&arg)
 
@@ -146,15 +146,15 @@ func TestServiceCreateSeller(t *testing.T) {
 		assert.Equal(t, sl, seller)
 	})
 
-	t.Run("test service method for create seller with attribute cid already existing", func(t *testing.T) {
+	t.Run("test service method for create seller with attribute CID already existing", func(t *testing.T) {
 		arg := model.Seller{CID: 1, CompanyName: "Midgard Sellers", Address: "3 New Time Park", Telephone: "99989898778", Locality: 7}
 		sl := model.Seller{}
-		id := 7
+		ID := 7
 		l := model.Locality{ID: 7, Locality: "Manhattan", Province: "New York", Country: "EUA"}
 		errSeller := customerror.ErrCIDSellerAlreadyExist
 
 		mockSeller.On("Post", &arg).Return(sl, errSeller).Once()
-		mockLocality.On("GetByID", id).Return(l, nil).Once()
+		mockLocality.On("GetByID", ID).Return(l, nil).Once()
 
 		seller, err := s.CreateSeller(&arg)
 
@@ -164,15 +164,15 @@ func TestServiceCreateSeller(t *testing.T) {
 		mockLocality.AssertExpectations(t)
 	})
 
-	t.Run("test service method for create seller with attribute locality id not found", func(t *testing.T) {
+	t.Run("test service method for create seller with attribute locality ID not found", func(t *testing.T) {
 		arg := model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999}
 		sl := model.Seller{}
-		id := 9999
+		ID := 9999
 		l := model.Locality{}
 		errSeller := customerror.ErrLocalityNotFound
 		errLocality := customerror.ErrLocalityNotFound
 
-		mockLocality.On("GetByID", id).Return(l, errLocality).Once()
+		mockLocality.On("GetByID", ID).Return(l, errLocality).Once()
 		seller, err := s.CreateSeller(&arg)
 
 		assert.ErrorIs(t, errSeller, err)
@@ -181,7 +181,7 @@ func TestServiceCreateSeller(t *testing.T) {
 	})
 }
 
-func TestServiceUpdateSeller(t *testing.T) {
+func TestSellersService_UpdateSeller(t *testing.T) {
 	serviceSeller := setupSeller(t)
 	mockSeller := serviceSeller.Rp.(*mocks.MockISellerRepo)
 	mockLocality := serviceSeller.Rpl.(*mocks.MockILocalityRepo)
@@ -209,7 +209,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		mockLocality.AssertExpectations(t)
 	})
 
-	t.Run("test service method for update seller with id not found", func(t *testing.T) {
+	t.Run("test service method for update seller with ID not found", func(t *testing.T) {
 		arg := model.Seller{CID: 65, CompanyName: "Cypress Company", Address: "30 Central Park", Telephone: "55566777787", Locality: 9}
 		sl := model.Seller{}
 		sellerID := 999
@@ -247,7 +247,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		mockSeller.AssertExpectations(t)
 	})
 
-	t.Run("test service method for update seller with attribute cid already existing", func(t *testing.T) {
+	t.Run("test service method for update seller with attribute CID already existing", func(t *testing.T) {
 		arg := model.Seller{CID: 1, CompanyName: "Cypress Company", Address: "400 Central Park", Telephone: "55566777787", Locality: 17}
 		sl := model.Seller{}
 		sellerID := 9
@@ -270,7 +270,7 @@ func TestServiceUpdateSeller(t *testing.T) {
 		mockLocality.AssertExpectations(t)
 	})
 
-	t.Run("test service method for update seller with attribute locality id not found", func(t *testing.T) {
+	t.Run("test service method for update seller with attribute locality ID not found", func(t *testing.T) {
 		arg := model.Seller{CID: 8, CompanyName: "Rupture Clivers", Address: "1200 New Time Park", Telephone: "7776657987", Locality: 9999}
 		sl := model.Seller{}
 		sellerID := 8
@@ -313,37 +313,37 @@ func TestServiceUpdateSeller(t *testing.T) {
 	})
 }
 
-func TestServiceDeleteSeller(t *testing.T) {
+func TestSellersService_DeleteSeller(t *testing.T) {
 	s := setupSeller(t)
 	mock := s.Rp.(*mocks.MockISellerRepo)
 
 	t.Run("test service method for delete seller with success", func(t *testing.T) {
-		id := 3
-		mock.On("Delete", id).Return(nil)
+		ID := 3
+		mock.On("Delete", ID).Return(nil)
 
-		err := s.DeleteSeller(id)
+		err := s.DeleteSeller(ID)
 
 		assert.NoError(t, err)
 		mock.AssertExpectations(t)
 	})
 
-	t.Run("test service method for delete seller by id not found", func(t *testing.T) {
-		id := 999
+	t.Run("test service method for delete seller by ID not found", func(t *testing.T) {
+		ID := 999
 		errS := customerror.ErrSellerNotFound
-		mock.On("Delete", id).Return(errS)
+		mock.On("Delete", ID).Return(errS)
 
-		err := s.DeleteSeller(id)
+		err := s.DeleteSeller(ID)
 
 		assert.ErrorIs(t, errS, err)
 		mock.AssertExpectations(t)
 	})
 
 	t.Run("test service method for delete seller by zero id", func(t *testing.T) {
-		id := 0
+		ID := 0
 		errS := customerror.ErrMissingSellerID
-		mock.On("Delete", id).Return(errS)
+		mock.On("Delete", ID).Return(errS)
 
-		err := s.DeleteSeller(id)
+		err := s.DeleteSeller(ID)
 
 		assert.ErrorIs(t, errS, err)
 		mock.AssertExpectations(t)
