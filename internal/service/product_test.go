@@ -4,72 +4,23 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-type productsRepositoryMock struct {
-	mock.Mock
-}
-
-func (p *productsRepositoryMock) Create(product model.Product) (model.Product, error) {
-	args := p.Called(product)
-	return args.Get(0).(model.Product), args.Error(1)
-}
-
-func (p *productsRepositoryMock) Delete(id int) error {
-	args := p.Called(id)
-	return args.Error(0)
-}
-
-func (p *productsRepositoryMock) GetAll() (map[int]model.Product, error) {
-	args := p.Called()
-	return args.Get(0).(map[int]model.Product), args.Error(1)
-}
-
-func (p *productsRepositoryMock) GetByID(id int) (model.Product, error) {
-	args := p.Called(id)
-	return args.Get(0).(model.Product), args.Error(1)
-}
-
-func (p *productsRepositoryMock) Update(id int, product model.Product) (model.Product, error) {
-	args := p.Called(id, product)
-	return args.Get(0).(model.Product), args.Error(1)
-}
-
-type sellerRepositoryMock struct {
-	mock.Mock
-}
-
-func (s *sellerRepositoryMock) Get() ([]model.Seller, error) {
-	panic("1")
-}
-func (s *sellerRepositoryMock) GetByID(id int) (model.Seller, error) {
-	args := s.Called(id)
-	return args.Get(0).(model.Seller), args.Error(1)
-}
-func (s *sellerRepositoryMock) Post(seller *model.Seller) (model.Seller, error) {
-	panic("3")
-}
-func (s *sellerRepositoryMock) Patch(id int, seller *model.Seller) (model.Seller, error) {
-	panic("4")
-}
-func (s *sellerRepositoryMock) Delete(id int) error {
-	panic("5")
-}
-
 func loadDependencies() *ProductService {
-	productRepoMock := new(productsRepositoryMock)
-	sellerRepositoryMock := new(sellerRepositoryMock)
+	productRepoMock := new(mocks.MockIProductsRepo)
+	sellerRepositoryMock := new(mocks.MockISellerRepo)
 	productServiceMock := NewProductService(productRepoMock, sellerRepositoryMock)
 	return productServiceMock
 }
 
 func TestGetAllProducts(t *testing.T) {
-	productService := loadDependencies()
 	t.Run("should return the list of products", func(t *testing.T) {
+		productService := loadDependencies()
 		data := make(map[int]model.Product)
 		data[1] = model.Product{
 			ID:                             1,
@@ -101,7 +52,7 @@ func TestGetAllProducts(t *testing.T) {
 			SellerID:                       0,
 		}}
 
-		mockRepo := productService.ProductRepository.(*productsRepositoryMock)
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
 
 		mockRepo.On("GetAll").Return(data, nil)
 
@@ -111,11 +62,22 @@ func TestGetAllProducts(t *testing.T) {
 		assert.Equal(t, expectedValue, productList)
 		mockRepo.AssertExpectations(t)
 	})
+
+	t.Run("should return error to get a product", func(t *testing.T) {
+		productService := loadDependencies()
+		expectedError := errors.New("error to get a product")
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+
+		mockRepo.On("GetAll").Return(map[int]model.Product{}, errors.New("error to get a product"))
+
+		_, err := productService.GetAllProducts()
+
+		assert.EqualError(t, expectedError, err.Error())
+		mockRepo.AssertExpectations(t)
+	})
 }
 
-func TestGetByID(t *testing.T) {
-	productService := loadDependencies()
-
+func TestGetProductByID(t *testing.T) {
 	expectedProduct := model.Product{
 		ID:                             1,
 		ProductCode:                    "P001",
@@ -131,53 +93,36 @@ func TestGetByID(t *testing.T) {
 		SellerID:                       0,
 	}
 
-	testCases := []struct {
-		name            string
-		id              int
-		expectedProduct model.Product
-		expectedError   error
-	}{
-		{
-			name:            "should return the product",
-			id:              1,
-			expectedProduct: expectedProduct,
-			expectedError:   nil,
-		},
-		{
-			name:            "should return not found error",
-			id:              2,
-			expectedProduct: model.Product{},
-			expectedError:   customerror.HandleError("product", customerror.ErrorNotFound, ""),
-		},
-	}
+	t.Run("should return the product", func(t *testing.T) {
+		productService := loadDependencies()
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		mockRepo.On("GetByID", 1).Return(expectedProduct, nil)
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := productService.ProductRepository.(*productsRepositoryMock)
+		product, err := productService.GetProductByID(1)
 
-			if tc.expectedError != nil {
-				mockRepo.On("GetByID", tc.id).Return(model.Product{}, tc.expectedError)
-			} else {
-				mockRepo.On("GetByID", tc.id).Return(expectedProduct, nil)
-			}
+		assert.NoError(t, err)
+		assert.Equal(t, expectedProduct, product)
+		mockRepo.AssertExpectations(t)
+	})
 
-			product, err := productService.ProductRepository.GetByID(tc.id)
+	t.Run("should return not found error", func(t *testing.T) {
+		productService := loadDependencies()
 
-			if tc.expectedError != nil {
-				assert.ErrorIs(t, err, tc.expectedError)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedProduct, product)
-			}
+		id := 2
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		expectedError := customerror.HandleError("product", customerror.ErrorNotFound, "")
 
-			mockRepo.AssertExpectations(t)
-		})
-	}
+		mockRepo.On("GetByID", id).Return(model.Product{}, expectedError)
+
+		product, err := productService.GetProductByID(id)
+
+		assert.ErrorIs(t, err, expectedError)
+		assert.Equal(t, model.Product{}, product)
+		mockRepo.AssertExpectations(t)
+	})
 }
 
 func TestDeleteById(t *testing.T) {
-	productService := loadDependencies()
-
 	data := model.Product{
 		ID:                             1,
 		ProductCode:                    "P001",
@@ -193,50 +138,46 @@ func TestDeleteById(t *testing.T) {
 		SellerID:                       0,
 	}
 
-	testCases := []struct {
-		name          string
-		id            int
-		expectedError error
-	}{
-		{
-			name:          "should return the product",
-			id:            1,
-			expectedError: nil,
-		},
-		{
-			name:          "should return not found error",
-			id:            2,
-			expectedError: customerror.HandleError("product", customerror.ErrorNotFound, ""),
-		},
-	}
+	t.Run("should delete the product", func(t *testing.T) {
+		productService := loadDependencies()
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		mockRepo.On("GetByID", 1).Return(data, nil)
+		mockRepo.On("Delete", 1).Return(nil)
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := productService.ProductRepository.(*productsRepositoryMock)
+		err := productService.DeleteProduct(1)
 
-			if tc.expectedError != nil {
-				mockRepo.On("GetByID", tc.id).Return(model.Product{}, tc.expectedError)
-			} else {
-				mockRepo.On("GetByID", tc.id).Return(data, nil)
-				mockRepo.On("Delete", tc.id).Return(nil)
-			}
+		assert.NoError(t, err)
+		mockRepo.AssertExpectations(t)
+	})
 
-			err := productService.DeleteProduct(tc.id)
+	t.Run("should return not found error", func(t *testing.T) {
+		productService := loadDependencies()
+		id := 2
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		expectedError := customerror.HandleError("product", customerror.ErrorNotFound, "")
+		mockRepo.On("GetByID", id).Return(model.Product{}, expectedError)
 
-			if err != nil {
-				assert.Equal(t, err, tc.expectedError)
-			} else {
-				assert.NoError(t, err)
-			}
+		err := productService.DeleteProduct(id)
 
-			mockRepo.AssertExpectations(t)
-		})
-	}
+		assert.Equal(t, err, expectedError)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("should error in delete product", func(t *testing.T) {
+		expectedError := errors.New("error in delete product")
+		productService := loadDependencies()
+		mockRepo := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		mockRepo.On("GetByID", 1).Return(data, nil)
+		mockRepo.On("Delete", 1).Return(errors.New("error in delete product"))
+
+		err := productService.DeleteProduct(1)
+
+		assert.EqualError(t, err, expectedError.Error())
+		mockRepo.AssertExpectations(t)
+	})
 }
 
 func TestCreateProduct(t *testing.T) {
-	productService := loadDependencies()
-
 	listOfProducts := make(map[int]model.Product)
 	listOfProducts[1] = model.Product{
 		ID:                             1,
@@ -272,28 +213,166 @@ func TestCreateProduct(t *testing.T) {
 		ID: 1,
 	}
 
-	testCases := []struct {
-		name                            string
-		idTestCase                      int
-		param                           model.Product
-		expectedReturnProductMockSucess model.Product
-		expectedReturnSellerMockSucess  model.Seller
-		expectedReturnMockError         error
-	}{
-		{
-			name:                            "Should return sucess to create product",
-			idTestCase:                      1,
-			param:                           dataProduct,
-			expectedReturnProductMockSucess: dataProduct,
-			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         nil,
-		},
-		{
-			name:       "Should return validation error",
-			idTestCase: 2,
-			param: model.Product{
+	t.Run("Should return success to create product", func(t *testing.T) {
+		productService := loadDependencies()
+
+		productRepoMock := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		sellerRepoMock.On("GetByID", dataProduct.SellerID).
+			Return(dataSeller, nil)
+		productRepoMock.On("GetAll").Return(listOfProducts, nil)
+		productRepoMock.On("Create", dataProduct).Return(dataProduct, nil)
+
+		product, err := productService.CreateProduct(dataProduct)
+
+		assert.NoError(t, err)
+		assert.Equal(t, dataProduct, product)
+		productRepoMock.AssertExpectations(t)
+		sellerRepoMock.AssertExpectations(t)
+	})
+
+	t.Run("Should return validation error", func(t *testing.T) {
+		productService := loadDependencies()
+
+		productRepoMock := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		invalidProduct := model.Product{
+			ID:                             1,
+			ProductCode:                    "",
+			Description:                    "Product 1",
+			Width:                          10,
+			Height:                         20,
+			Length:                         1,
+			NetWeight:                      1,
+			ExpirationRate:                 1,
+			RecommendedFreezingTemperature: 1,
+			FreezingRate:                   1,
+			ProductTypeID:                  1,
+			SellerID:                       1,
+		}
+
+		sellerRepoMock.On("GetByID", invalidProduct.SellerID).
+			Return(dataSeller, nil)
+		productRepoMock.On("GetAll").Return(listOfProducts, nil)
+
+		product, err := productService.CreateProduct(invalidProduct)
+
+		assert.EqualError(t, err, "validation errors: ProductCode is required")
+		assert.Equal(t, model.Product{}, product)
+	})
+
+	t.Run("Should return validation error in get id", func(t *testing.T) {
+		productService := loadDependencies()
+
+		productRepoMock := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		invalidProduct := model.Product{
+			ID:                             1,
+			ProductCode:                    "",
+			Description:                    "Product 1",
+			Width:                          10,
+			Height:                         20,
+			Length:                         1,
+			NetWeight:                      1,
+			ExpirationRate:                 1,
+			RecommendedFreezingTemperature: 1,
+			FreezingRate:                   1,
+			ProductTypeID:                  1,
+			SellerID:                       1,
+		}
+
+		sellerRepoMock.On("GetByID", invalidProduct.SellerID).
+			Return(dataSeller, nil)
+		productRepoMock.On("GetAll").Return(listOfProducts, nil)
+
+		product, err := productService.CreateProduct(invalidProduct)
+
+		assert.EqualError(t, err, "validation errors: ProductCode is required")
+		assert.Equal(t, model.Product{}, product)
+	})
+
+	t.Run("Should return exist by product code", func(t *testing.T) {
+		productService := loadDependencies()
+
+		productRepoMock := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		sellerRepoMock.On("GetByID", dataProduct.SellerID).
+			Return(dataSeller, nil)
+		productRepoMock.On("GetAll").Return(listOfProducts, nil)
+
+		product, err := productService.CreateProduct(listOfProducts[1])
+
+		assert.Equal(t, customerror.CustomError{Object: listOfProducts[1].ProductCode, Err: customerror.ErrConflict}, err)
+		assert.Equal(t, model.Product{}, product)
+		productRepoMock.AssertExpectations(t)
+		sellerRepoMock.AssertExpectations(t)
+	})
+
+	t.Run("Should return error seller not found", func(t *testing.T) {
+		expectedErr := errors.New("seller not found")
+		productService := loadDependencies()
+
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		sellerRepoMock.On("GetByID", dataProduct.SellerID).
+			Return(model.Seller{}, errors.New("seller not found"))
+
+		_, err := productService.CreateProduct(dataProduct)
+
+		assert.EqualError(t, expectedErr, err.Error())
+		sellerRepoMock.AssertExpectations(t)
+	})
+
+	t.Run("Should return error in create product", func(t *testing.T) {
+		expectedError := errors.New("error to create product")
+		productService := loadDependencies()
+
+		productRepoMock := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		sellerRepoMock := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		sellerRepoMock.On("GetByID", dataProduct.SellerID).
+			Return(dataSeller, nil)
+		productRepoMock.On("GetAll").Return(listOfProducts, nil)
+		productRepoMock.On("Create", dataProduct).Return(model.Product{}, errors.New("error to create product"))
+
+		_, err := productService.CreateProduct(dataProduct)
+
+		assert.EqualError(t, expectedError, err.Error())
+		productRepoMock.AssertExpectations(t)
+		sellerRepoMock.AssertExpectations(t)
+	})
+}
+
+func TestUpdateProducts(t *testing.T) {
+	productService := loadDependencies()
+
+	t.Run("Should return success to update product", func(t *testing.T) {
+		prm := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		srm := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		inputProduct := model.Product{
+			ID:                             1,
+			ProductCode:                    "P002",
+			Description:                    "Product updated 1",
+			Width:                          10,
+			Height:                         20,
+			Length:                         1,
+			NetWeight:                      1,
+			ExpirationRate:                 1,
+			RecommendedFreezingTemperature: 1,
+			FreezingRate:                   1,
+			ProductTypeID:                  1,
+			SellerID:                       1,
+		}
+
+		listOfProducts := map[int]model.Product{
+			1: {
 				ID:                             1,
-				ProductCode:                    "",
+				ProductCode:                    "P001",
 				Description:                    "Product 1",
 				Width:                          10,
 				Height:                         20,
@@ -305,179 +384,65 @@ func TestCreateProduct(t *testing.T) {
 				ProductTypeID:                  1,
 				SellerID:                       1,
 			},
-			expectedReturnProductMockSucess: dataProduct,
-			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         errors.New("validation errors: ProductCode is required"),
-		},
-		{
-			name:                            "Should return seller not found",
-			idTestCase:                      3,
-			param:                           dataProduct,
-			expectedReturnProductMockSucess: dataProduct,
-			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         errors.New("seller not found"),
-		},
-		{
-			name:                            "Should return exist by product code",
-			idTestCase:                      4,
-			param:                           listOfProducts[1],
-			expectedReturnProductMockSucess: dataProduct,
-			expectedReturnSellerMockSucess:  dataSeller,
-			expectedReturnMockError:         customerror.CustomError{Object: listOfProducts[1].ProductCode, Err: customerror.ErrConflict},
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			productRepoMock := productService.ProductRepository.(*productsRepositoryMock)
-			sellerRepoMock := productService.SellerRepository.(*sellerRepositoryMock)
+		}
 
-			if tc.expectedReturnMockError != nil {
-				if tc.idTestCase == 3 {
-					sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
-						Return(model.Seller{}, errors.New("seller not found"))
-				}
-				if tc.idTestCase == 4 {
-					sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
-						Return(tc.expectedReturnSellerMockSucess, nil)
+		srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
+		prm.On("GetAll").Return(listOfProducts, nil)
+		prm.On("GetByID", 1).Return(listOfProducts[1], nil)
+		prm.On("Update", 1, mock.Anything).Return(inputProduct, nil)
 
-					productRepoMock.On("GetAll").Return(listOfProducts, nil)
+		productUpdated, err := productService.UpdateProduct(1, inputProduct)
 
-				}
+		assert.NoError(t, err)
+		assert.Equal(t, inputProduct, productUpdated)
+		prm.AssertExpectations(t)
+		srm.AssertExpectations(t)
+	})
 
-			} else {
-				sellerRepoMock.On("GetByID", tc.expectedReturnProductMockSucess.SellerID).
-					Return(tc.expectedReturnSellerMockSucess, nil)
-				productRepoMock.On("GetAll").Return(listOfProducts, nil)
-				productRepoMock.On("Create", tc.param).Return(tc.expectedReturnProductMockSucess, nil)
-			}
+	t.Run("Should return error for seller not found", func(t *testing.T) {
+		productService := loadDependencies()
+		prm := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		srm := productService.SellerRepository.(*mocks.MockISellerRepo)
 
-			product, err := productService.CreateProduct(tc.param)
+		srm.On("GetByID", 1).Return(model.Seller{}, errors.New("seller not found"))
 
-			if err != nil {
-				assert.Equal(t, err, tc.expectedReturnMockError)
-			} else {
-				assert.Equal(t, tc.expectedReturnProductMockSucess, product)
-			}
-			productRepoMock.AssertExpectations(t)
-			sellerRepoMock.AssertExpectations(t)
-		})
-	}
+		productUpdated, err := productService.UpdateProduct(1, model.Product{SellerID: 1})
 
-}
+		assert.EqualError(t, err, "seller not found")
+		assert.Equal(t, model.Product{}, productUpdated)
+		prm.AssertExpectations(t)
+		srm.AssertExpectations(t)
+	})
 
-func TestUpdateProducts(t *testing.T) {
-	type testCase struct {
-		name            string
-		productID       int
-		inputProduct    model.Product
-		mockSetup       func(prm *productsRepositoryMock, srm *sellerRepositoryMock)
-		expectedProduct model.Product
-		expectedError   error
-	}
+	t.Run("Should return not found error for product", func(t *testing.T) {
+		productService := loadDependencies()
+		prm := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		srm := productService.SellerRepository.(*mocks.MockISellerRepo)
 
-	testCases := []testCase{
-		{
-			name:      "Should return success to update product",
-			productID: 1,
-			inputProduct: model.Product{
-				ID:                             1,
-				ProductCode:                    "P002",
-				Description:                    "Product updated 1",
-				Width:                          10,
-				Height:                         20,
-				Length:                         1,
-				NetWeight:                      1,
-				ExpirationRate:                 1,
-				RecommendedFreezingTemperature: 1,
-				FreezingRate:                   1,
-				ProductTypeID:                  1,
-				SellerID:                       1,
-			},
-			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				listOfProducts := map[int]model.Product{
-					1: {
-						ID:                             1,
-						ProductCode:                    "P001",
-						Description:                    "Product 1",
-						Width:                          10,
-						Height:                         20,
-						Length:                         1,
-						NetWeight:                      1,
-						ExpirationRate:                 1,
-						RecommendedFreezingTemperature: 1,
-						FreezingRate:                   1,
-						ProductTypeID:                  1,
-						SellerID:                       1,
-					},
-				}
+		srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
+		prm.On("GetAll").Return(make(map[int]model.Product), nil)
+		prm.On("GetByID", 2).Return(model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, ""))
 
-				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
-				prm.On("GetAll").Return(listOfProducts, nil)
-				prm.On("GetByID", 1).Return(listOfProducts[1], nil)
-				prm.On("Update", 1, mock.Anything).Return(model.Product{
-					ID:                             1,
-					ProductCode:                    "P002",
-					Description:                    "Product updated 1",
-					Width:                          10,
-					Height:                         20,
-					Length:                         1,
-					NetWeight:                      1,
-					ExpirationRate:                 1,
-					RecommendedFreezingTemperature: 1,
-					FreezingRate:                   1,
-					ProductTypeID:                  1,
-					SellerID:                       1,
-				}, nil)
-			},
-			expectedProduct: model.Product{
-				ID:                             1,
-				ProductCode:                    "P002",
-				Description:                    "Product updated 1",
-				Width:                          10,
-				Height:                         20,
-				Length:                         1,
-				NetWeight:                      1,
-				ExpirationRate:                 1,
-				RecommendedFreezingTemperature: 1,
-				FreezingRate:                   1,
-				ProductTypeID:                  1,
-				SellerID:                       1,
-			},
-			expectedError: nil,
-		},
-		{
-			name:      "Should return error for seller not found",
-			productID: 1,
-			inputProduct: model.Product{
-				SellerID: 1,
-			},
-			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetByID", 1).Return(model.Seller{}, errors.New("seller not found"))
-			},
-			expectedProduct: model.Product{},
-			expectedError:   errors.New("seller not found"),
-		},
-		{
-			name:      "Should return not found error for product",
-			productID: 2,
-			inputProduct: model.Product{
-				SellerID: 1,
-			},
-			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
-				prm.On("GetAll").Return(make(map[int]model.Product), nil)
-				prm.On("GetByID", 2).Return(model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, ""))
-			},
-			expectedProduct: model.Product{},
-			expectedError:   customerror.HandleError("product", customerror.ErrorNotFound, ""),
-		},
-		{
-			name:      "Should return conflict error, because cannot update product code if this code already exists",
-			productID: 2,
-			inputProduct: model.Product{
+		productUpdated, err := productService.UpdateProduct(2, model.Product{SellerID: 1})
+
+		assert.Equal(t, customerror.HandleError("product", customerror.ErrorNotFound, ""), err)
+		assert.Equal(t, model.Product{}, productUpdated)
+		prm.AssertExpectations(t)
+		srm.AssertExpectations(t)
+	})
+
+	t.Run("Should return conflict error, because cannot update product code if this code already exists", func(t *testing.T) {
+		productService := loadDependencies()
+		prm := productService.ProductRepository.(*mocks.MockIProductsRepo)
+		srm := productService.SellerRepository.(*mocks.MockISellerRepo)
+
+		srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
+
+		listOfProducts := map[int]model.Product{
+			1: {
 				ID:                             1,
 				ProductCode:                    "P001",
-				Description:                    "Product updated 1",
+				Description:                    "Product 1",
 				Width:                          10,
 				Height:                         20,
 				Length:                         1,
@@ -488,50 +453,28 @@ func TestUpdateProducts(t *testing.T) {
 				ProductTypeID:                  1,
 				SellerID:                       1,
 			},
-			mockSetup: func(prm *productsRepositoryMock, srm *sellerRepositoryMock) {
-				srm.On("GetByID", 1).Return(model.Seller{ID: 1}, nil)
-				listOfProducts := map[int]model.Product{
-					1: {
-						ID:                             1,
-						ProductCode:                    "P001",
-						Description:                    "Product 1",
-						Width:                          10,
-						Height:                         20,
-						Length:                         1,
-						NetWeight:                      1,
-						ExpirationRate:                 1,
-						RecommendedFreezingTemperature: 1,
-						FreezingRate:                   1,
-						ProductTypeID:                  1,
-						SellerID:                       1,
-					},
-				}
-				prm.On("GetAll").Return(listOfProducts, nil)
-			},
-			expectedProduct: model.Product{},
-			expectedError:   customerror.CustomError{Object: "P001", Err: customerror.ErrConflict},
-		},
-	}
+		}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			productService := loadDependencies()
-			prm := productService.ProductRepository.(*productsRepositoryMock)
-			srm := productService.SellerRepository.(*sellerRepositoryMock)
+		prm.On("GetAll").Return(listOfProducts, nil)
 
-			tc.mockSetup(prm, srm)
-
-			productUpdated, err := productService.UpdateProduct(tc.productID, tc.inputProduct)
-
-			if tc.expectedError != nil {
-				assert.EqualError(t, err, tc.expectedError.Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedProduct, productUpdated)
-			}
-
-			prm.AssertExpectations(t)
-			srm.AssertExpectations(t)
+		productUpdated, err := productService.UpdateProduct(2, model.Product{
+			ID:                             1,
+			ProductCode:                    "P001",
+			Description:                    "Product updated 1",
+			Width:                          10,
+			Height:                         20,
+			Length:                         1,
+			NetWeight:                      1,
+			ExpirationRate:                 1,
+			RecommendedFreezingTemperature: 1,
+			FreezingRate:                   1,
+			ProductTypeID:                  1,
+			SellerID:                       1,
 		})
-	}
+
+		assert.Equal(t, customerror.CustomError{Object: "P001", Err: customerror.ErrConflict}, err)
+		assert.Equal(t, model.Product{}, productUpdated)
+		prm.AssertExpectations(t)
+		srm.AssertExpectations(t)
+	})
 }
