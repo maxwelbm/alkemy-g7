@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
@@ -25,7 +26,7 @@ func TestGetProductsHandler(t *testing.T) {
 			{ID: 2, ProductCode: "P002", Description: "Product 2", Width: 15, Height: 25, Length: 0, NetWeight: 0, ExpirationRate: 0, RecommendedFreezingTemperature: 0, FreezingRate: 0, ProductTypeID: 0, SellerID: 0},
 		}, nil)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		req := httptest.NewRequest("GET", "/api/v1/products", nil)
 		res := httptest.NewRecorder()
@@ -45,7 +46,7 @@ func TestGetProductsHandler(t *testing.T) {
 
 		productServiceMock.On("GetAllProducts").Return([]model.Product{}, errors.New("error to get all products"))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		req := httptest.NewRequest("GET", "/api/v1/products", nil)
 		res := httptest.NewRecorder()
@@ -81,7 +82,7 @@ func TestGetProductById(t *testing.T) {
 			SellerID:                       0,
 		}, nil)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/products/{id}", productHd.GetProductByID)
@@ -102,7 +103,7 @@ func TestGetProductById(t *testing.T) {
 	t.Run("GetProductByID - Error in Id", func(t *testing.T) {
 		productServiceMock := new(mocks.MockIProductService)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/products/{id}", productHd.GetProductByID)
@@ -125,7 +126,7 @@ func TestGetProductById(t *testing.T) {
 
 		productServiceMock.On("GetProductByID", 1).Return(model.Product{}, errors.New("product not found"))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Get("/api/v1/products/{id}", productHd.GetProductByID)
@@ -151,7 +152,7 @@ func TestInsertProduct(t *testing.T) {
 
 		productServiceMock.On("CreateProduct", mock.Anything).Return(model.Product{ID: 1, ProductCode: "P003", Description: "New Product", Width: 1, Height: 1, Length: 1, NetWeight: 1, ExpirationRate: 1, RecommendedFreezingTemperature: 1, FreezingRate: 1, ProductTypeID: 1, SellerID: 1}, nil)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		req := httptest.NewRequest("POST", "/api/v1/products", strings.NewReader(`{
 			"product_code": "P003",
@@ -181,7 +182,7 @@ func TestInsertProduct(t *testing.T) {
 	t.Run("Create Product - Error in Body", func(t *testing.T) {
 		productServiceMock := new(mocks.MockIProductService)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		req := httptest.NewRequest("POST", "/api/v1/products", strings.NewReader(`{
 			"product_code": 05`))
@@ -203,7 +204,7 @@ func TestInsertProduct(t *testing.T) {
 
 		productServiceMock.On("CreateProduct", mock.Anything).Return(model.Product{}, errors.New("product error"))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		req := httptest.NewRequest("POST", "/api/v1/products", strings.NewReader(`{
 			"product_code": "P003",
@@ -239,7 +240,7 @@ func TestUpdateProduct(t *testing.T) {
 
 		productServiceMock.On("UpdateProduct", 1, mock.Anything).Return(model.Product{ID: 1, ProductCode: "P003", Description: "Updated Product", Width: 0, Height: 0, Length: 0, NetWeight: 0, ExpirationRate: 0, RecommendedFreezingTemperature: 0, FreezingRate: 0, ProductTypeID: 0, SellerID: 0}, nil)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Patch("/api/v1/products/{id}", productHd.UpdateProduct)
@@ -263,7 +264,7 @@ func TestUpdateProduct(t *testing.T) {
 
 		productServiceMock.On("UpdateProduct", 2, mock.Anything).Return(model.Product{}, customerror.HandleError("product", customerror.ErrorNotFound, ""))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Patch("/api/v1/products/{id}", productHd.UpdateProduct)
@@ -286,7 +287,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Update - Error body", func(t *testing.T) {
 		productServiceMock := new(mocks.MockIProductService)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Patch("/api/v1/products/{id}", productHd.UpdateProduct)
@@ -310,7 +311,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("Update - Invalid id", func(t *testing.T) {
 		productServiceMock := new(mocks.MockIProductService)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Patch("/api/v1/products/{id}", productHd.UpdateProduct)
@@ -339,7 +340,7 @@ func TestDeleteProduct(t *testing.T) {
 
 		productServiceMock.On("DeleteProduct", 1).Return(nil)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/products/{id}", productHd.DeleteProductByID)
@@ -355,7 +356,7 @@ func TestDeleteProduct(t *testing.T) {
 	t.Run("DeleteProduct - Error id invalid", func(t *testing.T) {
 		productServiceMock := new(mocks.MockIProductService)
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/products/{id}", productHd.DeleteProductByID)
@@ -377,7 +378,7 @@ func TestDeleteProduct(t *testing.T) {
 
 		productServiceMock.On("DeleteProduct", 2).Return(customerror.HandleError("product", customerror.ErrorNotFound, ""))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/products/{id}", productHd.DeleteProductByID)
@@ -398,7 +399,7 @@ func TestDeleteProduct(t *testing.T) {
 
 		productServiceMock.On("DeleteProduct", 2).Return(errors.New("generic error"))
 
-		productHd := NewProductHandler(productServiceMock, logMock)
+		productHd := handler.NewProductHandler(productServiceMock, logMock)
 
 		r := chi.NewRouter()
 		r.Delete("/api/v1/products/{id}", productHd.DeleteProductByID)

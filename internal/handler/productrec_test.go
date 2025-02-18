@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
@@ -18,7 +19,7 @@ import (
 func TestCreateProductRecServ(t *testing.T) {
 	t.Run("Success Create Product Record", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 		productRecord := model.ProductRecords{
 			ID:            1,
@@ -45,7 +46,7 @@ func TestCreateProductRecServ(t *testing.T) {
 
 	t.Run("Error Creating Product Record - Invalid JSON", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 		req := httptest.NewRequest("POST", "/product-records", bytes.NewBuffer([]byte("invalid json")))
 		req.Header.Set("Content-Type", "application/json")
 		res := httptest.NewRecorder()
@@ -60,7 +61,7 @@ func TestCreateProductRecServ(t *testing.T) {
 
 	t.Run("Error Creating Product Record - Service Error", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 		productRecord := model.ProductRecords{
 			ID:            1,
 			ProductID:     1,
@@ -85,7 +86,7 @@ func TestCreateProductRecServ(t *testing.T) {
 
 	t.Run("Error Creating Product Record - Internal server error", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 		productRecord := model.ProductRecords{
 			ID:            1,
 			ProductID:     1,
@@ -112,7 +113,7 @@ func TestCreateProductRecServ(t *testing.T) {
 func TestGetProductRecReport(t *testing.T) {
 	t.Run("Success Get Product Record Report with valid ID", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 		productId := 1
 		mockReports := []model.ProductRecordsReport{
@@ -136,7 +137,7 @@ func TestGetProductRecReport(t *testing.T) {
 
 	t.Run("Error Get Product Record Report - Invalid Parameter", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 		req := httptest.NewRequest("GET", "/product-records/report?id=abc", nil)
 		res := httptest.NewRecorder()
@@ -151,7 +152,7 @@ func TestGetProductRecReport(t *testing.T) {
 
 	t.Run("Error Get Product Record Report - Service Error", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 		productId := 1
 		productRecServiceMock.On("GetProductRecordReport", productId).Return(nil, &customerror.GenericError{Code: http.StatusInternalServerError, Message: "Internal Server Error"})
@@ -169,7 +170,7 @@ func TestGetProductRecReport(t *testing.T) {
 
 	t.Run("Error Creating Product Record - Internal server error", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 
 		productRecServiceMock.On("GetProductRecordReport", mock.Anything).Return(nil, errors.New("An error"))
@@ -187,7 +188,7 @@ func TestGetProductRecReport(t *testing.T) {
 
 	t.Run("Success Get Product Record Report with no itens in slice", func(t *testing.T) {
 		productRecServiceMock := new(mocks.MockIProductRecService)
-		prh := NewProductRecHandler(productRecServiceMock, logMock)
+		prh := handler.NewProductRecHandler(productRecServiceMock, logMock)
 
 		productId := 1
 		expected := "{\"message\":\"empty list\"}"

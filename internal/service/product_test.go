@@ -1,4 +1,4 @@
-package service
+package service_test
 
 import (
 	"errors"
@@ -6,15 +6,16 @@ import (
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
+	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func loadDependencies() *ProductService {
+func loadDependencies() *service.ProductService {
 	productRepoMock := new(mocks.MockIProductsRepo)
 	sellerRepositoryMock := new(mocks.MockISellerRepo)
-	productServiceMock := NewProductService(productRepoMock, sellerRepositoryMock, logMock)
+	productServiceMock := service.NewProductService(productRepoMock, sellerRepositoryMock, logMock)
 	return productServiceMock
 }
 
