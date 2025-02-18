@@ -22,7 +22,7 @@ func NewCarriersRepository(db *sql.DB, log logger.Logger) *Carriers {
 }
 
 func (r *Carriers) GetByID(id int) (carrier model.Carries, err error) {
-	row := r.db.QueryRow("SELECT `id`,`cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `carriers` WHERE `id` = ?", id)
+	row := r.db.QueryRow("SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `carriers` WHERE `id` = ?", id)
 
 	err = row.Scan(&carrier.ID, &carrier.CID, &carrier.CompanyName, &carrier.Address, &carrier.Telephone, &carrier.LocalityID)
 
