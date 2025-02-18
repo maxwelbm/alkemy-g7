@@ -14,7 +14,7 @@ import (
 
 func setupPurchaseOrderService(t *testing.T) *service.PurchaseOrderService {
 	mockRepo := mocks.NewMockIPurchaseOrdersRepo(t)
-	purchaseService := service.NewPurchaseOrderService(mockRepo, mocks.NewMockIBuyerservice(t), mocks.NewMockIProductRecService(t))
+	purchaseService := service.NewPurchaseOrderService(mockRepo, mocks.NewMockIBuyerservice(t), mocks.NewMockIProductRecService(t), logMock)
 	return purchaseService
 }
 

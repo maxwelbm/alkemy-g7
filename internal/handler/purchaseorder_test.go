@@ -18,7 +18,7 @@ import (
 func setupPurchaseOrder(t *testing.T) *handler.PurchaseOrderHandler {
 	mockService := mocks.NewMockIPurchaseOrdersService(t)
 
-	return handler.NewPurchaseOrderHandler(mockService)
+	return handler.NewPurchaseOrderHandler(mockService, logMock)
 }
 
 func TestHandlerCreatePurchaseOrder(t *testing.T) {
