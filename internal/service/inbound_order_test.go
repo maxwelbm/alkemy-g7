@@ -17,7 +17,7 @@ func TestPostInboundOrder(t *testing.T) {
 	employeeSvc := mocks.NewMockIEmployeeService(t)
 	warehouseSvc := mocks.NewMockIWarehouseService(t)
 
-	service := NewInboundOrderService(repo, employeeSvc, warehouseSvc)
+	service := NewInboundOrderService(repo, employeeSvc, warehouseSvc, mocks.MockLog{})
 
 	inboundOrder := model.InboundOrder{
 		ID:             1,

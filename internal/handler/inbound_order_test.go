@@ -24,7 +24,7 @@ func TestPostInboundOrder(t *testing.T) {
 	}
 
 	srv := mocks.NewMockIInboundOrderService(t)
-	handler := NewInboundHandler(srv)
+	handler := NewInboundHandler(srv, mocks.MockLog{})
 
 	newInboundOrder := InboundOrderJSON{
 		ID:             1,

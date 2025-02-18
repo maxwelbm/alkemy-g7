@@ -20,7 +20,8 @@ import (
 func TestGetEmployeesHandler(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
 
 	t.Run("should return a list of employees", func(t *testing.T) {
@@ -66,7 +67,8 @@ func TestGetEmployeesHandler(t *testing.T) {
 func TestGetEmployeeById(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
 
 	r := chi.NewRouter()
@@ -136,7 +138,8 @@ func TestInsertEmployee(t *testing.T) {
 
 	srv := mocks.NewMockIEmployeeService(t)
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
 
 	newEmployee := EmployeeJSON{
@@ -238,8 +241,10 @@ func TestUpdateEmployee(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
 
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
+
 	r := chi.NewRouter()
 	r.Patch("/api/v1/employees/{id}", employeeHd.UpdateEmployee)
 
@@ -322,8 +327,10 @@ func TestDeleteEmployee(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
 
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
+
 	r := chi.NewRouter()
 	r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
 
@@ -391,7 +398,8 @@ func TestGetInboundOrdersReports(t *testing.T) {
 
 	srv := mocks.NewMockIEmployeeService(t)
 	employeeHd := EmployeeHandler{
-		sv: srv,
+		sv:  srv,
+		log: mocks.MockLog{},
 	}
 
 	t.Run("should return 200 OK and reports when no ID is provided", func(t *testing.T) {
