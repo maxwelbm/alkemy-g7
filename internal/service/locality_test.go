@@ -9,9 +9,11 @@ import (
 	"testing"
 )
 
+var logMock = mocks.MockLog{}
+
 func setupLocalityServiceTest(t *testing.T) *service.LocalitiesService {
 	mock := mocks.NewMockILocalityRepo(t)
-	return service.CreateServiceLocalities(mock)
+	return service.CreateServiceLocalities(mock, logMock)
 }
 
 func TestLocalitiesService_GetByID(t *testing.T) {

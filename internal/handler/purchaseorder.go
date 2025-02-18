@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -13,10 +15,11 @@ import (
 
 type PurchaseOrderHandler struct {
 	Svc interfaces.IPurchaseOrdersService
+	log logger.Logger
 }
 
-func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService) *PurchaseOrderHandler {
-	return &PurchaseOrderHandler{svc}
+func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService, log logger.Logger) *PurchaseOrderHandler {
+	return &PurchaseOrderHandler{svc, log}
 }
 
 // HandlerCreatePurchaseOrder handles the creation of a new purchase order.
@@ -33,6 +36,8 @@ func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService) *PurchaseOrd
 // @Failure 500 {object} model.ErrorResponseSwagger "Internal Server Error"
 // @Router /purchaseOrders [post]
 func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter, r *http.Request) {
+	h.log.Log("PurchaseOrderHandler", "INFO", "initializing Request CreatePurchaseOrder")
+
 	var reqBody model.PurchaseOrder
 
 	decoder := json.NewDecoder(r.Body)
@@ -41,14 +46,18 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 	err := decoder.Decode(&reqBody)
 
 	if err != nil {
+		h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
 
 		return
 	}
 
+	h.log.Log("PurchaseOrderHandler", "INFO", "Validating fields received ")
+
 	err = reqBody.ValidateEmptyFields()
 
 	if err != nil {
+		h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
 
 		return
@@ -58,27 +67,32 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
 		if err, ok := err.(*customerror.GenericError); ok {
+			h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
 		if err, ok := err.(*customerror.PurcahseOrderError); ok {
+			h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
+		h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create purchase order", nil))
 
 		return
 	}
 
+	h.log.Log("PurchaseOrderHandler", "INFO", "Purchase created successful")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", purchaseOrder))
 }

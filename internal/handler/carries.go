@@ -18,7 +18,6 @@ type CarrierHandler struct {
 
 func NewCarrierHandler(srv svc.ICarrierService) *CarrierHandler {
 	return &CarrierHandler{Srv: srv}
-}
 
 // PostCarriers creates a new carrier.
 // @Summary Create a new carrier

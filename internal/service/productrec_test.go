@@ -20,7 +20,7 @@ func TestProductRecService_CreateProductRecords(t *testing.T) {
 	t.Run("Success create a product rec", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		pId := 1
 
@@ -39,7 +39,7 @@ func TestProductRecService_CreateProductRecords(t *testing.T) {
 	t.Run("Error validation a product rec", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		product.PurchasePrice = 0
 
@@ -51,7 +51,7 @@ func TestProductRecService_CreateProductRecords(t *testing.T) {
 	t.Run("Error not found", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		product.PurchasePrice = 11.0
 
@@ -65,7 +65,7 @@ func TestProductRecService_CreateProductRecords(t *testing.T) {
 	t.Run("Error in creation product", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		product.PurchasePrice = 11.0
 
@@ -90,7 +90,7 @@ func TestProductRecService_GetProductRecordByID(t *testing.T) {
 	t.Run("Sucess getting product rec", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		productRecRepo.On("GetByID", mock.Anything).Return(product, nil)
 
@@ -103,7 +103,7 @@ func TestProductRecService_GetProductRecordByID(t *testing.T) {
 	t.Run("Error getting product rec", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		productRecRepo.On("GetByID", mock.Anything).Return(model.ProductRecords{}, errors.New("Not found"))
 
@@ -117,7 +117,7 @@ func TestProductRecService_GetProductRecordReport(t *testing.T) {
 	t.Run("Success getting filtered reports by product ID", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		idProduct := 1
 
@@ -140,7 +140,7 @@ func TestProductRecService_GetProductRecordReport(t *testing.T) {
 	t.Run("Success getting all reports when product ID is 0", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		idProduct := 0
 		mockReports := []model.ProductRecordsReport{
@@ -158,7 +158,7 @@ func TestProductRecService_GetProductRecordReport(t *testing.T) {
 	t.Run("Error when calling GetAllReport", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		idProduct := 1
 		productRecRepo.On("GetAllReport").Return(nil, assert.AnError)
@@ -172,7 +172,7 @@ func TestProductRecService_GetProductRecordReport(t *testing.T) {
 	t.Run("Error when getting product by ID", func(t *testing.T) {
 		productRecRepo := new(mocks.MockIProductRecRepository)
 		productSv := new(mocks.MockIProductService)
-		sv := NewProductRecService(productRecRepo, productSv)
+		sv := NewProductRecService(productRecRepo, productSv, logMock)
 
 		idProduct := 1
 		mockReports := []model.ProductRecordsReport{
