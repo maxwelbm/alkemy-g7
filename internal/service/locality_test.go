@@ -5,15 +5,15 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+var logMock = mocks.MockLog{}
+
 func setupLocalityServiceTest(t *testing.T) *service.LocalitiesService {
 	mock := mocks.NewMockILocalityRepo(t)
-	l := new(logger.Logger)
-	return service.CreateServiceLocalities(mock, *l)
+	return service.CreateServiceLocalities(mock, logMock)
 }
 
 func TestLocalitiesService_GetByID(t *testing.T) {

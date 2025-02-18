@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -17,10 +16,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var logMock = mocks.MockLog{}
+
 func setupSeller(t *testing.T) *handler.SellersController {
 	mock := mocks.NewMockISellerService(t)
-	l := new(logger.Logger)
-	hd := handler.CreateHandlerSellers(mock, *l)
+	hd := handler.CreateHandlerSellers(mock, logMock)
 	return hd
 }
 

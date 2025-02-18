@@ -3,7 +3,6 @@ package service_test
 import (
 	"errors"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"testing"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
@@ -15,14 +14,12 @@ import (
 func setupSeller(t *testing.T) *service.SellersService {
 	mockSeller := mocks.NewMockISellerRepo(t)
 	mockLocality := mocks.NewMockILocalityRepo(t)
-	l := new(logger.Logger)
 
-	return service.CreateServiceSellers(mockSeller, mockLocality, *l)
+	return service.CreateServiceSellers(mockSeller, mockLocality, logMock)
 }
 
 func setupLocality(mockLocality *mocks.MockILocalityRepo) *service.LocalitiesService {
-	l := new(logger.Logger)
-	return service.CreateServiceLocalities(mockLocality, *l)
+	return service.CreateServiceLocalities(mockLocality, logMock)
 }
 
 func TestSellersService_GetAll(t *testing.T) {
