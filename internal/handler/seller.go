@@ -37,7 +37,7 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 
 	sellers, err := hd.Service.GetAll()
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -78,7 +78,7 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idParam)
 
 	if id == 0 || err != nil {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -87,7 +87,7 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	seller, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -115,7 +115,7 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 
 	var seller model.Seller
 	if err := request.JSON(r, &seller); err != nil {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
 		return
@@ -123,7 +123,7 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 
 	createdseller, err := hd.Service.CreateSeller(&seller)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -155,7 +155,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(idSearch)
 
 	if id == 0 || err != nil {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -164,14 +164,14 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 
 	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
 
 	var s model.Seller
 	if err := request.JSON(r, &s); err != nil {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
 		return
@@ -179,7 +179,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 
 	seller, err := hd.Service.UpdateSeller(id, &s)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -209,7 +209,7 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(idSearch)
 
 	if id == 0 || err != nil {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -218,14 +218,14 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 
 	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
 
 	err = hd.Service.DeleteSeller(id)
 	if ok := hd.handlerError(err, w); ok {
-		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}

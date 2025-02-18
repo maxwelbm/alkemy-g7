@@ -29,7 +29,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 	rows, err := rp.db.Query(query)
 
 	if err != nil {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -41,7 +41,7 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Locality)
 
 		if err != nil {
-			rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+			rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 			return
 		}
@@ -64,7 +64,7 @@ func (rp *SellersRepository) GetByID(id int) (sl model.Seller, err error) {
 	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 		err = er.ErrSellerNotFound
 
 		return
@@ -84,14 +84,14 @@ func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err er
 	err = rp.validateSQLError(err)
 
 	if err != nil {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -151,7 +151,7 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 	err = rp.validateSQLError(err)
 
 	if err != nil {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return sl, err
 	}
@@ -172,7 +172,7 @@ func (rp *SellersRepository) Delete(id int) error {
 	err = rp.validateSQLError(err)
 
 	if err != nil {
-		rp.log.Log("SellersRepository", "ERROR", "Error: "+err.Error())
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return err
 	}

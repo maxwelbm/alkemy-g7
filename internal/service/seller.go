@@ -36,14 +36,14 @@ func (s *SellersService) GetByID(id int) (seller model.Seller, err error) {
 
 func (s *SellersService) CreateSeller(seller *model.Seller) (sl model.Seller, err error) {
 	if err := seller.ValidateEmptyFields(seller); err != nil {
-		s.log.Log("SellersService", "ERROR", "Error: "+err.Error())
+		s.log.Log("SellersService", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return sl, err
 	}
 
 	_, err = s.Rpl.GetByID(seller.Locality)
 	if err != nil {
-		s.log.Log("SellersService", "ERROR", "Error: "+err.Error())
+		s.log.Log("SellersService", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
@@ -59,7 +59,7 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 	if seller.Locality != 0 {
 		_, err := s.Rpl.GetByID(seller.Locality)
 		if err != nil {
-			s.log.Log("SellersService", "ERROR", "Error: "+err.Error())
+			s.log.Log("SellersService", "ERROR", fmt.Sprintf("Error: %v", err))
 
 			return sl, err
 		}
@@ -69,7 +69,7 @@ func (s *SellersService) UpdateSeller(id int, seller *model.Seller) (sl model.Se
 	err = seller.ValidateUpdateFields(seller, &existSl)
 
 	if err != nil {
-		s.log.Log("SellersService", "ERROR", "Error: "+err.Error())
+		s.log.Log("SellersService", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
