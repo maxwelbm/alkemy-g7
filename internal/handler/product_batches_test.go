@@ -18,7 +18,7 @@ import (
 func setupProductBatches(t *testing.T) *handler.ProductBatchesController {
 	mockService := mocks.NewMockIProductBatchesService(t)
 
-	return handler.CreateProductBatchesHandler(mockService)
+	return handler.CreateProductBatchesHandler(mockService, logMock)
 }
 
 func TestHandler_Post(t *testing.T) {
