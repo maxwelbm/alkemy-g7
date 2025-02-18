@@ -1,26 +1,26 @@
 package service
 
 import (
-	"reflect"
 	"fmt"
+	"reflect"
 
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	customerror "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger" 
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type ProductService struct {
 	ProductRepository interfaces.IProductsRepo
 	SellerRepository  interfaces.ISellerRepo
-	log               *logger.LoggerDefault
+	log               logger.LoggerDefault
 }
 
-func NewProductService(productRepo interfaces.IProductsRepo, sellerRepo interfaces.ISellerRepo, logger *logger.LoggerDefault) *ProductService {
+func NewProductService(productRepo interfaces.IProductsRepo, sellerRepo interfaces.ISellerRepo, logger logger.LoggerDefault) *ProductService {
 	return &ProductService{
 		ProductRepository: productRepo,
 		SellerRepository:  sellerRepo,
-		log:               logger, 
+		log:               logger,
 	}
 }
 

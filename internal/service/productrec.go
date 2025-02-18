@@ -14,10 +14,10 @@ import (
 type ProductRecService struct {
 	ProductRecRepository repo.IProductRecRepository
 	ProductSv            serv.IProductService
-	log                  *logger.LoggerDefault // Adicionando um campo para o logger
+	log                  logger.LoggerDefault
 }
 
-func NewProductRecService(productRecRepo repo.IProductRecRepository, productServ serv.IProductService, logger *logger.LoggerDefault) *ProductRecService {
+func NewProductRecService(productRecRepo repo.IProductRecRepository, productServ serv.IProductService, logger logger.LoggerDefault) *ProductRecService {
 	return &ProductRecService{
 		ProductRecRepository: productRecRepo,
 		ProductSv:            productServ,
