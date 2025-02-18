@@ -19,7 +19,7 @@ import (
 
 func setupWarehouse(t *testing.T) *handler.WarehouseHandler {
 	mockServiceWarehouse := mocks.NewMockIWarehouseService(t)
-	hd := handler.NewWareHouseHandler(mockServiceWarehouse)
+	hd := handler.NewWareHouseHandler(mockServiceWarehouse, logMock)
 	return hd
 }
 func TestHandlerGetAllWarehouse(t *testing.T) {

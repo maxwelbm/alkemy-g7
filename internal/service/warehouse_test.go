@@ -12,7 +12,7 @@ import (
 func setupWarehouse(t *testing.T) *service.WareHouseDefault {
 	mockRepo := mocks.NewMockIWarehouseRepo(t)
 
-	return service.NewWareHouseService(mockRepo)
+	return service.NewWareHouseService(mockRepo, logMock)
 }
 
 func TestGetAllWarehouse(t *testing.T) {

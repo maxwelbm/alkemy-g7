@@ -17,7 +17,7 @@ import (
 
 func setupCarrierHandler(t *testing.T) *handler.CarrierHandler {
 	mockServiceCarrier := mocks.NewMockICarrierService(t)
-	hd := handler.NewCarrierHandler(mockServiceCarrier)
+	hd := handler.NewCarrierHandler(mockServiceCarrier, logMock)
 	return hd
 }
 func TestHandlerPostCarriers(t *testing.T) {

@@ -23,20 +23,20 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	sellersHandler := handler.CreateHandlerSellers(sellersService, logInstance)
 
 	productRepo := repository.NewProductRepository(sqlDB, logInstance)
-	productServ := service.NewProductService(productRepo, sellersRepository)
-	productHandler := handler.NewProductHandler(productServ)
+	productServ := service.NewProductService(productRepo, sellersRepository, logInstance)
+	productHandler := handler.NewProductHandler(productServ, logInstance)
 
 	productRecordRepo := repository.NewProductRecRepository(sqlDB, logInstance)
-	productRecordServ := service.NewProductRecService(productRecordRepo, productServ)
-	productRecordHandler := handler.NewProductRecHandler(productRecordServ)
+	productRecordServ := service.NewProductRecService(productRecordRepo, productServ, logInstance)
+	productRecordHandler := handler.NewProductRecHandler(productRecordServ, logInstance)
 
 	buyersRepository := repository.NewBuyerRepository(sqlDB, logInstance)
 	buyerService := service.NewBuyerService(buyersRepository, logInstance)
 	buyerHandler := handler.NewBuyerHandler(buyerService, logInstance)
 
 	warehousesRepository := repository.NewWareHouseRepository(sqlDB, logInstance)
-	warehousesService := service.NewWareHouseService(warehousesRepository)
-	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
+	warehousesService := service.NewWareHouseService(warehousesRepository, logInstance)
+	warehousesHandler := handler.NewWareHouseHandler(warehousesService, logInstance)
 
 	sectionsRep := repository.CreateRepositorySections(sqlDB, logInstance)
 	sectionsSvc := service.CreateServiceSection(sectionsRep, logInstance)
@@ -59,8 +59,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc, logInstance)
 
 	carrierRep := repository.NewCarriersRepository(sqlDB, logInstance)
-	carrierSv := service.NewCarrierService(carrierRep, localitiesService)
-	carrierHd := handler.NewCarrierHandler(carrierSv)
+	carrierSv := service.NewCarrierService(carrierRep, localitiesService, logInstance)
+	carrierHd := handler.NewCarrierHandler(carrierSv, logInstance)
 
 	return productHandler, employeeHd, sellersHandler, buyerHandler, warehousesHandler, sectionsHandler, purchaseOrderHandler, inboundHd, productRecordHandler, productBatchesHandler, localitiesHandler, carrierHd
 }
