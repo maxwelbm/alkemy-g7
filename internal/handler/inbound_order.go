@@ -10,10 +10,12 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type InboundOrderHandler struct {
-	sv interfaces.IInboundOrderService
+	sv  interfaces.IInboundOrderService
+	log logger.Logger
 }
 
 type InboundOrderJSON struct {
@@ -25,19 +27,24 @@ type InboundOrderJSON struct {
 	WareHouseID    int    `json:"warehouse_id"`
 }
 
-func NewInboundHandler(sv interfaces.IInboundOrderService) *InboundOrderHandler {
+func NewInboundHandler(sv interfaces.IInboundOrderService, log logger.Logger) *InboundOrderHandler {
 	return &InboundOrderHandler{
-		sv: sv,
+		sv:  sv,
+		log: log,
 	}
 }
 
 func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Request) {
+	h.log.Log("InboundOrderHandler", "INFO", "Received request to create inbound order")
+
 	var reqBody InboundOrderJSON
 
 	err := request.JSON(r, &reqBody)
 
 	if err != nil {
+		h.log.Log("InboundOrderHandler", "ERROR", "Error parsing request body: "+err.Error())
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the request body", nil))
+
 		return
 	}
 
@@ -47,15 +54,19 @@ func (h *InboundOrderHandler) PostInboundOrder(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		if err, ok := err.(*customerror.InboundOrderErr); ok {
+			h.log.Log("InboundOrderHandler", "ERROR", "Business error: "+err.Error())
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
 
+		h.log.Log("InboundOrderHandler", "ERROR", "Internal server error: "+err.Error())
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("something went wrong", nil))
 
 		return
 	}
 
+	h.log.Log("InboundOrderHandler", "INFO", "Inbound order created successfully")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("success", toInboundOrderJSON(entry)))
 }
 
