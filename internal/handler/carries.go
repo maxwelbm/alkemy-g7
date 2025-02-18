@@ -13,11 +13,11 @@ import (
 )
 
 type CarrierHandler struct {
-	srv svc.ICarrierService
+	Srv svc.ICarrierService
 }
 
 func NewCarrierHandler(srv svc.ICarrierService) *CarrierHandler {
-	return &CarrierHandler{srv: srv}
+	return &CarrierHandler{Srv: srv}
 }
 
 // PostCarriers creates a new carrier.
@@ -49,7 +49,7 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 			return
 		}
 
-		carrier, err := h.srv.PostCarrier(reqBody)
+		carrier, err := h.Srv.PostCarrier(reqBody)
 
 		if err != nil {
 			if err, ok := err.(*customerror.CarrierError); ok {
