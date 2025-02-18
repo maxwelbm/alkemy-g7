@@ -12,7 +12,7 @@ import (
 
 func setupRepMock(t *testing.T) *service.SectionService {
 	mockRep := mocks.NewMockISectionRepo(t)
-	return service.CreateServiceSection(mockRep)
+	return service.CreateServiceSection(mockRep, logMock)
 }
 
 func TestGetSections(t *testing.T) {

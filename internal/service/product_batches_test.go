@@ -13,7 +13,7 @@ import (
 
 func setupProductBatches(t *testing.T) *service.ProductBatchesService {
 	mockRepo := mocks.NewMockIProductBatchesRepo(t)
-	pbService := service.CreateProductBatchesService(mockRepo, mocks.NewMockIProductService(t), mocks.NewMockISectionService(t))
+	pbService := service.CreateProductBatchesService(mockRepo, mocks.NewMockIProductService(t), mocks.NewMockISectionService(t), logMock)
 	return pbService
 }
 

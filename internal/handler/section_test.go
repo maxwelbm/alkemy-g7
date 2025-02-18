@@ -16,7 +16,7 @@ import (
 
 func setupSectionService(t *testing.T) *handler.SectionController {
 	mockSectionService := mocks.NewMockISectionService(t)
-	hd := handler.CreateHandlerSections(mockSectionService)
+	hd := handler.CreateHandlerSections(mockSectionService, logMock)
 	return hd
 }
 
