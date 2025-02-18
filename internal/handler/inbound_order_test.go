@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
@@ -24,9 +25,9 @@ func TestPostInboundOrder(t *testing.T) {
 	}
 
 	srv := mocks.NewMockIInboundOrderService(t)
-	handler := NewInboundHandler(srv)
+	inboundOrderHandler := handler.NewInboundHandler(srv, logMock)
 
-	newInboundOrder := InboundOrderJSON{
+	newInboundOrder := handler.InboundOrderJSON{
 		ID:             1,
 		OrderDate:      "2023-10-01",
 		OrderNumber:    "ORD123",
@@ -53,7 +54,7 @@ func TestPostInboundOrder(t *testing.T) {
 		req := createRequest(string(inboundOrderJSON))
 		res := httptest.NewRecorder()
 
-		handler.PostInboundOrder(res, req)
+		inboundOrderHandler.PostInboundOrder(res, req)
 
 		expected := `{"message":"success","data":{"id":1,"order_date":"2023-10-01","order_number":"ORD123","employee_id":1,"product_batch_id":1,"warehouse_id":1}}`
 
@@ -66,7 +67,7 @@ func TestPostInboundOrder(t *testing.T) {
 		req := createRequest(string(reqBody))
 		res := httptest.NewRecorder()
 
-		handler.PostInboundOrder(res, req)
+		inboundOrderHandler.PostInboundOrder(res, req)
 
 		expected := `{"message":"error parsing the request body"}`
 
@@ -84,7 +85,7 @@ func TestPostInboundOrder(t *testing.T) {
 		req := createRequest(newInboundOrder)
 		res := httptest.NewRecorder()
 
-		handler.PostInboundOrder(res, req)
+		inboundOrderHandler.PostInboundOrder(res, req)
 
 		expected := `{"message":"invalid input"}`
 
@@ -98,7 +99,7 @@ func TestPostInboundOrder(t *testing.T) {
 		req := createRequest(string(inboundOrderJSON))
 		res := httptest.NewRecorder()
 
-		handler.PostInboundOrder(res, req)
+		inboundOrderHandler.PostInboundOrder(res, req)
 
 		expected := `{"message":"duplicated order number"}`
 
@@ -112,7 +113,7 @@ func TestPostInboundOrder(t *testing.T) {
 		req := createRequest(string(inboundOrderJSON))
 		res := httptest.NewRecorder()
 
-		handler.PostInboundOrder(res, req)
+		inboundOrderHandler.PostInboundOrder(res, req)
 		expected := `{"message":"something went wrong"}`
 		assert.Equal(t, res.Code, http.StatusInternalServerError)
 		assert.JSONEq(t, res.Body.String(), expected)

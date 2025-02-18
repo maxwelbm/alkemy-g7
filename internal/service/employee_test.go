@@ -15,7 +15,7 @@ import (
 func TestInsertEmployee(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
 	warehouseRepo := mocks.NewMockIWarehouseRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, warehouseRepo)
+	employeeSv := CreateEmployeeService(employeeRepo, warehouseRepo, mocks.MockLog{})
 	t.Run("should create the employee case everything is ok", func(t *testing.T) {
 		warehouseRepo.On("GetByIDWareHouse", 1).Return(model.WareHouse{}, nil).Once()
 		employeeRepo.On("Post", mock.Anything).Return(model.Employee{ID: 10, CardNumberID: "#123", FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, nil).Once()
@@ -85,7 +85,7 @@ func TestInsertEmployee(t *testing.T) {
 
 func TestGetEmployees(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, nil)
+	employeeSv := CreateEmployeeService(employeeRepo, nil, mocks.MockLog{})
 
 	t.Run("should return all the employees", func(t *testing.T) {
 		employeeRepo.On("Get", mock.Anything).Return([]model.Employee{{CardNumberID: "#123", ID: 1, FirstName: "Bruce", LastName: "Wayne", WarehouseID: 1}, {ID: 2, CardNumberID: "#234", FirstName: "Yami", LastName: "Sukehiro", WarehouseID: 2}}, nil).Once()
@@ -109,7 +109,7 @@ func TestGetEmployees(t *testing.T) {
 
 func TestGetEmployeeByID(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, nil)
+	employeeSv := CreateEmployeeService(employeeRepo, nil, mocks.MockLog{})
 
 	t.Run("should return the employee by id", func(t *testing.T) {
 		mockEmployee := model.Employee{ID: 1, CardNumberID: "#123", FirstName: "Jack", LastName: "Chan", WarehouseID: 2}
@@ -125,7 +125,7 @@ func TestGetEmployeeByID(t *testing.T) {
 func TestUpdateEmployee(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
 	warehouseRepo := mocks.NewMockIWarehouseRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, warehouseRepo)
+	employeeSv := CreateEmployeeService(employeeRepo, warehouseRepo, mocks.MockLog{})
 
 	validEntry := model.Employee{
 		WarehouseID:  2,
@@ -182,7 +182,7 @@ func TestUpdateEmployee(t *testing.T) {
 
 func TestDeleteEmployee(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, nil)
+	employeeSv := CreateEmployeeService(employeeRepo, nil, mocks.MockLog{})
 
 	t.Run("should return nil case success", func(t *testing.T) {
 		employeeRepo.On("GetByID", 1).Return(model.Employee{}, nil).Once()
@@ -204,7 +204,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 func TestGetInboundOrdersReports(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, nil)
+	employeeSv := CreateEmployeeService(employeeRepo, nil, mocks.MockLog{})
 
 	t.Run("should return all inbound orders reports", func(t *testing.T) {
 		employeeRepo.On("GetInboundOrdersReports", mock.Anything).Return([]model.InboundOrdersReportByEmployee{
@@ -221,7 +221,7 @@ func TestGetInboundOrdersReports(t *testing.T) {
 
 func TestGetInboundOrdersReportByEmployee(t *testing.T) {
 	employeeRepo := mocks.NewMockIEmployeeRepo(t)
-	employeeSv := CreateEmployeeService(employeeRepo, nil)
+	employeeSv := CreateEmployeeService(employeeRepo, nil, mocks.MockLog{})
 
 	t.Run("should return the inbound orders by employee", func(t *testing.T) {
 		mockData := model.InboundOrdersReportByEmployee{ID: 1, CardNumberID: "#123", FirstName: "Jon", LastName: "Jones", WarehouseID: 2, InboundOrdersCount: 30}

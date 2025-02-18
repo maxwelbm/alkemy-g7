@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type EmployeeJSON struct {
@@ -40,11 +42,12 @@ func (e *EmployeeJSON) fromEmployeeEntity(employee model.Employee) {
 }
 
 type EmployeeHandler struct {
-	sv interfaces.IEmployeeService
+	sv  interfaces.IEmployeeService
+	log logger.Logger
 }
 
-func CreateEmployeeHandler(service interfaces.IEmployeeService) *EmployeeHandler {
-	return &EmployeeHandler{sv: service}
+func CreateEmployeeHandler(service interfaces.IEmployeeService, log logger.Logger) *EmployeeHandler {
+	return &EmployeeHandler{sv: service, log: log}
 }
 
 // GetEmployeesHandler retrieves all employees.
@@ -57,9 +60,13 @@ func CreateEmployeeHandler(service interfaces.IEmployeeService) *EmployeeHandler
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve employee"
 // @Router /employees [get]
 func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing GetEmployeesHandler")
+
 	data, err := e.sv.GetEmployees()
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to retrieve employees: %v", err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -82,6 +89,7 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 		})
 	}
 
+	e.log.Log("EmployeeHandler", "INFO", "GetEmployeesHandler finished successfully")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeesJSON))
 }
 
@@ -97,16 +105,22 @@ func (e *EmployeeHandler) GetEmployeesHandler(w http.ResponseWriter, r *http.Req
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve employee"
 // @Router /employees/{id} [get]
 func (e *EmployeeHandler) GetEmployeeByID(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing GetEmployeeByID")
+
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("invalid ID format: %v", err))
 		response.JSON(w, http.StatusBadRequest, nil)
+
 		return
 	}
 
 	data, err := e.sv.GetEmployeeByID(id)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to retrieve employee with ID %d: %v", id, err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -120,6 +134,7 @@ func (e *EmployeeHandler) GetEmployeeByID(w http.ResponseWriter, r *http.Request
 	employeeJSON := EmployeeJSON{}
 	employeeJSON.fromEmployeeEntity(data)
 
+	e.log.Log("EmployeeHandler", "INFO", fmt.Sprintf("GetEmployeeByID finished successfully for employee ID: %d", id))
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
@@ -135,11 +150,15 @@ func (e *EmployeeHandler) GetEmployeeByID(w http.ResponseWriter, r *http.Request
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to create employee"
 // @Router /employees [post]
 func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing InsertEmployee")
+
 	var newEmployee EmployeeJSON
 	err := request.JSON(r, &newEmployee)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to parse request body: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the request body", nil))
+
 		return
 	}
 
@@ -148,6 +167,8 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 	data, err := e.sv.InsertEmployee(*employee)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to insert employee: %v", err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -162,6 +183,7 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 
 	employeeJSON.fromEmployeeEntity(data)
 
+	e.log.Log("EmployeeHandler", "INFO", "InsertEmployee finished successfully")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", employeeJSON))
 }
 
@@ -179,10 +201,14 @@ func (e *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request)
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to update employee"
 // @Router /employees/{id} [put]
 func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing UpdateEmployee")
+
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("invalid ID format: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the id in path param", nil))
+
 		return
 	}
 
@@ -191,7 +217,9 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	err = request.JSON(r, &reqBody)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to parse request body: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the request body", nil))
+
 		return
 	}
 
@@ -200,6 +228,8 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	updatedEmployee, err := e.sv.UpdateEmployee(id, employee)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to update employee with ID %d: %v", id, err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -212,6 +242,7 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 	employeeJSON := EmployeeJSON{}
 	employeeJSON.fromEmployeeEntity(updatedEmployee)
 
+	e.log.Log("EmployeeHandler", "INFO", fmt.Sprintf("UpdateEmployee finished successfully for employee ID: %d", id))
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", employeeJSON))
 }
 
@@ -226,16 +257,22 @@ func (e *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete employee"
 // @Router /employees/{id} [delete]
 func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing DeleteEmployee")
+
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("invalid ID format: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("error parsing the id in path param", nil))
+
 		return
 	}
 
 	err = e.sv.DeleteEmployee(id)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to delete employee with ID %d: %v", id, err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -246,6 +283,7 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	e.log.Log("EmployeeHandler", "INFO", fmt.Sprintf("DeleteEmployee finished successfully for employee ID: %d", id))
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
@@ -261,12 +299,16 @@ func (e *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to retrieve reports"
 // @Router /employees/reports [get]
 func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http.Request) {
+	e.log.Log("EmployeeHandler", "INFO", "initializing GetInboundOrdersReports")
+
 	id := r.URL.Query().Get("id")
 
 	if id == "" {
 		data, err := e.sv.GetInboundOrdersReports()
 
 		if err != nil {
+			e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to retrieve inbound orders reports: %v", err))
+
 			if err, ok := err.(*customerror.EmployeerErr); ok {
 				response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 				return
@@ -277,6 +319,7 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 			return
 		}
 
+		e.log.Log("EmployeeHandler", "INFO", "GetInboundOrdersReports finished successfully")
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 
 		return
@@ -285,13 +328,17 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 	idInt, err := strconv.Atoi(id)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("invalid employee ID format: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid employee id", nil))
+
 		return
 	}
 
 	data, err := e.sv.GetInboundOrdersReportByEmployee(idInt)
 
 	if err != nil {
+		e.log.Log("EmployeeHandler", "ERROR", fmt.Sprintf("failed to retrieve inbound orders report for employee ID %d: %v", idInt, err))
+
 		if err, ok := err.(*customerror.EmployeerErr); ok {
 			response.JSON(w, err.StatusCode, responses.CreateResponseBody(err.Error(), nil))
 			return
@@ -302,5 +349,6 @@ func (e *EmployeeHandler) GetInboundOrdersReports(w http.ResponseWriter, r *http
 		return
 	}
 
+	e.log.Log("EmployeeHandler", "INFO", fmt.Sprintf("GetInboundOrdersReports finished successfully for employee ID: %d", idInt))
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }

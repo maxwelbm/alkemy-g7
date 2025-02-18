@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,7 @@ func TestPostInboundOrder(t *testing.T) {
 	}
 	defer db.Close()
 
-	repo := NewInboundService(db, nil)
+	repo := NewInboundService(db, mocks.MockLog{})
 
 	inboundOrder := model.InboundOrder{
 		OrderDate:      time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
