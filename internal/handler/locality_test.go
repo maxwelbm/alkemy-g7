@@ -8,6 +8,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +18,8 @@ import (
 
 func setupLocality(t *testing.T) *handler.LocalitiesController {
 	mock := mocks.NewMockILocalityService(t)
-	hd := handler.CreateHandlerLocality(mock)
+	l := new(logger.Logger)
+	hd := handler.CreateHandlerLocality(mock, *l)
 	return hd
 }
 
