@@ -56,7 +56,7 @@ func initRoutes(productHandler *handler.ProductHandler,
 
 	rt.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Pong"))
+		_, _ = w.Write([]byte("Pong"))
 	})
 
 	rt.Get("/swagger/*", httpSwagger.WrapHandler)

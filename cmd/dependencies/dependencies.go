@@ -15,12 +15,12 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	*handler.SectionController, *handler.PurchaseOrderHandler, *handler.InboundOrderHandler,
 	*handler.ProductRecHandler, *handler.ProductBatchesController, *handler.LocalitiesController, *handler.CarrierHandler) {
 	localitiesRepository := repository.CreateRepositoryLocalities(sqlDB, logInstance)
-	localitiesService := service.CreateServiceLocalities(localitiesRepository)
-	localitiesHandler := handler.CreateHandlerLocality(localitiesService)
+	localitiesService := service.CreateServiceLocalities(localitiesRepository, logInstance)
+	localitiesHandler := handler.CreateHandlerLocality(localitiesService, logInstance)
 
 	sellersRepository := repository.CreateRepositorySellers(sqlDB, logInstance)
-	sellersService := service.CreateServiceSellers(sellersRepository, localitiesService)
-	sellersHandler := handler.CreateHandlerSellers(sellersService)
+	sellersService := service.CreateServiceSellers(sellersRepository, localitiesService, logInstance)
+	sellersHandler := handler.CreateHandlerSellers(sellersService, logInstance)
 
 	productRepo := repository.NewProductRepository(sqlDB, logInstance)
 	productServ := service.NewProductService(productRepo, sellersRepository)
@@ -31,8 +31,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	productRecordHandler := handler.NewProductRecHandler(productRecordServ)
 
 	buyersRepository := repository.NewBuyerRepository(sqlDB, logInstance)
-	buyerService := service.NewBuyerService(buyersRepository)
-	buyerHandler := handler.NewBuyerHandler(buyerService)
+	buyerService := service.NewBuyerService(buyersRepository, logInstance)
+	buyerHandler := handler.NewBuyerHandler(buyerService, logInstance)
 
 	warehousesRepository := repository.NewWareHouseRepository(sqlDB, logInstance)
 	warehousesService := service.NewWareHouseService(warehousesRepository)
@@ -51,8 +51,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	inboundHd := handler.NewInboundHandler(inboundSv)
 
 	purchaseOrderRepository := repository.NewPurchaseOrderRepository(sqlDB, logInstance)
-	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ)
-	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
+	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ, logInstance)
+	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService, logInstance)
 
 	productBatchesRep := repository.CreateProductBatchesRepository(sqlDB, logInstance)
 	productBatchesSvc := service.CreateProductBatchesService(productBatchesRep, productServ, sectionsSvc, logInstance)

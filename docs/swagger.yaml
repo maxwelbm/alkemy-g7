@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  handler.EmployeeJSON:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
+    type: object
   model.Buyer:
     properties:
       card_number_id:
@@ -35,11 +48,137 @@ definitions:
           $ref: '#/definitions/model.Buyer'
         type: array
     type: object
+  model.CarrierResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Carries'
+        type: array
+    type: object
+  model.Carries:
+    properties:
+      address:
+        type: string
+      cid:
+        type: string
+      company_name:
+        type: string
+      id:
+        type: integer
+      locality_id:
+        type: integer
+      telephone:
+        type: string
+    type: object
   model.ErrorResponseSwagger:
     properties:
       message:
         example: Error message
         type: string
+    type: object
+  model.LocalitiesJSONCarriers:
+    properties:
+      carriers_count:
+        type: integer
+      locality_id:
+        type: string
+      locality_name:
+        type: string
+    type: object
+  model.LocalitiesJSONSellers:
+    properties:
+      locality_id:
+        type: string
+      locality_name:
+        type: string
+      sellers_count:
+        type: integer
+    type: object
+  model.Locality:
+    properties:
+      country_name:
+        type: string
+      id:
+        type: integer
+      locality_name:
+        type: string
+      province_name:
+        type: string
+    type: object
+  model.LocalityCarriersResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.LocalitiesJSONCarriers'
+        type: array
+    type: object
+  model.LocalityResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Locality'
+        type: array
+    type: object
+  model.LocalitySellersResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.LocalitiesJSONSellers'
+        type: array
+    type: object
+  model.Product:
+    properties:
+      description:
+        type: string
+      expiration_rate:
+        type: number
+      freezing_rate:
+        type: number
+      height:
+        type: number
+      id:
+        type: integer
+      length:
+        type: number
+      net_weight:
+        type: number
+      product_code:
+        type: string
+      product_type_id:
+        type: integer
+      recommended_freezing_temperature:
+        type: number
+      seller_id:
+        type: integer
+      width:
+        type: number
+    type: object
+  model.ProductRecordResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.ProductRecords'
+        type: array
+    type: object
+  model.ProductRecords:
+    properties:
+      id:
+        type: integer
+      last_update_date:
+        type: string
+      product_id:
+        type: integer
+      purchase_price:
+        type: number
+      sale_price:
+        type: number
+    type: object
+  model.ProductResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Product'
+        type: array
     type: object
   model.PurchaseOrder:
     properties:
@@ -67,6 +206,50 @@ definitions:
       data:
         items:
           $ref: '#/definitions/model.PurchaseOrder'
+        type: array
+    type: object
+  model.Seller:
+    properties:
+      address:
+        type: string
+      cid:
+        type: integer
+      company_name:
+        type: string
+      id:
+        type: integer
+      locality_id:
+        type: integer
+      telephone:
+        type: string
+    type: object
+  model.SellerResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Seller'
+        type: array
+    type: object
+  model.WareHouse:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
+  model.WareHousesResponseSwagger:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.WareHouse'
         type: array
     type: object
 host: localhost:8080
@@ -302,6 +485,584 @@ paths:
       summary: Count purchase orders for a buyer
       tags:
       - Buyer
+  /carriers:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new carrier with the provided data
+      parameters:
+      - description: Carrier data
+        in: body
+        name: carrier
+        required: true
+        schema:
+          $ref: '#/definitions/model.Carries'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.CarrierResponseSwagger'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "422":
+          description: Invalid fields
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to post carrier
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new carrier
+      tags:
+      - Carriers
+  /employees:
+    get:
+      description: Fetch all registered employees from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmployeeJSON'
+        "404":
+          description: Employee not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to retrieve employee
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve all employees
+      tags:
+      - Employee
+    post:
+      consumes:
+      - application/json
+      description: Add a new employee to the database
+      parameters:
+      - description: Employee details
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/handler.EmployeeJSON'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.EmployeeJSON'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create employee
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new employee
+      tags:
+      - Employee
+  /employees/{id}:
+    delete:
+      description: Remove an employee from the database by their ID
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Employee not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to delete employee
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Delete an employee
+      tags:
+      - Employee
+    get:
+      description: Fetch an employee by their ID
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmployeeJSON'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Employee not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to retrieve employee
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve a single employee
+      tags:
+      - Employee
+    put:
+      consumes:
+      - application/json
+      description: Modify the details of an existing employee
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated employee details
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/handler.EmployeeJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmployeeJSON'
+        "400":
+          description: Invalid request or ID format
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Employee not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to update employee
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Update an employee
+      tags:
+      - Employee
+  /employees/reports:
+    get:
+      description: Fetch inbound order reports, optionally filtering by employee ID
+      parameters:
+      - description: Employee ID (optional)
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Inbound order report(s)
+          schema: {}
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Reports not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to retrieve reports
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve inbound order reports
+      tags:
+      - Employee
+  /localities:
+    post:
+      description: This endpoint allows for creating a new locality.
+      parameters:
+      - description: Locality information
+        in: body
+        name: locality
+        required: true
+        schema:
+          $ref: '#/definitions/model.Locality'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.LocalityResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Locality'
+              type: object
+        "400":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create locality
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new locality
+      tags:
+      - Locality
+  /localities/{id}:
+    get:
+      description: This endpoint fetches the details of a specific locality based
+        on the provided locality ID.
+      parameters:
+      - description: Locality ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.LocalityResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Locality'
+              type: object
+        "400":
+          description: missing 'id' parameter in the request
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for locality
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve locality
+      tags:
+      - Locality
+  /localities/reportCarriers:
+    get:
+      description: This endpoint fetches the details of a specific locality abount
+        carriers count based on the provided locality ID.
+      parameters:
+      - description: Locality ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.LocalityCarriersResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LocalitiesJSONCarriers'
+              type: object
+        "400":
+          description: missing 'id' parameter in the request
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for locality
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve locality and count carriers
+      tags:
+      - Locality
+  /localities/reportSellers:
+    get:
+      description: This endpoint fetches the details of a specific locality abount
+        sellers count based on the provided locality ID.
+      parameters:
+      - description: Locality ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.LocalitySellersResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LocalitiesJSONSellers'
+              type: object
+        "400":
+          description: missing 'id' parameter in the request
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for locality
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve locality and count sellers
+      tags:
+      - Locality
+  /product-records:
+    post:
+      description: This endpoint allows for creating a new product record.
+      parameters:
+      - description: Product Record Information
+        in: body
+        name: productRecord
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProductRecords'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ProductRecordResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ProductRecords'
+              type: object
+        "422":
+          description: Invalid JSON format
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create product record
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new product record
+      tags:
+      - ProductRecord
+  /product-records/report:
+    get:
+      description: This endpoint retrieves the product record report based on the
+        provided product ID. If no ID is provided, it returns all records.
+      parameters:
+      - description: Product ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ProductRecordResponseSwagger'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.ProductRecords'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Parameter
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve a product record report
+      tags:
+      - ProductRecord
+  /products:
+    get:
+      description: Fetch all registered products from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProductResponseSwagger'
+        "500":
+          description: Unable to list products
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve all products
+      tags:
+      - Product
+    post:
+      description: This endpoint allows for creating a new product.
+      parameters:
+      - description: Product information
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/model.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ProductResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Product'
+              type: object
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create product
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new product
+      tags:
+      - Product
+  /products/{id}:
+    delete:
+      description: This endpoint allows for deleting a product based on the provided
+        product ID.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Product successfully deleted
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to delete product
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Delete a product by ID
+      tags:
+      - Product
+    get:
+      description: This endpoint fetches the details of a specific product based on
+        the provided product ID.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ProductResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Product'
+              type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Product Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for product
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve a product
+      tags:
+      - Product
+    patch:
+      description: This endpoint allows for updating the details of a specific product
+        identified by the provided ID.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product information
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/model.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product successfully updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.ProductResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Product'
+              type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to update product
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Update an existing product
+      tags:
+      - Product
   /purchaseOrders:
     post:
       consumes:
@@ -346,4 +1107,300 @@ paths:
       summary: Create a new purchase order
       tags:
       - PurchaseOrder
+  /sellers:
+    get:
+      description: Fetch all registered sellers from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SellerResponseSwagger'
+        "500":
+          description: Unable to list sellers
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve all sellers
+      tags:
+      - Seller
+    post:
+      description: This endpoint allows for creating a new seller.
+      parameters:
+      - description: Seller information
+        in: body
+        name: seller
+        required: true
+        schema:
+          $ref: '#/definitions/model.Seller'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.SellerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Seller'
+              type: object
+        "400":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: CID number already exists
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to create seller
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new seller
+      tags:
+      - Seller
+  /sellers/{id}:
+    delete:
+      description: This endpoint allows for deleting a seller based on the provided
+        seller ID.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Seller successfully deleted
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: Seller not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: Seller cannot be deleted due to existing dependencies
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to delete seller
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Delete a seller by ID
+      tags:
+      - Seller
+    get:
+      description: This endpoint fetches the details of a specific seller based on
+        the provided seller ID.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.SellerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Seller'
+              type: object
+        "400":
+          description: missing 'id' parameter in the request
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "404":
+          description: seller not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to search for seller
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve seller
+      tags:
+      - Seller
+    patch:
+      description: This endpoint allows for updating the details of a specific seller
+        identified by the provided ID.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Seller information
+        in: body
+        name: seller
+        required: true
+        schema:
+          $ref: '#/definitions/model.Seller'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Seller successfully updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.SellerResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Seller'
+              type: object
+        "404":
+          description: Locality not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "409":
+          description: CID number already exists
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to update seller
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Update an existing seller
+      tags:
+      - Seller
+  /warehouses:
+    get:
+      description: Fetch all registered warehouses from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.WareHousesResponseSwagger'
+        "500":
+          description: Unable to search warehouse
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Retrieve all warehouses
+      tags:
+      - Warehouses
+    post:
+      consumes:
+      - application/json
+      description: Create a new warehouse
+      parameters:
+      - description: Warehouse details
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/model.WareHouse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WareHousesResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.WareHouse'
+              type: object
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "422":
+          description: JSON syntax error Or Mandatory fields not filled in
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to post warehouse
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Create a new warehouse
+      tags:
+      - Warehouses
+  /warehouses/{id}:
+    delete:
+      description: Delete a warehouse by its ID
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to delete warehouse
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Delete a warehouse
+      tags:
+      - Warehouses
+    put:
+      consumes:
+      - application/json
+      description: Update a warehouse by its ID
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated warehouse details
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/model.WareHouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WareHousesResponseSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.WareHouse'
+              type: object
+        "400":
+          description: Invalid ID or Invalid request body
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "422":
+          description: JSON syntax error Or Mandatory fields not filled in
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+        "500":
+          description: Unable to update warehouse
+          schema:
+            $ref: '#/definitions/model.ErrorResponseSwagger'
+      summary: Update a warehouse
+      tags:
+      - Warehouses
 swagger: "2.0"

@@ -14,7 +14,7 @@ import (
 func loadDependencies() *ProductService {
 	productRepoMock := new(mocks.MockIProductsRepo)
 	sellerRepositoryMock := new(mocks.MockISellerRepo)
-	productServiceMock := NewProductService(productRepoMock, sellerRepositoryMock)
+	productServiceMock := NewProductService(productRepoMock, sellerRepositoryMock, logMock)
 	return productServiceMock
 }
 
