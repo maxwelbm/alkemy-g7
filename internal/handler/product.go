@@ -12,18 +12,18 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger" // Importando o pacote de logger
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type ProductHandler struct {
 	ProductService interfaces.IProductService
-	log            *logger.LoggerDefault // Logger para registrar mensagens
+	log            logger.Logger
 }
 
-func NewProductHandler(ps interfaces.IProductService, logger *logger.LoggerDefault) *ProductHandler {
+func NewProductHandler(ps interfaces.IProductService, logger logger.Logger) *ProductHandler {
 	return &ProductHandler{
 		ProductService: ps,
-		log:            logger, // Inicializando o logger
+		log:            logger,
 	}
 }
 

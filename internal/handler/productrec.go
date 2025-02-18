@@ -16,13 +16,13 @@ import (
 
 type ProductRecHandler struct {
 	ProductRecServ interfaces.IProductRecService
-	log            *logger.LoggerDefault // Logger para registrar mensagens
+	log            logger.Logger
 }
 
-func NewProductRecHandler(prs interfaces.IProductRecService, logger *logger.LoggerDefault) *ProductRecHandler {
+func NewProductRecHandler(prs interfaces.IProductRecService, logger logger.Logger) *ProductRecHandler {
 	return &ProductRecHandler{
 		ProductRecServ: prs,
-		log:            logger, // Inicializando o logger
+		log:           logger, // Inicializando o logger
 	}
 }
 
