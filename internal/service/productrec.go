@@ -8,7 +8,7 @@ import (
 	repo "github.com/maxwelbm/alkemy-g7.git/internal/repository/interfaces"
 	serv "github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	appErr "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
-	"github.com/maxwelbm/alkemy-g7.git/pkg/logger" // Adicione o pacote de logger
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type ProductRecService struct {
@@ -21,7 +21,7 @@ func NewProductRecService(productRecRepo repo.IProductRecRepository, productServ
 	return &ProductRecService{
 		ProductRecRepository: productRecRepo,
 		ProductSv:            productServ,
-		log:                  logger, // Inicializando o logger
+		log:                  logger,
 	}
 }
 
