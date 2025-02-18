@@ -190,7 +190,7 @@ func TestProductRecRepository_GetByIDProduct(t *testing.T) {
 	})
 
 	t.Run("Error trying to convert row to struct", func(t *testing.T) {
-		expectedErr := errors.New("error trying to convert row to struct")
+		expectedErr := errors.New("Error trying to convert row to struct")
 		rows := sqlmock.NewRows([]string{"id", "last_update_date", "product_id", "purchase_price", "sale_price"}).
 			AddRow(productRec.ID, productRec.LastUpdateDate, nil, productRec.PurchasePrice, productRec.SalePrice)
 
@@ -273,7 +273,7 @@ func TestProductRecRepository_GetAll(t *testing.T) {
 
 	})
 	t.Run("Error trying to convert row to struct", func(t *testing.T) {
-		expectedErr := errors.New("error trying to convert row to struct")
+		expectedErr := errors.New("Error trying to convert row to struct")
 		rows := sqlmock.NewRows([]string{"id", "last_update_date", "product_id", "purchase_price", "sale_price"}).
 			AddRow(productRec.ID, productRec.LastUpdateDate, nil, productRec.PurchasePrice, productRec.SalePrice)
 
@@ -354,7 +354,7 @@ func TestProductRecRepository_GetAllReport(t *testing.T) {
 
 	})
 	t.Run("Error trying to convert row to struct", func(t *testing.T) {
-		expectedErr := errors.New("error trying to convert row to struct")
+		expectedErr := errors.New("Error trying to convert row to struct")
 		rows := sqlmock.NewRows([]string{"id", "description", "record_count"}).
 			AddRow(nil, productReport.Description, productReport.RecordsCount)
 

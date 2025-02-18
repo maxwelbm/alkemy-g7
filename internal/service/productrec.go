@@ -34,12 +34,12 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 	}
 
 	if _, err := prs.ProductSv.GetProductByID(pr.ProductID); err != nil {
-		prs.log.Log("ProductRecService", "ERROR", "Product not found with ID: "+string(pr.ProductID))
+		prs.log.Log("ProductRecService", "ERROR", fmt.Sprintf("Product not found with ID: %d", pr.ProductID))
 		return model.ProductRecords{}, err
 	}
 
 	pr.LastUpdateDate = time.Now()
-	prs.log.Log("ProductRecService", "INFO", "Creating product record for Product ID: "+string(pr.ProductID))
+	prs.log.Log("ProductRecService", "INFO", fmt.Sprintf("Creating product record for Product ID: %d", pr.ProductID))
 
 	productRecord, err := prs.ProductRecRepository.Create(pr)
 
@@ -53,11 +53,11 @@ func (prs *ProductRecService) CreateProductRecords(pr model.ProductRecords) (mod
 }
 
 func (prs *ProductRecService) GetProductRecordByID(id int) (model.ProductRecords, error) {
-	prs.log.Log("ProductRecService", "INFO", "GetProductRecordByID function initializing for ID: "+string(id))
+	prs.log.Log("ProductRecService", "INFO", fmt.Sprintf("GetProductRecordByID function initializing for ID: %d", id))
 
 	productRecord, err := prs.ProductRecRepository.GetByID(id)
 	if err != nil {
-		prs.log.Log("ProductRecService", "ERROR", "Error retrieving product record with ID: "+string(id)+", error: "+err.Error())
+		prs.log.Log("ProductRecService", "ERROR", fmt.Sprintf("Error retrieving product record with ID: %d , error: %s", id, err.Error()))
 		return model.ProductRecords{}, err
 	}
 
@@ -66,7 +66,7 @@ func (prs *ProductRecService) GetProductRecordByID(id int) (model.ProductRecords
 }
 
 func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.ProductRecordsReport, error) {
-	prs.log.Log("ProductRecService", "INFO", "GetProductRecordReport function initializing for ProductID: "+string(idProduct))
+	prs.log.Log("ProductRecService", "INFO", fmt.Sprintf("GetProductRecordReport function initializing for ProductID: %d", idProduct))
 
 	allReports, err := prs.ProductRecRepository.GetAllReport()
 	if err != nil {
@@ -82,7 +82,7 @@ func (prs *ProductRecService) GetProductRecordReport(idProduct int) ([]model.Pro
 	}
 
 	if _, err := prs.ProductSv.GetProductByID(idProduct); err != nil {
-		prs.log.Log("ProductRecService", "ERROR", "Product not found with ID: "+string(idProduct))
+		prs.log.Log("ProductRecService", "ERROR", fmt.Sprintf("Product not found with ID: %d", idProduct))
 		return filteredReports, err
 	}
 
