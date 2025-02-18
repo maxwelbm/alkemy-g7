@@ -17,8 +17,11 @@ import (
 type CarrierHandler struct {
 	srv svc.ICarrierService
 	log logger.Logger
+	Srv svc.ICarrierService
 }
 
+func NewCarrierHandler(srv svc.ICarrierService) *CarrierHandler {
+	return &CarrierHandler{Srv: srv}
 func NewCarrierHandler(srv svc.ICarrierService, log logger.Logger) *CarrierHandler {
 	return &CarrierHandler{srv: srv, log: log}
 }
@@ -55,7 +58,7 @@ func (h *CarrierHandler) PostCarriers() http.HandlerFunc {
 			return
 		}
 
-		carrier, err := h.srv.PostCarrier(reqBody)
+		carrier, err := h.Srv.PostCarrier(reqBody)
 
 		if err != nil {
 			if err, ok := err.(*customerror.CarrierError); ok {

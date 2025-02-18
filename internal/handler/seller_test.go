@@ -16,9 +16,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var logMock = mocks.MockLog{}
+
 func setupSeller(t *testing.T) *handler.SellersController {
 	mock := mocks.NewMockISellerService(t)
-	hd := handler.CreateHandlerSellers(mock)
+	hd := handler.CreateHandlerSellers(mock, logMock)
 	return hd
 }
 
