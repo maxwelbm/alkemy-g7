@@ -14,7 +14,7 @@ import (
 func setup(t *testing.T) *service.BuyerService {
 	mockRepo := mocks.NewMockIBuyerRepo(t)
 
-	return service.NewBuyerService(mockRepo)
+	return service.NewBuyerService(mockRepo, logMock)
 }
 
 func TestGetAllBuyer(t *testing.T) {

@@ -31,8 +31,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	productRecordHandler := handler.NewProductRecHandler(productRecordServ)
 
 	buyersRepository := repository.NewBuyerRepository(sqlDB, logInstance)
-	buyerService := service.NewBuyerService(buyersRepository)
-	buyerHandler := handler.NewBuyerHandler(buyerService)
+	buyerService := service.NewBuyerService(buyersRepository, logInstance)
+	buyerHandler := handler.NewBuyerHandler(buyerService, logInstance)
 
 	warehousesRepository := repository.NewWareHouseRepository(sqlDB, logInstance)
 	warehousesService := service.NewWareHouseService(warehousesRepository)
@@ -51,8 +51,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	inboundHd := handler.NewInboundHandler(inboundSv)
 
 	purchaseOrderRepository := repository.NewPurchaseOrderRepository(sqlDB, logInstance)
-	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ)
-	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
+	purchaseOrderService := service.NewPurchaseOrderService(purchaseOrderRepository, buyerService, productRecordServ, logInstance)
+	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService, logInstance)
 
 	productBatchesRep := repository.CreateProductBatchesRepository(sqlDB, logInstance)
 	productBatchesSvc := service.CreateProductBatchesService(productBatchesRep, productServ, sectionsSvc)
