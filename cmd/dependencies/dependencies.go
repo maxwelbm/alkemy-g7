@@ -55,8 +55,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	purchaseOrderHandler := handler.NewPurchaseOrderHandler(purchaseOrderService)
 
 	productBatchesRep := repository.CreateProductBatchesRepository(sqlDB, logInstance)
-	productBatchesSvc := service.CreateProductBatchesService(productBatchesRep, productServ, sectionsSvc)
-	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc)
+	productBatchesSvc := service.CreateProductBatchesService(productBatchesRep, productServ, sectionsSvc, logInstance)
+	productBatchesHandler := handler.CreateProductBatchesHandler(productBatchesSvc, logInstance)
 
 	carrierRep := repository.NewCarriersRepository(sqlDB, logInstance)
 	carrierSv := service.NewCarrierService(carrierRep, localitiesService)
