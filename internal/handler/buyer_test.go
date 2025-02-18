@@ -16,7 +16,7 @@ import (
 
 func setup(t *testing.T) *handler.BuyerHandler {
 	mockBuyerService := mocks.NewMockIBuyerservice(t)
-	hd := handler.NewBuyerHandler(mockBuyerService)
+	hd := handler.NewBuyerHandler(mockBuyerService, logMock)
 	return hd
 }
 
