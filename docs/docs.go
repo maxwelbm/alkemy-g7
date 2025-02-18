@@ -331,6 +331,913 @@ const docTemplate = `{
                 }
             }
         },
+        "/carriers": {
+            "post": {
+                "description": "Creates a new carrier with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Carriers"
+                ],
+                "summary": "Create a new carrier",
+                "parameters": [
+                    {
+                        "description": "Carrier data",
+                        "name": "carrier",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Carries"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.CarrierResponseSwagger"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid fields",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to post carrier",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/employees": {
+            "get": {
+                "description": "Fetch all registered employees from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Retrieve all employees",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    },
+                    "404": {
+                        "description": "Employee not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve employee",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new employee to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Create a new employee",
+                "parameters": [
+                    {
+                        "description": "Employee details",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create employee",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/employees/reports": {
+            "get": {
+                "description": "Fetch inbound order reports, optionally filtering by employee ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Retrieve inbound order reports",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID (optional)",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inbound order report(s)",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Reports not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve reports",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/employees/{id}": {
+            "get": {
+                "description": "Fetch an employee by their ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Retrieve a single employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Employee not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve employee",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Modify the details of an existing employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Update an employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated employee details",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.EmployeeJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or ID format",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Employee not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to update employee",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove an employee from the database by their ID",
+                "tags": [
+                    "Employee"
+                ],
+                "summary": "Delete an employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Employee not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to delete employee",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/localities": {
+            "post": {
+                "description": "This endpoint allows for creating a new locality.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "summary": "Create a new locality",
+                "parameters": [
+                    {
+                        "description": "Locality information",
+                        "name": "locality",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Locality"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.LocalityResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Locality"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create locality",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/localities/reportCarriers": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific locality abount carriers count based on the provided locality ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "summary": "Retrieve locality and count carriers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.LocalityCarriersResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.LocalitiesJSONCarriers"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "missing 'id' parameter in the request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for locality",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/localities/reportSellers": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific locality abount sellers count based on the provided locality ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "summary": "Retrieve locality and count sellers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.LocalitySellersResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.LocalitiesJSONSellers"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "missing 'id' parameter in the request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for locality",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/localities/{id}": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific locality based on the provided locality ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locality"
+                ],
+                "summary": "Retrieve locality",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Locality ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.LocalityResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Locality"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "missing 'id' parameter in the request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for locality",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/product-records": {
+            "post": {
+                "description": "This endpoint allows for creating a new product record.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductRecord"
+                ],
+                "summary": "Create a new product record",
+                "parameters": [
+                    {
+                        "description": "Product Record Information",
+                        "name": "productRecord",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ProductRecords"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ProductRecordResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ProductRecords"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid JSON format",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create product record",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/product-records/report": {
+            "get": {
+                "description": "This endpoint retrieves the product record report based on the provided product ID. If no ID is provided, it returns all records.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ProductRecord"
+                ],
+                "summary": "Retrieve a product record report",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ProductRecordResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.ProductRecords"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Parameter",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "description": "Fetch all registered products from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Retrieve all products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ProductResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to list products",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "This endpoint allows for creating a new product.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create a new product",
+                "parameters": [
+                    {
+                        "description": "Product information",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ProductResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Product"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create product",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific product based on the provided product ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Retrieve a product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ProductResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Product"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Product Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for product",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "This endpoint allows for deleting a product based on the provided product ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Delete a product by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Product successfully deleted"
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to delete product",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "This endpoint allows for updating the details of a specific product identified by the provided ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Update an existing product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product information",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product successfully updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.ProductResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Product"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to update product",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
         "/purchaseOrders": {
             "post": {
                 "description": "This endpoint allows you to create a new purchase order by providing the necessary details in the request body.",
@@ -400,9 +1307,494 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/sellers": {
+            "get": {
+                "description": "Fetch all registered sellers from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Retrieve all sellers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SellerResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to list sellers",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "This endpoint allows for creating a new seller.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Create a new seller",
+                "parameters": [
+                    {
+                        "description": "Seller information",
+                        "name": "seller",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Seller"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SellerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Seller"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "CID number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create seller",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/sellers/{id}": {
+            "get": {
+                "description": "This endpoint fetches the details of a specific seller based on the provided seller ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Retrieve seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SellerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Seller"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "missing 'id' parameter in the request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "seller not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search for seller",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "This endpoint allows for deleting a seller based on the provided seller ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Delete a seller by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Seller successfully deleted"
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "404": {
+                        "description": "Seller not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "Seller cannot be deleted due to existing dependencies",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to delete seller",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "This endpoint allows for updating the details of a specific seller identified by the provided ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Update an existing seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Seller information",
+                        "name": "seller",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Seller"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Seller successfully updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SellerResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Seller"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Locality not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "409": {
+                        "description": "CID number already exists",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to update seller",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/warehouses": {
+            "get": {
+                "description": "Fetch all registered warehouses from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Retrieve all warehouses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.WareHousesResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to search warehouse",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new warehouse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Create a new warehouse",
+                "parameters": [
+                    {
+                        "description": "Warehouse details",
+                        "name": "warehouse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WareHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WareHousesResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.WareHouse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "JSON syntax error Or Mandatory fields not filled in",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to post warehouse",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/warehouses/{id}": {
+            "put": {
+                "description": "Update a warehouse by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Update a warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated warehouse details",
+                        "name": "warehouse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.WareHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WareHousesResponseSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.WareHouse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "422": {
+                        "description": "JSON syntax error Or Mandatory fields not filled in",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to update warehouse",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a warehouse by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Delete a warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to delete warehouse",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponseSwagger"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.EmployeeJSON": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "warehouse_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.Buyer": {
             "type": "object",
             "properties": {
@@ -455,12 +1847,207 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CarrierResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Carries"
+                    }
+                }
+            }
+        },
+        "model.Carries": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cid": {
+                    "type": "string"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "locality_id": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ErrorResponseSwagger": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
                     "example": "Error message"
+                }
+            }
+        },
+        "model.LocalitiesJSONCarriers": {
+            "type": "object",
+            "properties": {
+                "carriers_count": {
+                    "type": "integer"
+                },
+                "locality_id": {
+                    "type": "string"
+                },
+                "locality_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LocalitiesJSONSellers": {
+            "type": "object",
+            "properties": {
+                "locality_id": {
+                    "type": "string"
+                },
+                "locality_name": {
+                    "type": "string"
+                },
+                "sellers_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.Locality": {
+            "type": "object",
+            "properties": {
+                "country_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "locality_name": {
+                    "type": "string"
+                },
+                "province_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LocalityCarriersResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LocalitiesJSONCarriers"
+                    }
+                }
+            }
+        },
+        "model.LocalityResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Locality"
+                    }
+                }
+            }
+        },
+        "model.LocalitySellersResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LocalitiesJSONSellers"
+                    }
+                }
+            }
+        },
+        "model.Product": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expiration_rate": {
+                    "type": "number"
+                },
+                "freezing_rate": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "length": {
+                    "type": "number"
+                },
+                "net_weight": {
+                    "type": "number"
+                },
+                "product_code": {
+                    "type": "string"
+                },
+                "product_type_id": {
+                    "type": "integer"
+                },
+                "recommended_freezing_temperature": {
+                    "type": "number"
+                },
+                "seller_id": {
+                    "type": "integer"
+                },
+                "width": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.ProductRecordResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ProductRecords"
+                    }
+                }
+            }
+        },
+        "model.ProductRecords": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "last_update_date": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "purchase_price": {
+                    "type": "number"
+                },
+                "sale_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.ProductResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Product"
+                    }
                 }
             }
         },
@@ -500,6 +2087,74 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.PurchaseOrder"
+                    }
+                }
+            }
+        },
+        "model.Seller": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cid": {
+                    "type": "integer"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "locality_id": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.SellerResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Seller"
+                    }
+                }
+            }
+        },
+        "model.WareHouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.WareHousesResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.WareHouse"
                     }
                 }
             }

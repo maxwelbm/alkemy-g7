@@ -3,9 +3,11 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"os"
-
 	"github.com/go-sql-driver/mysql"
+	"github.com/melisource/fury_go-toolkit-secrets/pkg/secrets"
+	"log"
+	"os"
+	"time"
 )
 
 type DB struct {
@@ -30,22 +32,40 @@ func (Db *DB) Close() error {
 }
 
 func GetDBConfig() (*mysql.Config, error) {
-	dbHost := os.Getenv("DB_HOST")
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbNet := os.Getenv("DB_NET")
+	client, err := secrets.NewClient()
+	if err != nil {
+		panic(err)
+	}
 
-	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbNet == "" {
+	dbHost := os.Getenv("DB_MYSQL_<CLUSTER>_<SCHEMA>_<SCHEMA>_ENDPOINT")
+	dbUser, OK := client.GetSecret("DB_MYSQL_<CLUSTER>_<SCHEMA>_<SCHEMA>_<ROLE>_USER")
+
+	if !OK {
+		log.Println("error recovering Username")
+	}
+
+	dbPassword, OK := client.GetSecret("DB_MYSQL_<CLUSTER>_<SCHEMA>_<SCHEMA>_<ROLE>")
+
+	if !OK {
+		log.Println("error recovering password")
+	}
+
+	dbName := "dbname"
+
+	if dbHost == "" || dbUser == "" || dbPassword == "" {
 		return nil, errors.New("missing required environment configuration for the database")
 	}
 
 	return &mysql.Config{
-		User:      dbUser,
-		Passwd:    dbPassword,
-		Net:       dbNet,
-		Addr:      dbHost,
-		ParseTime: true,
-		DBName:    dbName,
+		User:                 dbUser,
+		Passwd:               dbPassword,
+		Net:                  "tcp",
+		Addr:                 dbHost,
+		DBName:               dbName,
+		Timeout:              100 * time.Millisecond,
+		ReadTimeout:          100 * time.Millisecond,
+		WriteTimeout:         100 * time.Millisecond,
+		ParseTime:            true,
+		AllowNativePasswords: true,
 	}, nil
 }

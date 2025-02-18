@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 	"strconv"
 
@@ -14,27 +16,33 @@ import (
 
 type BuyerHandler struct {
 	Svc interfaces.IBuyerservice
+	log logger.Logger
 }
 
-func NewBuyerHandler(svc interfaces.IBuyerservice) *BuyerHandler {
-	return &BuyerHandler{svc}
+func NewBuyerHandler(svc interfaces.IBuyerservice, log logger.Logger) *BuyerHandler {
+	return &BuyerHandler{svc, log}
 }
 
 // HandlerGetAllBuyers retrieves all buyers.
 // @Summary Retrieve all buyers
 // @Description Fetch all registered buyers from the database
-// @Tags Buyes
+// @Tags Buyer
 // @Produce json
 // @Success 200 {object} model.BuyerResponseSwagger
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to list Buyers"
 // @Router /buyers [get]
 func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request GetAllBUyers")
 	buyers, err := bh.Svc.GetAllBuyer()
+
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to list Buyers", nil))
+
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", "Return buyers searched in format JSON")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyers))
 }
 
@@ -50,28 +58,37 @@ func (bh *BuyerHandler) HandlerGetAllBuyers(w http.ResponseWriter, r *http.Reque
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for buyer"
 // @Router /buyers/{id} [get]
 func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request GetBuyerByID")
+
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 
 	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("initializing search GetBuyerByID in BuyerService with ID: %d", id))
 	buyer, err := bh.Svc.GetBuyerByID(id)
 
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to search for buyer", nil))
 
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", "Return buyer searched in format JSON")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
@@ -88,27 +105,36 @@ func (bh *BuyerHandler) HandlerGetBuyerByID(w http.ResponseWriter, r *http.Reque
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete buyer"
 // @Router /buyers/{id} [delete]
 func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request DeleteBuyerByID")
+
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("initializing  DeleteBuyerByID in BuyerService with ID: %d", id))
 	err = bh.Svc.DeleteBuyerByID(id)
 
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to delete buyer", nil))
 
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("Return %d code successful", http.StatusNoContent))
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
@@ -127,6 +153,8 @@ func (bh *BuyerHandler) HandlerDeleteBuyerByID(w http.ResponseWriter, r *http.Re
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to create buyer"
 // @Router /buyers [post]
 func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request CreateBuyer")
+
 	var reqBody model.Buyer
 
 	decoder := json.NewDecoder(r.Body)
@@ -135,30 +163,41 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 	err := decoder.Decode(&reqBody)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
+
 		return
 	}
+
+	bh.log.Log("BuyerHandler", "INFO", "Validating fields received ")
 
 	err = reqBody.ValidateEmptyFields(false)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", "fields received validated successful ")
 	buyer, err := bh.Svc.CreateBuyer(reqBody)
 
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create buyer", nil))
 
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("Return %d code successful", http.StatusCreated))
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", buyer))
 }
 
@@ -189,13 +228,19 @@ func (bh *BuyerHandler) HandlerCreateBuyer(w http.ResponseWriter, r *http.Reques
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to update buyer"
 // @Router /buyers/{id} [patch]
 func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request UpdateBuyer")
+
 	idStr := r.URL.Path[len("/api/v1/Buyers/"):]
 	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+
 		return
 	}
+
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("received ID: %d", id))
 
 	var reqBody model.Buyer
 
@@ -205,14 +250,20 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 	err = decoder.Decode(&reqBody)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("JSON syntax error. Please verify your input.", nil))
+
 		return
 	}
+
+	bh.log.Log("BuyerHandler", "INFO", "Validating fields received ")
 
 	err = reqBody.ValidateEmptyFields(true)
 
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody(err.Error(), nil))
+
 		return
 	}
 
@@ -220,15 +271,19 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to update buyer", nil))
 
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", "Buyer updated successful")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", buyer))
 }
 
@@ -243,21 +298,29 @@ func (bh *BuyerHandler) HandlerUpdateBuyer(w http.ResponseWriter, r *http.Reques
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to count buyer purchase orders"
 // @Router /buyers/reportPurchaseOrders [get]
 func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r *http.Request) {
+	bh.log.Log("BuyerHandler", "INFO", "initializing Request CountPurchaseOrderBuyer")
+
 	idStr := r.URL.Query().Get("id")
 
 	if idStr == "" {
+		bh.log.Log("BuyerHandler", "INFO", "called buyerService CountPurchaseOrderBuyer why did the ID parameter come empty")
 		count, err := bh.Svc.CountPurchaseOrderBuyer()
+
 		if err != nil {
 			if err, ok := err.(*customerror.BuyerError); ok {
+				bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 				response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+
 				return
 			}
 
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
 
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "INFO", "return count successful")
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 
 		return
@@ -265,22 +328,29 @@ func (bh *BuyerHandler) HandlerCountPurchaseOrderBuyer(w http.ResponseWriter, r 
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid ID", nil))
+
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", fmt.Sprintf("called buyerService CountPurchaseOrderByBuyerID with ID %d", id))
 	count, err := bh.Svc.CountPurchaseOrderByBuyerID(id)
+
 	if err != nil {
 		if err, ok := err.(*customerror.BuyerError); ok {
+			bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
 			return
 		}
 
+		bh.log.Log("BuyerHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to count buyer Purchase orders", nil))
 
 		return
 	}
 
+	bh.log.Log("BuyerHandler", "INFO", "return count per BuyerID successful")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", count))
 }

@@ -24,6 +24,7 @@ type LoggerDefault struct {
 func NewLogger(db *sql.DB) *LoggerDefault {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
+
 	return &LoggerDefault{db: db, logger: logger}
 }
 
