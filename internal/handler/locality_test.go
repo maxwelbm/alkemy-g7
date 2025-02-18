@@ -17,7 +17,7 @@ import (
 
 func setupLocality(t *testing.T) *handler.LocalitiesController {
 	mock := mocks.NewMockILocalityService(t)
-	hd := handler.CreateHandlerLocality(mock)
+	hd := handler.CreateHandlerLocality(mock, logMock)
 	return hd
 }
 

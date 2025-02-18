@@ -15,11 +15,11 @@ func setupSeller(t *testing.T) *service.SellersService {
 	mockSeller := mocks.NewMockISellerRepo(t)
 	mockLocality := mocks.NewMockILocalityRepo(t)
 
-	return service.CreateServiceSellers(mockSeller, mockLocality)
+	return service.CreateServiceSellers(mockSeller, mockLocality, logMock)
 }
 
 func setupLocality(mockLocality *mocks.MockILocalityRepo) *service.LocalitiesService {
-	return service.CreateServiceLocalities(mockLocality)
+	return service.CreateServiceLocalities(mockLocality, logMock)
 }
 
 func TestSellersService_GetAll(t *testing.T) {

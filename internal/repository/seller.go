@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
@@ -22,10 +23,14 @@ type SellersRepository struct {
 }
 
 func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
+	rp.log.Log("SellersRepository", "INFO", "Get function initializing")
+
 	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers`"
 	rows, err := rp.db.Query(query)
 
 	if err != nil {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
 
@@ -36,49 +41,72 @@ func (rp *SellersRepository) Get() (sellers []model.Seller, err error) {
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Locality)
 
 		if err != nil {
+			rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 			return
 		}
 
 		sellers = append(sellers, seller)
 	}
 
+	rp.log.Log("SellersRepository", "INFO", fmt.Sprintf("Retrieved sellers: %+v", sellers))
+	rp.log.Log("SellersRepository", "INFO", "Get function completed")
+
 	return
 }
 
 func (rp *SellersRepository) GetByID(id int) (sl model.Seller, err error) {
+	rp.log.Log("SellersRepository", "INFO", "Get seller by ID function initializing")
+
 	query := "SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `sellers` WHERE `id` = ?"
 	row := rp.db.QueryRow(query, id)
 
 	err = row.Scan(&sl.ID, &sl.CID, &sl.CompanyName, &sl.Address, &sl.Telephone, &sl.Locality)
 
 	if errors.Is(err, sql.ErrNoRows) {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 		err = er.ErrSellerNotFound
+
 		return
 	}
+
+	rp.log.Log("SellersRepository", "INFO", fmt.Sprintf("Retrieved seller: %+v", sl))
+	rp.log.Log("SellersRepository", "INFO", "Get seller by ID function completed")
 
 	return
 }
 
 func (rp *SellersRepository) Post(seller *model.Seller) (sl model.Seller, err error) {
+	rp.log.Log("SellersRepository", "INFO", "Post function initializing")
+
 	query := "INSERT INTO `sellers` (`cid`, `company_name`, `address`, `telephone`, `locality_id`) VALUES (?, ?, ?, ?, ?)"
 	result, err := rp.db.Exec(query, (*seller).CID, (*seller).CompanyName, (*seller).Address, (*seller).Telephone, (*seller).Locality)
 	err = rp.validateSQLError(err)
 
 	if err != nil {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
 
 	sl, _ = rp.GetByID(int(id))
 
+	rp.log.Log("SellersRepository", "INFO", fmt.Sprintf("Created seller: %+v", sl))
+	rp.log.Log("SellersRepository", "INFO", "Post function completed")
+
 	return
 }
 
 func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Seller, err error) {
+	rp.log.Log("SellersRepository", "INFO", "Patch function initializing")
+
 	query := "UPDATE `sellers` SET"
 
 	var (
@@ -123,22 +151,34 @@ func (rp *SellersRepository) Patch(id int, seller *model.Seller) (sl model.Selle
 	err = rp.validateSQLError(err)
 
 	if err != nil {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return sl, err
 	}
 
 	sl, _ = rp.GetByID(id)
 
+	rp.log.Log("SellersRepository", "INFO", fmt.Sprintf("Updated seller: %+v", sl))
+	rp.log.Log("SellersRepository", "INFO", "Patch function completed")
+
 	return sl, err
 }
 
 func (rp *SellersRepository) Delete(id int) error {
+	rp.log.Log("SellersRepository", "INFO", "Delete function initializing")
+
 	query := "DELETE FROM `sellers` WHERE `id` = ?"
 	_, err := rp.db.Exec(query, id)
 	err = rp.validateSQLError(err)
 
 	if err != nil {
+		rp.log.Log("SellersRepository", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return err
 	}
+
+	rp.log.Log("SellersRepository", "INFO", fmt.Sprintf("Removed seller with ID: %d", id))
+	rp.log.Log("SellersRepository", "INFO", "Delete function completed")
 
 	return err
 }
