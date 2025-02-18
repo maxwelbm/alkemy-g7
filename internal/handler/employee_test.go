@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/maxwelbm/alkemy-g7.git/internal/handler"
 	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
@@ -19,10 +20,7 @@ import (
 
 func TestGetEmployeesHandler(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
 	t.Run("should return a list of employees", func(t *testing.T) {
 		srv.On("GetEmployees", mock.Anything).Return([]model.Employee{
@@ -66,10 +64,7 @@ func TestGetEmployeesHandler(t *testing.T) {
 
 func TestGetEmployeeById(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
 	r := chi.NewRouter()
 	r.Get("/api/v1/employees/{id}", employeeHd.GetEmployeeByID)
@@ -137,12 +132,9 @@ func TestInsertEmployee(t *testing.T) {
 	}
 
 	srv := mocks.NewMockIEmployeeService(t)
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
-	newEmployee := EmployeeJSON{
+	newEmployee := handler.EmployeeJSON{
 		CardNumberID: "#123",
 		FirstName:    "Islam",
 		LastName:     "Makhachev",
@@ -239,11 +231,7 @@ func TestUpdateEmployee(t *testing.T) {
 		return req
 	}
 	srv := mocks.NewMockIEmployeeService(t)
-
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
 	r := chi.NewRouter()
 	r.Patch("/api/v1/employees/{id}", employeeHd.UpdateEmployee)
@@ -326,10 +314,7 @@ func TestUpdateEmployee(t *testing.T) {
 func TestDeleteEmployee(t *testing.T) {
 	srv := mocks.NewMockIEmployeeService(t)
 
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
 	r := chi.NewRouter()
 	r.Delete("/api/v1/employees/{id}", employeeHd.DeleteEmployee)
@@ -397,10 +382,7 @@ func TestGetInboundOrdersReports(t *testing.T) {
 	}
 
 	srv := mocks.NewMockIEmployeeService(t)
-	employeeHd := EmployeeHandler{
-		sv:  srv,
-		log: mocks.MockLog{},
-	}
+	employeeHd := handler.CreateEmployeeHandler(srv, logMock)
 
 	t.Run("should return 200 OK and reports when no ID is provided", func(t *testing.T) {
 		srv.On("GetInboundOrdersReports").Return([]model.InboundOrdersReportByEmployee{

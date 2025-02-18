@@ -46,8 +46,8 @@ type EmployeeHandler struct {
 	log logger.Logger
 }
 
-func CreateEmployeeHandler(service interfaces.IEmployeeService) *EmployeeHandler {
-	return &EmployeeHandler{sv: service}
+func CreateEmployeeHandler(service interfaces.IEmployeeService, log logger.Logger) *EmployeeHandler {
+	return &EmployeeHandler{sv: service, log: log}
 }
 
 // GetEmployeesHandler retrieves all employees.
