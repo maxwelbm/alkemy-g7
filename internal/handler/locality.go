@@ -197,7 +197,6 @@ func (hd *LocalitiesController) GetCarriers(w http.ResponseWriter, r *http.Reque
 		}
 
 		id = idParam
-
 	}
 
 	result, err := hd.Service.GetCarriers(id)

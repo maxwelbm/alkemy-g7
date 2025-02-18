@@ -118,6 +118,7 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
+
 		return
 	}
 
@@ -174,6 +175,7 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 		hd.log.Log("SellersHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
+
 		return
 	}
 

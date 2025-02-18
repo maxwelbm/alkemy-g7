@@ -25,7 +25,8 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 		p.log.Log("PurchaseOrderService", "ERROR", fmt.Sprintf("Error: %v", err))
 		return
 	}
-	p.log.Log("PurchaseOrderService", "INFO", fmt.Sprintf("Buyer found"))
+
+	p.log.Log("PurchaseOrderService", "INFO", "Buyer found")
 	p.log.Log("PurchaseOrderService", "INFO", fmt.Sprintf("Searching ProductRecord with parameter ID: %d", newPurchaseOrder.ProductRecordID))
 	_, err = p.SvcProductRec.GetProductRecordByID(newPurchaseOrder.ProductRecordID)
 
@@ -33,17 +34,21 @@ func (p *PurchaseOrderService) CreatePurchaseOrder(newPurchaseOrder model.Purcha
 		p.log.Log("PurchaseOrderService", "ERROR", fmt.Sprintf("Error: %v", err))
 		return
 	}
-	p.log.Log("PurchaseOrderService", "INFO", fmt.Sprintf("Product Record found"))
+
+	p.log.Log("PurchaseOrderService", "INFO", "Product Record found")
 
 	id, err := p.Rp.Post(newPurchaseOrder)
 
 	if err != nil {
 		p.log.Log("PurchaseOrderService", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
+
 	p.log.Log("PurchaseOrderService", "INFO", fmt.Sprintf("Purchase Order created with ID: %d", id))
 	purchaseOrder, err = p.Rp.GetByID(int(id))
 	p.log.Log("PurchaseOrderService", "INFO", fmt.Sprintf("Return Purchase Order created with ID: %d PUrchase: %v", id, purchaseOrder))
+
 	return
 }
 

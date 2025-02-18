@@ -190,6 +190,7 @@ func (rp *LocalitiesRepository) GetByID(id int) (l model.Locality, err error) {
 		rp.log.Log("LocalitiesRepository", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		e := er.ErrLocalityNotFound
+
 		return l, e
 	}
 

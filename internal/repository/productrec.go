@@ -101,7 +101,7 @@ func (pr *ProductRecRepository) GetAll() ([]model.ProductRecords, error) {
 			&productRecord.SalePrice)
 
 		if err != nil {
-			return nil, errors.New("Error trying to convert row to struct")
+			return nil, errors.New("error trying to convert row to struct")
 		}
 
 		productRecordList = append(productRecordList, productRecord)
@@ -143,7 +143,7 @@ func (pr *ProductRecRepository) GetByIDProduct(idProduct int) ([]model.ProductRe
 			&productRecord.SalePrice)
 
 		if err != nil {
-			return nil, errors.New("Error trying to convert row to struct")
+			return nil, errors.New("error trying to convert row to struct")
 		}
 
 		productRecordList = append(productRecordList, productRecord)
@@ -182,7 +182,7 @@ func (pr *ProductRecRepository) GetAllReport() ([]model.ProductRecordsReport, er
 		err := rows.Scan(&productRecord.ProductID, &productRecord.Description, &productRecord.RecordsCount)
 
 		if err != nil {
-			return nil, errors.New("Error trying to convert row to struct")
+			return nil, errors.New("error trying to convert row to struct")
 		}
 
 		productRecordReport = append(productRecordReport, productRecord)

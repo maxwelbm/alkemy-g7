@@ -21,6 +21,7 @@ type PurchaseOrderRepository struct {
 func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id int64, err error) {
 	p.log.Log("PurchaseOrderRepository", "INFO", fmt.Sprintf("initializing Post function with parameter %v", newPurchaseOrder))
 	prepare, err := p.db.Prepare("INSERT INTO purchase_orders (order_number, order_date, tracking_code, buyer_id, product_record_id) VALUES(?,?,?,?,?)")
+
 	if err != nil {
 		p.log.Log("PurchaseOrderRepository", "ERROR", fmt.Sprintf("Error:  %v", err))
 		return
@@ -32,12 +33,15 @@ func (p *PurchaseOrderRepository) Post(newPurchaseOrder model.PurchaseOrder) (id
 		if err.(*mysql.MySQLError).Number == 1062 {
 			err = customerror.NewPurcahseOrderError(http.StatusConflict, customerror.ErrConflict.Error(), "order_number")
 		}
+
 		p.log.Log("PurchaseOrderRepository", "ERROR", fmt.Sprintf("Error:  %v", err))
+
 		return
 	}
 
 	id, err = result.LastInsertId()
 	p.log.Log("PurchaseOrderRepository", "INFO", fmt.Sprintf("returning inserted ID %d", id))
+
 	return
 }
 
@@ -51,10 +55,14 @@ func (p *PurchaseOrderRepository) GetByID(id int) (purchaseOrder model.PurchaseO
 		if err == sql.ErrNoRows {
 			err = customerror.NewPurcahseOrderError(http.StatusNotFound, customerror.ErrNotFound.Error(), "Purchase Order")
 		}
+
 		p.log.Log("PurchaseOrderRepository", "ERROR", fmt.Sprintf("Error:  %v", err))
+
 		return
 	}
+
 	p.log.Log("PurchaseOrderRepository", "INFO", fmt.Sprintf("returning PurchaseOrder:  %v", purchaseOrder))
+
 	return
 }
 

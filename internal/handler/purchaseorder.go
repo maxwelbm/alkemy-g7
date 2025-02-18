@@ -37,6 +37,7 @@ func NewPurchaseOrderHandler(svc interfaces.IPurchaseOrdersService, log logger.L
 // @Router /purchaseOrders [post]
 func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter, r *http.Request) {
 	h.log.Log("PurchaseOrderHandler", "INFO", "initializing Request CreatePurchaseOrder")
+
 	var reqBody model.PurchaseOrder
 
 	decoder := json.NewDecoder(r.Body)
@@ -50,7 +51,9 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 
 		return
 	}
+
 	h.log.Log("PurchaseOrderHandler", "INFO", "Validating fields received ")
+
 	err = reqBody.ValidateEmptyFields()
 
 	if err != nil {
@@ -83,11 +86,13 @@ func (h *PurchaseOrderHandler) HandlerCreatePurchaseOrder(w http.ResponseWriter,
 
 			return
 		}
+
 		h.log.Log("PurchaseOrderHandler", "ERROR", fmt.Sprintf("Error: %v", err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create purchase order", nil))
 
 		return
 	}
-	h.log.Log("PurchaseOrderHandler", "INFO", "Purchase created successfull")
+
+	h.log.Log("PurchaseOrderHandler", "INFO", "Purchase created successful")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", purchaseOrder))
 }

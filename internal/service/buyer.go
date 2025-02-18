@@ -34,7 +34,9 @@ func (bs *BuyerService) DeleteBuyerByID(id int) (err error) {
 		bs.log.Log("BuyerService", "ERROR", fmt.Sprintf("Error: %v", err))
 		return
 	}
+
 	bs.log.Log("BuyerService", "INFO", "Return in repository successful")
+
 	return bs.Rp.Delete(id)
 }
 
@@ -46,10 +48,12 @@ func (bs *BuyerService) CreateBuyer(newBuyer model.Buyer) (buyer model.Buyer, er
 		bs.log.Log("BuyerService", "ERROR", fmt.Sprintf("Error: %v", err))
 		return
 	}
+
 	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("Searching for Buyer created with ID: %v", id))
 	buyer, err = bs.GetBuyerByID(int(id))
 
-	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("Create Buyer Successfull: %v", buyer))
+	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("Create Buyer successful: %v", buyer))
+
 	return
 }
 
@@ -83,19 +87,22 @@ func (bs *BuyerService) UpdateBuyer(id int, newBuyer model.Buyer) (buyer model.B
 
 	buyer, err = bs.GetBuyerByID(id)
 	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("return buyer updated: %v", buyer))
+
 	return
 }
 
 func (bs *BuyerService) CountPurchaseOrderByBuyerID(id int) (countBuyerPurchaseOrder model.BuyerPurchaseOrder, err error) {
 	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("initializing CountPurchaseOrderByBuyerID function with parameter ID: %d", id))
 	countBuyerPurchaseOrder, err = bs.Rp.CountPurchaseOrderByBuyerID(id)
-	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("return CountPurchaseOrderByBuyerIDeBuyer: %d sucessfull", id))
+	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("return CountPurchaseOrderByBuyerIDeBuyer: %d successful", id))
+
 	return
 }
 
 func (bs *BuyerService) CountPurchaseOrderBuyer() (countBuyerPurchaseOrder []model.BuyerPurchaseOrder, err error) {
-	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("initializing CountPurchaseOrderBuyer function"))
+	bs.log.Log("BuyerService", "INFO", "initializing CountPurchaseOrderBuyer function")
 	countBuyerPurchaseOrder, err = bs.Rp.CountPurchaseOrderBuyers()
-	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("return CountPurchaseOrderBuyer: %v sucessfull", countBuyerPurchaseOrder))
+	bs.log.Log("BuyerService", "INFO", fmt.Sprintf("return CountPurchaseOrderBuyer: %v successful", countBuyerPurchaseOrder))
+
 	return
 }
