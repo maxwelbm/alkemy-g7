@@ -13,10 +13,10 @@ import (
 type ProductService struct {
 	ProductRepository interfaces.IProductsRepo
 	SellerRepository  interfaces.ISellerRepo
-	log               logger.LoggerDefault
+	log               logger.Logger
 }
 
-func NewProductService(productRepo interfaces.IProductsRepo, sellerRepo interfaces.ISellerRepo, logger logger.LoggerDefault) *ProductService {
+func NewProductService(productRepo interfaces.IProductsRepo, sellerRepo interfaces.ISellerRepo, logger logger.Logger) *ProductService {
 	return &ProductService{
 		ProductRepository: productRepo,
 		SellerRepository:  sellerRepo,
