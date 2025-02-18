@@ -39,8 +39,8 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	warehousesHandler := handler.NewWareHouseHandler(warehousesService)
 
 	sectionsRep := repository.CreateRepositorySections(sqlDB, logInstance)
-	sectionsSvc := service.CreateServiceSection(sectionsRep)
-	sectionsHandler := handler.CreateHandlerSections(sectionsSvc)
+	sectionsSvc := service.CreateServiceSection(sectionsRep, logInstance)
+	sectionsHandler := handler.CreateHandlerSections(sectionsSvc, logInstance)
 
 	employeeRp := repository.CreateEmployeeRepository(sqlDB, logInstance)
 	employeeSv := service.CreateEmployeeService(employeeRp, warehousesRepository)
