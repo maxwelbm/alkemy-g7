@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 )
 
 type ProductBatchesJSON struct {
@@ -27,14 +29,17 @@ type ProductBatchesJSON struct {
 }
 
 type ProductBatchesController struct {
-	Sv interfaces.IProductBatchesService
+	Sv  interfaces.IProductBatchesService
+	log logger.Logger
 }
 
-func CreateProductBatchesHandler(sv interfaces.IProductBatchesService) *ProductBatchesController {
-	return &ProductBatchesController{Sv: sv}
+func CreateProductBatchesHandler(sv interfaces.IProductBatchesService, log logger.Logger) *ProductBatchesController {
+	return &ProductBatchesController{Sv: sv, log: log}
 }
 
 func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) {
+	h.log.Log("ProductBatchesController", "INFO", "initializing Post controller function")
+
 	var reqBody ProductBatchesJSON
 
 	decoder := json.NewDecoder(r.Body)
@@ -44,11 +49,15 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid request body", nil))
+		h.log.Log("ProductBatchesController", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
 
 	if reqBody == (ProductBatchesJSON{}) {
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("request body cannot be empty", nil))
+		h.log.Log("ProductBatchesController", "ERROR", fmt.Sprintf("Error: %v", err))
+
 		return
 	}
 
@@ -70,13 +79,17 @@ func (h *ProductBatchesController) Post(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if err, ok := err.(*customerror.GenericError); ok {
 			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+			h.log.Log("ProductBatchesController", "ERROR", fmt.Sprintf("Error: %v", err))
+
 			return
 		}
 
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Unable to create product batches", nil))
+		h.log.Log("ProductBatchesController", "ERROR", fmt.Sprintf("Error: %v", err))
 
 		return
 	}
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", pb))
+	h.log.Log("ProductBatchesController", "INFO", "post function executed successfully")
 }
