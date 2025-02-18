@@ -9,10 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var logMockWareHouse = mocks.MockLog{}
+
 func setupWarehouse(t *testing.T) *service.WareHouseDefault {
 	mockRepo := mocks.NewMockIWarehouseRepo(t)
 
-	return service.NewWareHouseService(mockRepo)
+	return service.NewWareHouseService(mockRepo, logMockWareHouse)
 }
 
 func TestGetAllWarehouse(t *testing.T) {
