@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,14 +12,19 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger" // Importando o pacote de logger
 )
 
 type ProductHandler struct {
 	ProductService interfaces.IProductService
+	log            *logger.LoggerDefault // Logger para registrar mensagens
 }
 
-func NewProductHandler(ps interfaces.IProductService) *ProductHandler {
-	return &ProductHandler{ProductService: ps}
+func NewProductHandler(ps interfaces.IProductService, logger *logger.LoggerDefault) *ProductHandler {
+	return &ProductHandler{
+		ProductService: ps,
+		log:            logger, // Inicializando o logger
+	}
 }
 
 // GetAllProducts retrieves all products.
@@ -30,13 +36,17 @@ func NewProductHandler(ps interfaces.IProductService) *ProductHandler {
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to list products"
 // @Router /products [get]
 func (ph *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	ph.log.Log("ProductHandler", "INFO", "GetAllProducts function initializing")
+
 	products, err := ph.ProductService.GetAllProducts()
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Unable to retrieve products: "+err.Error())
 		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
+	ph.log.Log("ProductHandler", "INFO", "Successfully retrieved products")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", products))
 }
 
@@ -55,6 +65,7 @@ func (ph *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request)
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Invalid ID provided in the request: "+chi.URLParam(r, "id"))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
@@ -62,10 +73,12 @@ func (ph *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request)
 	product, err := ph.ProductService.GetProductByID(id)
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", fmt.Sprintf("Product not found for ID: %d, error: %v", id, err))
 		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
+	ph.log.Log("ProductHandler", "INFO", fmt.Sprintf("Successfully retrieved product with ID: %d", id))
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }
 
@@ -84,6 +97,7 @@ func (ph *ProductHandler) DeleteProductByID(w http.ResponseWriter, r *http.Reque
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Invalid ID provided for deletion: "+chi.URLParam(r, "id"))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
@@ -92,15 +106,17 @@ func (ph *ProductHandler) DeleteProductByID(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		if appErr, ok := err.(*customerror.GenericError); ok {
+			ph.log.Log("ProductHandler", "ERROR", fmt.Sprintf("Error deleting product with ID: %d, error: %s", id, appErr.Error()))
 			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
 			return
 		}
 
+		ph.log.Log("ProductHandler", "ERROR", fmt.Sprintf("Unable to delete product with ID: %d, error: %v", id, err))
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
-
 		return
 	}
 
+	ph.log.Log("ProductHandler", "INFO", fmt.Sprintf("Product with ID: %d successfully deleted", id))
 	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("product deleted", nil))
 }
 
@@ -118,6 +134,7 @@ func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	var productBody model.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Invalid JSON syntax: "+err.Error())
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid json syntax", nil))
 		return
 	}
@@ -125,10 +142,12 @@ func (ph *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	product, err := ph.ProductService.CreateProduct(productBody)
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Unable to create product: "+err.Error())
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
+	ph.log.Log("ProductHandler", "INFO", "Product created successfully")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", product))
 }
 
@@ -148,6 +167,7 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Invalid ID provided for update: "+chi.URLParam(r, "id"))
 		response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("invalid id", nil))
 		return
 	}
@@ -155,6 +175,7 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	var productBody model.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&productBody); err != nil {
+		ph.log.Log("ProductHandler", "ERROR", "Invalid JSON syntax: "+err.Error())
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("invalid json syntax", nil))
 		return
 	}
@@ -162,9 +183,11 @@ func (ph *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	product, err := ph.ProductService.UpdateProduct(id, productBody)
 
 	if err != nil {
+		ph.log.Log("ProductHandler", "ERROR", fmt.Sprintf("Unable to update product with ID: %d, error: %v", id, err))
 		response.JSON(w, http.StatusNotFound, responses.CreateResponseBody(err.Error(), nil))
 		return
 	}
 
+	ph.log.Log("ProductHandler", "INFO", fmt.Sprintf("Product with ID: %d updated successfully", id))
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }

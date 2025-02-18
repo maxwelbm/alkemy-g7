@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,14 +11,19 @@ import (
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/service/interfaces"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger" // Importando o pacote de logger
 )
 
 type ProductRecHandler struct {
 	ProductRecServ interfaces.IProductRecService
+	log            *logger.LoggerDefault // Logger para registrar mensagens
 }
 
-func NewProductRecHandler(prs interfaces.IProductRecService) *ProductRecHandler {
-	return &ProductRecHandler{ProductRecServ: prs}
+func NewProductRecHandler(prs interfaces.IProductRecService, logger *logger.LoggerDefault) *ProductRecHandler {
+	return &ProductRecHandler{
+		ProductRecServ: prs,
+		log:            logger, // Inicializando o logger
+	}
 }
 
 // CreateProductRecServ creates a new product record.
@@ -31,25 +37,30 @@ func NewProductRecHandler(prs interfaces.IProductRecService) *ProductRecHandler 
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to create product record"
 // @Router /product-records [post]
 func (prh *ProductRecHandler) CreateProductRecServ(w http.ResponseWriter, r *http.Request) {
+	prh.log.Log("ProductRecHandler", "INFO", "CreateProductRecServ function initializing")
+
 	var productRecBody model.ProductRecords
 
 	if err := json.NewDecoder(r.Body).Decode(&productRecBody); err != nil {
+		prh.log.Log("ProductRecHandler", "ERROR", "Invalid JSON provided: "+err.Error())
 		response.JSON(w, http.StatusUnprocessableEntity, responses.CreateResponseBody("json mal formatado ou invalido", nil))
 		return
 	}
 
 	product, err := prh.ProductRecServ.CreateProductRecords(productRecBody)
 	if err != nil {
-		if err, ok := err.(*customerror.GenericError); ok {
-			response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
+		if appErr, ok := err.(*customerror.GenericError); ok {
+			prh.log.Log("ProductRecHandler", "ERROR", fmt.Sprintf("Error creating product record: %s", appErr.Error()))
+			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
 			return
 		}
 
+		prh.log.Log("ProductRecHandler", "ERROR", "Unable to create product record: "+customerror.ErrUnknow.Error())
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody(customerror.ErrUnknow.Error(), nil))
-
 		return
 	}
 
+	prh.log.Log("ProductRecHandler", "INFO", "Product record created successfully")
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", product))
 }
 
@@ -64,15 +75,16 @@ func (prh *ProductRecHandler) CreateProductRecServ(w http.ResponseWriter, r *htt
 // @Failure 500 {object} model.ErrorResponseSwagger "Internal Server Error"
 // @Router /product-records/report [get]
 func (prh *ProductRecHandler) GetProductRecReport(w http.ResponseWriter, r *http.Request) {
+	prh.log.Log("ProductRecHandler", "INFO", "GetProductRecReport function initializing")
+
 	idProductStr := r.URL.Query().Get("id")
 	idProduct := 0
 
 	if idProductStr != "" {
 		var err error
-
 		idProduct, err = strconv.Atoi(idProductStr)
-
 		if err != nil {
+			prh.log.Log("ProductRecHandler", "ERROR", "Invalid parameter: Product ID cannot be converted to int")
 			response.JSON(w, http.StatusBadRequest, responses.CreateResponseBody("Invalid Parameter", nil))
 			return
 		}
@@ -81,19 +93,22 @@ func (prh *ProductRecHandler) GetProductRecReport(w http.ResponseWriter, r *http
 	product, err := prh.ProductRecServ.GetProductRecordReport(idProduct)
 	if err != nil {
 		if appErr, ok := err.(*customerror.GenericError); ok {
+			prh.log.Log("ProductRecHandler", "ERROR", fmt.Sprintf("Error getting product record report: %s", appErr.Error()))
 			response.JSON(w, appErr.Code, responses.CreateResponseBody(appErr.Error(), nil))
 			return
 		}
 
+		prh.log.Log("ProductRecHandler", "ERROR", "Internal Server Error occurred")
 		response.JSON(w, http.StatusInternalServerError, responses.CreateResponseBody("Internal Server Error", nil))
-
 		return
 	}
 
 	if len(product) == 0 {
+		prh.log.Log("ProductRecHandler", "INFO", "No records found for Product ID: "+strconv.Itoa(idProduct))
 		response.JSON(w, http.StatusOK, responses.CreateResponseBody("empty list", nil))
 		return
 	}
 
+	prh.log.Log("ProductRecHandler", "INFO", "Product record report retrieved successfully")
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", product))
 }
