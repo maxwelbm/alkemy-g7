@@ -23,12 +23,12 @@ func LoadDependencies(sqlDB *sql.DB, logInstance logger.Logger) (*handler.Produc
 	sellersHandler := handler.CreateHandlerSellers(sellersService, logInstance)
 
 	productRepo := repository.NewProductRepository(sqlDB, logInstance)
-	productServ := service.NewProductService(productRepo, sellersRepository)
-	productHandler := handler.NewProductHandler(productServ)
+	productServ := service.NewProductService(productRepo, sellersRepository, logInstance)
+	productHandler := handler.NewProductHandler(productServ, logInstance)
 
 	productRecordRepo := repository.NewProductRecRepository(sqlDB, logInstance)
-	productRecordServ := service.NewProductRecService(productRecordRepo, productServ)
-	productRecordHandler := handler.NewProductRecHandler(productRecordServ)
+	productRecordServ := service.NewProductRecService(productRecordRepo, productServ, logInstance)
+	productRecordHandler := handler.NewProductRecHandler(productRecordServ, logInstance)
 
 	buyersRepository := repository.NewBuyerRepository(sqlDB, logInstance)
 	buyerService := service.NewBuyerService(buyersRepository, logInstance)

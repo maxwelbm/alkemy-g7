@@ -26,8 +26,6 @@ func (r *Carriers) GetByID(id int) (carrier model.Carries, err error) {
 	row := r.db.QueryRow("SELECT `id`, `cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `carriers` WHERE `id` = ?", id)
 	r.log.Log("CarriesRepository", "INFO", "initializing GetByID function")
 
-	row := r.db.QueryRow("SELECT `id`,`cid`, `company_name`, `address`, `telephone`, `locality_id` FROM `carriers` WHERE `id` = ?", id)
-
 	err = row.Scan(&carrier.ID, &carrier.CID, &carrier.CompanyName, &carrier.Address, &carrier.Telephone, &carrier.LocalityID)
 
 	if err != nil {

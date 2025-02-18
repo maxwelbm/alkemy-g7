@@ -15,15 +15,12 @@ import (
 )
 
 type CarrierHandler struct {
-	srv svc.ICarrierService
-	log logger.Logger
 	Srv svc.ICarrierService
+	log logger.Logger
 }
 
-func NewCarrierHandler(srv svc.ICarrierService) *CarrierHandler {
-	return &CarrierHandler{Srv: srv}
 func NewCarrierHandler(srv svc.ICarrierService, log logger.Logger) *CarrierHandler {
-	return &CarrierHandler{srv: srv, log: log}
+	return &CarrierHandler{Srv: srv, log: log}
 }
 
 // PostCarriers creates a new carrier.

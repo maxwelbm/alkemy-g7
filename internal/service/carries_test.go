@@ -12,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var logMockCarrier = mocks.MockLog{}
-
 func TestCarrierDefault_GetByID(t *testing.T) {
 	t.Run("Sucess GetByIdCarries", func(t *testing.T) {
 
@@ -28,7 +26,7 @@ func TestCarrierDefault_GetByID(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityRepo(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 
 		mockRepo.On("GetByID", 1).Return(expectedCarries, nil)
 
@@ -42,7 +40,7 @@ func TestCarrierDefault_GetByID(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityRepo(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 		expectedError := customerror.NewCarrierError(customerror.ErrNotFound.Error(), "carrier", http.StatusNotFound)
 
 		mockRepo.On("GetByID", 1).Return(model.Carries{}, expectedError)
@@ -74,7 +72,7 @@ func TestCarrierDefault_PostCarrier(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityService(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 
 		mockLocality = service.SvcLocality.(*mocks.MockILocalityService)
 		mockLocality.On("GetByID", expectedCarries.LocalityID).Return(expectedLocality, nil)
@@ -101,7 +99,7 @@ func TestCarrierDefault_PostCarrier(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityService(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 
 		mockLocality.On("GetByID", expectedCarries.LocalityID).Return(model.Locality{}, errors.New("locality not found"))
 
@@ -131,7 +129,7 @@ func TestCarrierDefault_PostCarrier(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityService(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 
 		mockLocality.On("GetByID", expectedCarries.LocalityID).Return(expectedLocality, nil)
 		mockRepo.On("PostCarrier", expectedCarries).Return(int64(0), errors.New("failed to post carrier"))
@@ -162,7 +160,7 @@ func TestCarrierDefault_PostCarrier(t *testing.T) {
 
 		mockRepo := mocks.NewMockICarriersRepo(t)
 		mockLocality := mocks.NewMockILocalityService(t)
-		service := service.NewCarrierService(mockRepo, mockLocality, logMockCarrier)
+		service := service.NewCarrierService(mockRepo, mockLocality, logMock)
 
 		mockLocality.On("GetByID", expectedCarries.LocalityID).Return(expectedLocality, nil)
 		mockRepo.On("PostCarrier", expectedCarries).Return(int64(1), nil)

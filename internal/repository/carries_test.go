@@ -7,14 +7,11 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-sql-driver/mysql"
-	"github.com/maxwelbm/alkemy-g7.git/internal/mocks"
 	"github.com/maxwelbm/alkemy-g7.git/internal/model"
 	"github.com/maxwelbm/alkemy-g7.git/internal/repository"
 	"github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 	"github.com/stretchr/testify/assert"
 )
-
-var logMockCarrier = mocks.MockLog{}
 
 func TestCarriers_GetByID(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
@@ -23,7 +20,7 @@ func TestCarriers_GetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewCarriersRepository(db, logMockCarrier)
+	rp := repository.NewCarriersRepository(db, logMock)
 
 	t.Run("Success GetByID", func(t *testing.T) {
 		expectedCarrier := model.Carries{
@@ -72,7 +69,7 @@ func TestCarriers_PostCarrier(t *testing.T) {
 	}
 	defer db.Close()
 
-	rp := repository.NewCarriersRepository(db, logMockCarrier)
+	rp := repository.NewCarriersRepository(db, logMock)
 
 	t.Run("Success PostCarrier", func(t *testing.T) {
 		newCarrier := model.Carries{
