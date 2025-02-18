@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/maxwelbm/alkemy-g7.git/pkg/logger"
 	"net/http"
 	"strconv"
 
@@ -13,12 +15,13 @@ import (
 	er "github.com/maxwelbm/alkemy-g7.git/pkg/customerror"
 )
 
-func CreateHandlerSellers(service interfaces.ISellerService) *SellersController {
-	return &SellersController{Service: service}
+func CreateHandlerSellers(service interfaces.ISellerService, log logger.Logger) *SellersController {
+	return &SellersController{Service: service, log: log}
 }
 
 type SellersController struct {
 	Service interfaces.ISellerService
+	log     logger.Logger
 }
 
 // GetAllSellers retrieves all sellers.
@@ -30,8 +33,12 @@ type SellersController struct {
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to list sellers"
 // @Router /sellers [get]
 func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Request) {
+	hd.log.Log("SellersHandler", "INFO", "Get all sellers initializing")
+
 	sellers, err := hd.Service.GetAll()
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
 
@@ -46,6 +53,9 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 			Locality:    value.Locality,
 		})
 	}
+
+	hd.log.Log("SellersHandler", "INFO", fmt.Sprintf("Retrieved sellers successfully: %+v", sellers))
+	hd.log.Log("SellersHandler", "INFO", "Get all sellers completed")
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", data))
 }
@@ -62,10 +72,13 @@ func (hd *SellersController) GetAllSellers(w http.ResponseWriter, r *http.Reques
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to search for seller"
 // @Router /sellers/{id} [get]
 func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
+	hd.log.Log("SellersHandler", "INFO", "Get seller by ID initializing")
+
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
 	if id == 0 || err != nil {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -74,8 +87,13 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	seller, err := hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
+
+	hd.log.Log("SellersHandler", "INFO", fmt.Sprintf("Retrieved seller successfully: %+v", seller))
+	hd.log.Log("SellersHandler", "INFO", "Get seller by ID completed")
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
@@ -93,16 +111,25 @@ func (hd *SellersController) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to create seller"
 // @Router /sellers [post]
 func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Request) {
+	hd.log.Log("SellersHandler", "INFO", "Create sellers initializing")
+
 	var seller model.Seller
 	if err := request.JSON(r, &seller); err != nil {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
 		return
 	}
 
 	createdseller, err := hd.Service.CreateSeller(&seller)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
+
+	hd.log.Log("SellersHandler", "INFO", fmt.Sprintf("Created seller successfully: %+v", createdseller))
+	hd.log.Log("SellersHandler", "INFO", "Create sellers completed")
 
 	response.JSON(w, http.StatusCreated, responses.CreateResponseBody("", createdseller))
 }
@@ -122,10 +149,13 @@ func (hd *SellersController) CreateSellers(w http.ResponseWriter, r *http.Reques
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to update seller"
 // @Router /sellers/{id} [patch]
 func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Request) {
+	hd.log.Log("SellersHandler", "INFO", "Update sellers initializing")
+
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
 
 	if id == 0 || err != nil {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -134,19 +164,28 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 
 	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
 
 	var s model.Seller
 	if err := request.JSON(r, &s); err != nil {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		response.JSON(w, er.ErrInvalidSellerJSONFormat.Code, responses.CreateResponseBody(er.ErrInvalidSellerJSONFormat.Error(), nil))
 		return
 	}
 
 	seller, err := hd.Service.UpdateSeller(id, &s)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
+
+	hd.log.Log("SellersHandler", "INFO", fmt.Sprintf("Updated seller successfully: %+v", seller))
+	hd.log.Log("SellersHandler", "INFO", "Update sellers completed")
 
 	response.JSON(w, http.StatusOK, responses.CreateResponseBody("", seller))
 }
@@ -164,10 +203,13 @@ func (hd *SellersController) UpdateSellers(w http.ResponseWriter, r *http.Reques
 // @Failure 500 {object} model.ErrorResponseSwagger "Unable to delete seller"
 // @Router /sellers/{id} [delete]
 func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Request) {
+	hd.log.Log("SellersHandler", "INFO", "Delete sellers initializing")
+
 	idSearch := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idSearch)
 
 	if id == 0 || err != nil {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
 		err := er.ErrMissingSellerID
 		response.JSON(w, err.Code, responses.CreateResponseBody(err.Error(), nil))
 
@@ -176,13 +218,20 @@ func (hd *SellersController) DeleteSellers(w http.ResponseWriter, r *http.Reques
 
 	_, err = hd.Service.GetByID(id)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
 
 	err = hd.Service.DeleteSeller(id)
 	if ok := hd.handlerError(err, w); ok {
+		hd.log.Log("SellersHandler", "ERROR", "Error: "+err.Error())
+
 		return
 	}
+
+	hd.log.Log("SellersHandler", "INFO", fmt.Sprintf("Removed seller successfully with id: %+d", id))
+	hd.log.Log("SellersHandler", "INFO", "Delete sellers completed")
 
 	response.JSON(w, http.StatusNoContent, responses.CreateResponseBody("", nil))
 }
